@@ -10,7 +10,10 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'replicate.delivery' },
-      { protocol: 'https', hostname: 'pbxt.replicate.delivery' }
+      { protocol: 'https', hostname: 'pbxt.replicate.delivery' },
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'image.pollinations.ai' },
+      { protocol: 'https', hostname: 'images.unsplash.com' }
     ]
   }
 };
