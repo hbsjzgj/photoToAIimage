@@ -76,6 +76,24 @@ export const STYLE_PROMPTS: Record<StyleId, string> = {
   kawaii_icon: 'kawaii chibi icon, super cute, pastel colors, big eyes'
 };
 
+// Instruction-style prompts for instruct-pix2pix img2img
+export const STYLE_INSTRUCTIONS: Record<StyleId, string> = {
+  anime_basic: 'convert this photo to anime style with clean lines and soft colors',
+  soft_cartoon: 'transform into a soft cartoon with warm colors and rounded friendly features',
+  cute_pet: 'convert into a cute kawaii cartoon pet avatar with adorable proportions',
+  simple_icon: 'simplify into a minimal flat vector icon avatar with clean lines',
+  '3d_cartoon': 'transform into a Pixar-style 3D cartoon character with expressive features',
+  anime_pro: 'convert to professional anime artwork with detailed character design and vibrant colors',
+  soft_storybook: 'transform into a soft watercolor storybook illustration style',
+  cyberpunk: 'convert to a cyberpunk portrait with neon colors and futuristic sci-fi aesthetic',
+  comic_hero: 'transform into a comic book hero portrait with bold lines and dynamic style',
+  fashion_avatar: 'convert to a stylish fashion portrait avatar with modern trendy look',
+  business_profile: 'transform into a professional business headshot with clean background',
+  pet_portrait_pro: 'convert to a professional pet portrait with realistic fur detail and warm lighting',
+  couple_avatar: 'transform into a cute matching couple cartoon avatar style',
+  kawaii_icon: 'convert into a kawaii chibi icon with pastel colors and big expressive eyes'
+};
+
 export type CreditPackage = 'starter' | 'creator' | 'pro';
 
 export const CREDIT_AMOUNTS: Record<CreditPackage, number> = {
