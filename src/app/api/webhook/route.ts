@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { addCredits } from '@/lib/credits';
+import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -22,6 +23,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Idempotency: skip if already processed
+  const existing = await prisma.processedWebhookEvent.findUnique({ where: { id: event.id } });
+  if (existing) {
+    console.log(`[Webhook] Event ${event.id} already processed, skipping`);
+    return NextResponse.json({ received: true });
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
@@ -30,9 +38,12 @@ export async function POST(req: NextRequest) {
 
     if (userId && credits > 0) {
       await addCredits(userId, credits, `Purchased ${packageName} pack (${credits} credits)`);
-      console.log(`Added ${credits} credits to user ${userId}`);
+      console.log(`[Webhook] Added ${credits} credits to user ${userId}`);
     }
   }
+
+  // Mark event as processed
+  await prisma.processedWebhookEvent.create({ data: { id: event.id } });
 
   return NextResponse.json({ received: true });
 }
