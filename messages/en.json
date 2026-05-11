@@ -1,0 +1,238 @@
+{
+  "common": {
+    "appName": "AI Avatar",
+    "tagline": "Turn photos into AI cartoon avatars",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signUp": "Sign Up",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "free": "Free",
+    "paid": "Paid"
+  },
+  "nav": {
+    "home": "Home",
+    "generate": "Generate",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "hero": {
+      "title": "Turn Your Photo Into an AI Cartoon Avatar",
+      "subtitle": "Create stunning AI avatars for TikTok, Instagram, YouTube & more. Choose from 14 unique styles in seconds.",
+      "ctaPrimary": "Start for Free",
+      "ctaSecondary": "See Examples"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1Title": "Upload Your Photo",
+      "step1Desc": "Upload any clear face photo",
+      "step2Title": "Choose a Style",
+      "step2Desc": "Pick from 14 AI art styles",
+      "step3Title": "Download",
+      "step3Desc": "Get your HD avatar instantly"
+    },
+    "features": {
+      "title": "Features",
+      "f1Title": "14 Unique Styles",
+      "f1Desc": "Anime, 3D cartoon, business & more",
+      "f2Title": "Multilingual",
+      "f2Desc": "Available in Japanese, English & Chinese",
+      "f3Title": "Social-Ready",
+      "f3Desc": "Optimized for TikTok, Instagram, YouTube"
+    },
+    "styles": {
+      "title": "Style Gallery",
+      "freeTag": "Free",
+      "paidTag": "Pro"
+    },
+    "cta": {
+      "title": "Try It Free Today",
+      "subtitle": "3 free generations per day. No credit card required.",
+      "button": "Generate for Free"
+    }
+  },
+  "generate": {
+    "title": "Generate AI Avatar",
+    "upload": {
+      "label": "Upload Your Photo",
+      "hint": "JPG / PNG / WebP · Max 10MB",
+      "drag": "Drag & drop here, or click to select",
+      "change": "Change Photo"
+    },
+    "modeLabel": "Generation Mode",
+    "freeMode": "Free (3/day limit)",
+    "paidMode": "Paid (uses credits)",
+    "styleLabel": "Select Style",
+    "countLabel": "Number of Outputs",
+    "count1": "1 image (1 credit)",
+    "count4": "4 images (4 credits)",
+    "sizeLabel": "Output Size",
+    "generateBtn": "Generate",
+    "generating": "Generating...",
+    "result": {
+      "title": "Result",
+      "download": "Download",
+      "downloadHD": "Download HD",
+      "watermarkNote": "Free tier includes watermark",
+      "regenerate": "Regenerate"
+    },
+    "free": {
+      "remaining": "Remaining today: {count}",
+      "limitReached": "Daily free limit (3) reached.",
+      "upgradePrompt": "Buy credits to generate more"
+    },
+    "paid": {
+      "credits": "Credits remaining: {count}",
+      "insufficientCredits": "Not enough credits",
+      "buyCredits": "Buy Credits"
+    },
+    "errors": {
+      "noImage": "Please select a photo",
+      "noStyle": "Please select a style",
+      "notLoggedIn": "Please sign in to generate",
+      "uploadFailed": "Upload failed",
+      "generationFailed": "Generation failed. Please try again"
+    }
+  },
+  "styles": {
+    "anime_basic": "Anime (Basic)",
+    "soft_cartoon": "Soft Cartoon",
+    "cute_pet": "Cute Pet",
+    "simple_icon": "Simple Icon",
+    "3d_cartoon": "3D Cartoon",
+    "anime_pro": "Anime (Pro)",
+    "soft_storybook": "Storybook",
+    "cyberpunk": "Cyberpunk",
+    "comic_hero": "Comic Hero",
+    "fashion_avatar": "Fashion Avatar",
+    "business_profile": "Business Profile",
+    "pet_portrait_pro": "Pet Portrait (Pro)",
+    "couple_avatar": "Couple Avatar",
+    "kawaii_icon": "Kawaii Icon"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Start for free, upgrade when you need more",
+    "free": {
+      "name": "Free Plan",
+      "price": "¥0",
+      "period": "/mo",
+      "features": [
+        "3 free generations per day",
+        "1 image per generation",
+        "4 basic styles",
+        "768×768 output",
+        "Watermarked",
+        "24-hour storage"
+      ],
+      "cta": "Get Started Free"
+    },
+    "credits": {
+      "title": "Credit Packs",
+      "subtitle": "One-time purchase. Never expire.",
+      "perCredit": "1 credit = 1 HD image",
+      "starter": {
+        "name": "Starter Pack",
+        "credits": "10 Credits",
+        "price": "¥500",
+        "cta": "Buy Now"
+      },
+      "creator": {
+        "name": "Creator Pack",
+        "credits": "30 Credits",
+        "price": "¥1,200",
+        "badge": "Popular",
+        "cta": "Buy Now"
+      },
+      "pro": {
+        "name": "Pro Pack",
+        "credits": "100 Credits",
+        "price": "¥3,000",
+        "cta": "Buy Now"
+      }
+    },
+    "paid": {
+      "features": [
+        "All 14 styles",
+        "1024×1024 / 1536×1536 HD",
+        "No watermark",
+        "PNG / JPG / WebP",
+        "4 images at once (4 credits)",
+        "Priority queue",
+        "Background color selection",
+        "30-day storage"
+      ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "q1": "Do credits expire?",
+      "a1": "No, credits never expire once purchased.",
+      "q2": "Do I get charged if generation fails?",
+      "a2": "No, credits are only deducted on successful generation.",
+      "q3": "What photo formats are supported?",
+      "a3": "JPG, PNG, and WebP up to 10MB. Best results with a clear face photo.",
+      "q4": "Who owns the generated images?",
+      "a4": "You do. Generated images are yours for personal and commercial use."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "credits": {
+      "title": "Credit Balance",
+      "buy": "Buy Credits",
+      "history": "Transaction History"
+    },
+    "history": {
+      "title": "Generation History",
+      "empty": "No generations yet",
+      "style": "Style",
+      "date": "Date",
+      "status": "Status",
+      "download": "Download",
+      "expired": "Expired"
+    },
+    "stats": {
+      "totalGenerated": "Total Generated",
+      "creditsUsed": "Credits Used",
+      "savedImages": "Saved Images"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign Up",
+      "error": "Invalid email or password"
+    },
+    "signup": {
+      "title": "Create Account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password (min 8 chars)",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signinLink": "Sign In",
+      "success": "Account created. Please sign in."
+    },
+    "errors": {
+      "emailExists": "Email already registered",
+      "weakPassword": "Password must be at least 8 characters",
+      "invalidEmail": "Please enter a valid email"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact"
+  }
+}

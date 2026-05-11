@@ -1,0 +1,238 @@
+{
+  "common": {
+    "appName": "AI头像",
+    "tagline": "将照片转换为AI卡通头像",
+    "loading": "加载中...",
+    "error": "发生错误",
+    "signIn": "登录",
+    "signOut": "退出",
+    "signUp": "注册",
+    "save": "保存",
+    "cancel": "取消",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "free": "免费",
+    "paid": "付费"
+  },
+  "nav": {
+    "home": "首页",
+    "generate": "生成",
+    "pricing": "定价",
+    "dashboard": "控制台"
+  },
+  "home": {
+    "hero": {
+      "title": "将照片转换为AI卡通头像",
+      "subtitle": "为小红书、抖音、B站、Instagram创建精美AI头像。14种独特风格，数秒即可完成。",
+      "ctaPrimary": "免费开始",
+      "ctaSecondary": "查看示例"
+    },
+    "howItWorks": {
+      "title": "使用方法",
+      "step1Title": "上传照片",
+      "step1Desc": "上传一张清晰的正面照片",
+      "step2Title": "选择风格",
+      "step2Desc": "从14种AI艺术风格中选择",
+      "step3Title": "下载",
+      "step3Desc": "立即获取高清头像"
+    },
+    "features": {
+      "title": "产品特点",
+      "f1Title": "14种独特风格",
+      "f1Desc": "动漫、3D卡通、商务头像等",
+      "f2Title": "多语言支持",
+      "f2Desc": "支持日文、英文、中文",
+      "f3Title": "社交媒体优化",
+      "f3Desc": "适配小红书/抖音/B站/Instagram"
+    },
+    "styles": {
+      "title": "风格展示",
+      "freeTag": "免费",
+      "paidTag": "专业"
+    },
+    "cta": {
+      "title": "立即免费体验",
+      "subtitle": "每天3次免费生成，无需信用卡。",
+      "button": "免费生成"
+    }
+  },
+  "generate": {
+    "title": "生成AI头像",
+    "upload": {
+      "label": "上传照片",
+      "hint": "JPG / PNG / WebP · 最大10MB",
+      "drag": "拖拽到此处，或点击选择",
+      "change": "更换照片"
+    },
+    "modeLabel": "生成模式",
+    "freeMode": "免费（每天3次）",
+    "paidMode": "付费（消耗积分）",
+    "styleLabel": "选择风格",
+    "countLabel": "生成数量",
+    "count1": "1张（1积分）",
+    "count4": "4张（4积分）",
+    "sizeLabel": "输出尺寸",
+    "generateBtn": "生成",
+    "generating": "生成中...",
+    "result": {
+      "title": "生成结果",
+      "download": "下载",
+      "downloadHD": "下载高清版",
+      "watermarkNote": "免费版含水印",
+      "regenerate": "重新生成"
+    },
+    "free": {
+      "remaining": "今日剩余：{count}次",
+      "limitReached": "今日免费次数（3次）已用完。",
+      "upgradePrompt": "购买积分以继续生成"
+    },
+    "paid": {
+      "credits": "剩余积分：{count}",
+      "insufficientCredits": "积分不足",
+      "buyCredits": "购买积分"
+    },
+    "errors": {
+      "noImage": "请选择照片",
+      "noStyle": "请选择风格",
+      "notLoggedIn": "请先登录",
+      "uploadFailed": "上传失败",
+      "generationFailed": "生成失败，请重试"
+    }
+  },
+  "styles": {
+    "anime_basic": "动漫（基础）",
+    "soft_cartoon": "柔和卡通",
+    "cute_pet": "可爱宠物",
+    "simple_icon": "简约图标",
+    "3d_cartoon": "3D卡通",
+    "anime_pro": "动漫（专业）",
+    "soft_storybook": "绘本风格",
+    "cyberpunk": "赛博朋克",
+    "comic_hero": "漫画英雄",
+    "fashion_avatar": "时尚头像",
+    "business_profile": "商务头像",
+    "pet_portrait_pro": "宠物肖像（专业）",
+    "couple_avatar": "情侣头像",
+    "kawaii_icon": "可爱图标"
+  },
+  "pricing": {
+    "title": "定价方案",
+    "subtitle": "免费开始，按需升级",
+    "free": {
+      "name": "免费方案",
+      "price": "¥0",
+      "period": "/月",
+      "features": [
+        "每天3次免费生成",
+        "每次生成1张",
+        "4种基础风格",
+        "768×768 输出",
+        "含水印",
+        "保存24小时"
+      ],
+      "cta": "免费开始"
+    },
+    "credits": {
+      "title": "积分包",
+      "subtitle": "一次性购买，永不过期。",
+      "perCredit": "1积分 = 1张高清图片",
+      "starter": {
+        "name": "入门包",
+        "credits": "10积分",
+        "price": "¥500",
+        "cta": "立即购买"
+      },
+      "creator": {
+        "name": "创作者包",
+        "credits": "30积分",
+        "price": "¥1,200",
+        "badge": "热门",
+        "cta": "立即购买"
+      },
+      "pro": {
+        "name": "专业包",
+        "credits": "100积分",
+        "price": "¥3,000",
+        "cta": "立即购买"
+      }
+    },
+    "paid": {
+      "features": [
+        "全部14种风格",
+        "1024×1024 / 1536×1536 高清",
+        "无水印下载",
+        "PNG / JPG / WebP 格式",
+        "4张同时生成（4积分）",
+        "优先生成队列",
+        "背景颜色选择",
+        "作品保存30天"
+      ]
+    },
+    "faq": {
+      "title": "常见问题",
+      "q1": "积分有有效期吗？",
+      "a1": "积分永不过期，购买后随时使用。",
+      "q2": "生成失败会扣积分吗？",
+      "a2": "不会，只有成功生成才会扣除积分。",
+      "q3": "支持哪些照片格式？",
+      "a3": "支持JPG、PNG、WebP格式，最大10MB。建议使用清晰的正面照片。",
+      "q4": "生成的图片版权归谁？",
+      "a4": "版权归您所有，可用于个人和商业用途。"
+    }
+  },
+  "dashboard": {
+    "title": "控制台",
+    "credits": {
+      "title": "积分余额",
+      "buy": "购买积分",
+      "history": "交易记录"
+    },
+    "history": {
+      "title": "生成历史",
+      "empty": "暂无生成记录",
+      "style": "风格",
+      "date": "日期",
+      "status": "状态",
+      "download": "下载",
+      "expired": "已过期"
+    },
+    "stats": {
+      "totalGenerated": "总生成数",
+      "creditsUsed": "已用积分",
+      "savedImages": "保存的图片"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "登录",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "noAccount": "还没有账号？",
+      "signupLink": "注册",
+      "error": "邮箱或密码错误"
+    },
+    "signup": {
+      "title": "创建账号",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码（至少8位）",
+      "submit": "创建账号",
+      "hasAccount": "已有账号？",
+      "signinLink": "登录",
+      "success": "注册成功，请登录。"
+    },
+    "errors": {
+      "emailExists": "该邮箱已被注册",
+      "weakPassword": "密码至少需要8位",
+      "invalidEmail": "请输入有效的邮箱地址"
+    }
+  },
+  "footer": {
+    "rights": "保留所有权利。",
+    "terms": "服务条款",
+    "privacy": "隐私政策",
+    "contact": "联系我们"
+  }
+}

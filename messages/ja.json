@@ -1,0 +1,238 @@
+{
+  "common": {
+    "appName": "AIアバター",
+    "tagline": "写真をAIカートゥンアバターに変換",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "signUp": "新規登録",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "free": "無料",
+    "paid": "有料"
+  },
+  "nav": {
+    "home": "ホーム",
+    "generate": "生成",
+    "pricing": "料金",
+    "dashboard": "ダッシュボード"
+  },
+  "home": {
+    "hero": {
+      "title": "写真をAIカートゥンアバターに変換",
+      "subtitle": "TikTok・Instagram・YouTube・小紅書に最適なAIアバターを、あなたの写真から数秒で生成。14種類のスタイルから選択可能。",
+      "ctaPrimary": "無料で始める",
+      "ctaSecondary": "サンプルを見る"
+    },
+    "howItWorks": {
+      "title": "使い方",
+      "step1Title": "写真をアップロード",
+      "step1Desc": "顔写真を1枚アップロードするだけ",
+      "step2Title": "スタイルを選択",
+      "step2Desc": "14種類のスタイルから好みを選択",
+      "step3Title": "ダウンロード",
+      "step3Desc": "高画質・透かしなしで保存"
+    },
+    "features": {
+      "title": "特徴",
+      "f1Title": "14種類のスタイル",
+      "f1Desc": "アニメ・3Dカートゥン・ビジネスアバターなど",
+      "f2Title": "多言語対応",
+      "f2Desc": "日本語・英語・中国語に対応",
+      "f3Title": "SNS最適化",
+      "f3Desc": "TikTok/Instagram/YouTube/小紅書向けサイズ"
+    },
+    "styles": {
+      "title": "スタイルギャラリー",
+      "freeTag": "無料",
+      "paidTag": "有料"
+    },
+    "cta": {
+      "title": "今すぐ無料で試す",
+      "subtitle": "1日3回まで無料。クレジットカード不要。",
+      "button": "無料で生成する"
+    }
+  },
+  "generate": {
+    "title": "AIアバター生成",
+    "upload": {
+      "label": "写真をアップロード",
+      "hint": "JPG / PNG / WebP・最大10MB",
+      "drag": "ここにドラッグ＆ドロップ、またはクリックして選択",
+      "change": "写真を変更"
+    },
+    "modeLabel": "生成モード",
+    "freeMode": "無料（1日3回まで）",
+    "paidMode": "有料（クレジット使用）",
+    "styleLabel": "スタイルを選択",
+    "countLabel": "生成枚数",
+    "count1": "1枚（1クレジット）",
+    "count4": "4枚（4クレジット）",
+    "sizeLabel": "出力サイズ",
+    "generateBtn": "生成する",
+    "generating": "生成中...",
+    "result": {
+      "title": "生成結果",
+      "download": "ダウンロード",
+      "downloadHD": "HD ダウンロード",
+      "watermarkNote": "無料版には透かしが入ります",
+      "regenerate": "再生成"
+    },
+    "free": {
+      "remaining": "本日の残り回数: {count}回",
+      "limitReached": "本日の無料生成回数（3回）に達しました。",
+      "upgradePrompt": "クレジットを購入してさらに生成できます"
+    },
+    "paid": {
+      "credits": "残りクレジット: {count}",
+      "insufficientCredits": "クレジットが不足しています",
+      "buyCredits": "クレジットを購入"
+    },
+    "errors": {
+      "noImage": "写真を選択してください",
+      "noStyle": "スタイルを選択してください",
+      "notLoggedIn": "ログインが必要です",
+      "uploadFailed": "アップロードに失敗しました",
+      "generationFailed": "生成に失敗しました。再度お試しください"
+    }
+  },
+  "styles": {
+    "anime_basic": "アニメ（基本）",
+    "soft_cartoon": "ソフトカートゥン",
+    "cute_pet": "かわいいペット",
+    "simple_icon": "シンプルアイコン",
+    "3d_cartoon": "3Dカートゥン",
+    "anime_pro": "アニメ（プロ）",
+    "soft_storybook": "絵本スタイル",
+    "cyberpunk": "サイバーパンク",
+    "comic_hero": "コミックヒーロー",
+    "fashion_avatar": "ファッションアバター",
+    "business_profile": "ビジネスプロフィール",
+    "pet_portrait_pro": "ペットポートレート（プロ）",
+    "couple_avatar": "カップルアバター",
+    "kawaii_icon": "かわいいアイコン"
+  },
+  "pricing": {
+    "title": "料金プラン",
+    "subtitle": "まずは無料でお試しください",
+    "free": {
+      "name": "フリープラン",
+      "price": "¥0",
+      "period": "/月",
+      "features": [
+        "1日3回まで無料生成",
+        "1回につき1枚生成",
+        "基本スタイル4種",
+        "768×768 出力",
+        "透かし入り",
+        "24時間保存"
+      ],
+      "cta": "無料で始める"
+    },
+    "credits": {
+      "title": "クレジットパック",
+      "subtitle": "使い切り型。有効期限なし。",
+      "perCredit": "1クレジット = 高画質1枚生成",
+      "starter": {
+        "name": "スターターパック",
+        "credits": "10クレジット",
+        "price": "¥500",
+        "cta": "購入する"
+      },
+      "creator": {
+        "name": "クリエイターパック",
+        "credits": "30クレジット",
+        "price": "¥1,200",
+        "badge": "人気",
+        "cta": "購入する"
+      },
+      "pro": {
+        "name": "プロパック",
+        "credits": "100クレジット",
+        "price": "¥3,000",
+        "cta": "購入する"
+      }
+    },
+    "paid": {
+      "features": [
+        "全14スタイル使用可能",
+        "1024×1024 / 1536×1536 高画質",
+        "透かしなしダウンロード",
+        "PNG / JPG / WebP 対応",
+        "4枚同時生成（4クレジット）",
+        "優先生成キュー",
+        "背景色選択",
+        "作品30日間保存"
+      ]
+    },
+    "faq": {
+      "title": "よくある質問",
+      "q1": "クレジットの有効期限はありますか？",
+      "a1": "クレジットに有効期限はありません。購入後いつでもご利用いただけます。",
+      "q2": "生成に失敗した場合クレジットは消費されますか？",
+      "a2": "生成に失敗した場合はクレジットを消費しません。",
+      "q3": "対応している写真の種類は？",
+      "a3": "JPG・PNG・WebP形式、最大10MBの写真に対応しています。顔がはっきり写っている写真が最適です。",
+      "q4": "生成した画像の著作権は？",
+      "a4": "生成した画像の著作権はお客様に帰属します。商用利用も可能です。"
+    }
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "credits": {
+      "title": "クレジット残高",
+      "buy": "クレジットを購入",
+      "history": "利用履歴"
+    },
+    "history": {
+      "title": "生成履歴",
+      "empty": "生成履歴はまだありません",
+      "style": "スタイル",
+      "date": "日付",
+      "status": "ステータス",
+      "download": "ダウンロード",
+      "expired": "有効期限切れ"
+    },
+    "stats": {
+      "totalGenerated": "総生成数",
+      "creditsUsed": "使用クレジット",
+      "savedImages": "保存済み画像"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "ログイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "ログイン",
+      "noAccount": "アカウントをお持ちでない方は",
+      "signupLink": "新規登録",
+      "error": "メールアドレスまたはパスワードが正しくありません"
+    },
+    "signup": {
+      "title": "新規登録",
+      "name": "お名前",
+      "email": "メールアドレス",
+      "password": "パスワード（8文字以上）",
+      "submit": "登録する",
+      "hasAccount": "すでにアカウントをお持ちの方は",
+      "signinLink": "ログイン",
+      "success": "登録が完了しました。ログインしてください。"
+    },
+    "errors": {
+      "emailExists": "このメールアドレスはすでに登録されています",
+      "weakPassword": "パスワードは8文字以上にしてください",
+      "invalidEmail": "有効なメールアドレスを入力してください"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "contact": "お問い合わせ"
+  }
+}

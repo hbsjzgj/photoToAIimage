@@ -1,0 +1,104 @@
+export type Locale = 'ja' | 'en' | 'zh';
+
+export type GenerationMode = 'free' | 'paid';
+
+export type StyleId =
+  | 'anime_basic'
+  | 'soft_cartoon'
+  | 'cute_pet'
+  | 'simple_icon'
+  | '3d_cartoon'
+  | 'anime_pro'
+  | 'soft_storybook'
+  | 'cyberpunk'
+  | 'comic_hero'
+  | 'fashion_avatar'
+  | 'business_profile'
+  | 'pet_portrait_pro'
+  | 'couple_avatar'
+  | 'kawaii_icon';
+
+export const FREE_STYLES: StyleId[] = [
+  'anime_basic',
+  'soft_cartoon',
+  'cute_pet',
+  'simple_icon'
+];
+
+export const PAID_STYLES: StyleId[] = [
+  '3d_cartoon',
+  'anime_pro',
+  'soft_storybook',
+  'cyberpunk',
+  'comic_hero',
+  'fashion_avatar',
+  'business_profile',
+  'pet_portrait_pro',
+  'couple_avatar',
+  'kawaii_icon'
+];
+
+export const ALL_STYLES: StyleId[] = [...FREE_STYLES, ...PAID_STYLES];
+
+// Replicate PhotoMaker style name mapping
+export const STYLE_TO_REPLICATE: Record<StyleId, string> = {
+  anime_basic: 'Digital Art',
+  soft_cartoon: 'Disney Character',
+  cute_pet: 'Disney Character',
+  simple_icon: 'Line art',
+  '3d_cartoon': 'Digital Art',
+  anime_pro: 'Digital Art',
+  soft_storybook: 'Fantasy art',
+  cyberpunk: 'Neonpunk',
+  comic_hero: 'Comic book',
+  fashion_avatar: 'Photographic (Default)',
+  business_profile: 'Photographic (Default)',
+  pet_portrait_pro: 'Disney Character',
+  couple_avatar: 'Disney Character',
+  kawaii_icon: 'Digital Art'
+};
+
+// Style-specific prompts
+export const STYLE_PROMPTS: Record<StyleId, string> = {
+  anime_basic: 'anime style portrait, cute character, digital art, clean lines',
+  soft_cartoon: 'soft cartoon portrait, warm colors, friendly character, rounded features',
+  cute_pet: 'cute cartoon pet avatar, adorable animal character, kawaii style',
+  simple_icon: 'simple icon avatar, minimal flat design, clean vector art',
+  '3d_cartoon': 'pixar style 3D cartoon character, expressive, high quality render',
+  anime_pro: 'professional anime artwork, detailed character design, vibrant colors',
+  soft_storybook: 'storybook illustration style, soft watercolor, whimsical character',
+  cyberpunk: 'cyberpunk portrait, neon colors, futuristic, sci-fi aesthetic',
+  comic_hero: 'comic book hero portrait, bold lines, dynamic, superhero style',
+  fashion_avatar: 'fashion portrait avatar, stylish, modern, trendy look',
+  business_profile: 'professional business headshot, clean background, confident look',
+  pet_portrait_pro: 'professional pet portrait, realistic fur detail, warm lighting',
+  couple_avatar: 'couple cartoon avatar, matching art style, cute and sweet',
+  kawaii_icon: 'kawaii chibi icon, super cute, pastel colors, big eyes'
+};
+
+export type CreditPackage = 'starter' | 'creator' | 'pro';
+
+export const CREDIT_AMOUNTS: Record<CreditPackage, number> = {
+  starter: 10,
+  creator: 30,
+  pro: 100
+};
+
+export const FREE_DAILY_LIMIT = 3;
+export const FREE_OUTPUT_SIZE = '768x768';
+export const PAID_OUTPUT_SIZES = ['1024x1024', '1536x1536'] as const;
+
+export interface GenerateRequest {
+  imageBase64: string;
+  style: StyleId;
+  mode: GenerationMode;
+  count: 1 | 4;
+  outputSize?: string;
+}
+
+export interface GenerateResult {
+  projectId: string;
+  variants: { id: string; imageUrl: string }[];
+  creditsUsed: number;
+  hasWatermark: boolean;
+}
