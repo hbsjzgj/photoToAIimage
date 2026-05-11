@@ -38,17 +38,34 @@ export async function spendCredits(
   projectId: string,
   description: string
 ): Promise<{ success: boolean; balance: number }> {
-  const current = await getCredits(userId);
-  if (current < amount) return { success: false, balance: current };
+  // Use a transaction to atomically check and deduct credits
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const record = await tx.userCredits.findUnique({ where: { userId } });
+      const current = record?.creditsBalance ?? 0;
 
-  const updated = await prisma.userCredits.update({
-    where: { userId },
-    data: { creditsBalance: { decrement: amount } }
-  });
+      if (current < amount) {
+        throw new Error('INSUFFICIENT_CREDITS');
+      }
 
-  await prisma.creditTransaction.create({
-    data: { userId, projectId, type: 'spend', amount: -amount, description }
-  });
+      const updated = await tx.userCredits.update({
+        where: { userId },
+        data: { creditsBalance: { decrement: amount } }
+      });
 
-  return { success: true, balance: updated.creditsBalance };
+      await tx.creditTransaction.create({
+        data: { userId, projectId, type: 'spend', amount: -amount, description }
+      });
+
+      return updated.creditsBalance;
+    });
+
+    return { success: true, balance: result };
+  } catch (err) {
+    if (err instanceof Error && err.message === 'INSUFFICIENT_CREDITS') {
+      const balance = await getCredits(userId);
+      return { success: false, balance };
+    }
+    throw err;
+  }
 }

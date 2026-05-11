@@ -4,5 +4,8 @@ node_modules/
 .next/
 prisma/dev.db
 prisma/dev.db-journal
+prisma/prisma/
 public/uploads/
-public/outputs/
+public/outputs/*
+!public/outputs/.gitkeep
+/tmp/outputs/

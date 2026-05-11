@@ -7,6 +7,9 @@ import { addWatermark, fetchImageBuffer } from '@/lib/watermark';
 import { spendCredits, getCredits } from '@/lib/credits';
 import { canUseFree, incrementFreeUsage } from '@/lib/usage';
 import { FREE_STYLES, GenerateRequest, FREE_OUTPUT_SIZE } from '@/types';
+import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 
 export const runtime = 'nodejs';
 
@@ -56,19 +59,35 @@ export async function POST(req: NextRequest) {
 
       const variants = await Promise.all(
         urls.map(async (url) => {
-          // Download and add watermark
           let finalUrl = url;
-          try {
-            const buf = await fetchImageBuffer(url);
-            const watermarked = await addWatermark(buf);
-            // In production: upload watermarked buffer to Cloudinary
-            // For now, keep original URL (demo mode returns picsum which we can't re-upload)
-            if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
-              finalUrl = url; // Replace with Cloudinary upload in production
+
+          // In demo mode, mock images are placeholders — skip watermark processing
+          // In real mode, download image, apply watermark, and save locally
+          if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
+            try {
+              const buf = await fetchImageBuffer(url);
+              const watermarked = await addWatermark(buf);
+
+              // Save watermarked image to public/outputs/ (dev) or /tmp (production)
+              const isVercel = !!process.env.VERCEL;
+              const outputsDir = isVercel
+                ? path.join('/tmp', 'outputs')
+                : path.join(process.cwd(), 'public', 'outputs');
+
+              if (!existsSync(outputsDir)) {
+                await mkdir(outputsDir, { recursive: true });
+              }
+
+              const filename = `wm_${crypto.randomUUID()}.png`;
+              await writeFile(path.join(outputsDir, filename), watermarked);
+
+              // On Vercel, serve via API route; locally serve from /public/outputs/
+              finalUrl = isVercel
+                ? `/api/outputs/${filename}`
+                : `/outputs/${filename}`;
+            } catch (err) {
+              console.error('Watermark error, using original URL:', err);
             }
-            void watermarked; // suppress unused warning in demo mode
-          } catch {
-            // fallback to original
           }
 
           return prisma.projectVariant.create({
