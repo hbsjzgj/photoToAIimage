@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { StyleId, FREE_STYLES, ALL_STYLES } from '@/types';
+import { STYLE_IMAGE_URLS } from '@/lib/styleImages';
 
 interface StyleVisual {
   gradient: string;
@@ -50,6 +51,7 @@ function StyleCard({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
   const visual = STYLE_VISUALS[style];
+  const imageUrl = STYLE_IMAGE_URLS[style];
 
   return (
     <motion.button
@@ -74,11 +76,11 @@ function StyleCard({
       {/* Preview image */}
       {!imgError && (
         <img
-          src={`/style-previews/${style}.webp`}
+          src={imageUrl}
           alt={t(`styles.${style}`)}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500
+          className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-700
                        group-hover:scale-105
                        ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
         />

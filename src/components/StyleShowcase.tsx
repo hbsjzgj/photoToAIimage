@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ALL_STYLES, FREE_STYLES, STYLE_PROMPTS, StyleId } from '@/types';
+import { STYLE_IMAGE_URLS } from '@/lib/styleImages';
 
 const STYLE_LABELS: Record<StyleId, string> = {
   anime_basic: 'Anime Basic',
@@ -55,9 +56,9 @@ export default function StyleShowcase() {
                 {/* Image area */}
                 <div className="aspect-square bg-[rgba(255,255,255,0.03)] relative overflow-hidden">
                   <img
-                    src={`/samples/${style}.jpg`}
+                    src={STYLE_IMAGE_URLS[style]}
                     alt={STYLE_LABELS[style]}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                   {/* Skeleton shown if image missing */}
