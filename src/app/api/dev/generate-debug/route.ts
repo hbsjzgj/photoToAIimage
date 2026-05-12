@@ -10,7 +10,11 @@ import type { StyleId } from '@/types';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+const DEV_ONLY = () =>
+  NextResponse.json({ error: 'Not found' }, { status: 404 });
+
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') return DEV_ONLY();
   return NextResponse.json({
     usage: 'POST { imageBase64?: string, style?: string }',
     note: 'Omit imageBase64 to auto-use demo-1.jpg.',
@@ -26,6 +30,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (process.env.NODE_ENV === 'production') return DEV_ONLY();
   const logs: string[] = [];
   const log = (msg: string) => {
     console.log('[generate-debug]', msg);

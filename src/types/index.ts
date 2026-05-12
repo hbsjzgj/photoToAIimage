@@ -102,8 +102,9 @@ export const CREDIT_AMOUNTS: Record<CreditPackage, number> = {
   pro: 100
 };
 
-export const FREE_DAILY_LIMIT = 3;
-export const FREE_OUTPUT_SIZE = '768x768';
+export const FREE_DAILY_LIMIT = 3;        // logged-in users
+export const FREE_DAILY_LIMIT_ANON = 1;   // anonymous (IP-based)
+export const FREE_OUTPUT_SIZE = '512x512';
 export const PAID_OUTPUT_SIZES = ['1024x1024', '1536x1536'] as const;
 
 export interface GenerateRequest {

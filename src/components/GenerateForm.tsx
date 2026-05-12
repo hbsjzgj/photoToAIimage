@@ -40,8 +40,16 @@ export default function GenerateForm() {
   const [result, setResult] = useState<ResultData | null>(null);
   const [creditsState, setCreditsState] = useState<CreditsState>({ credits: 0, freeRemaining: 3 });
   const [dragging, setDragging] = useState(false);
+  const [loadingSecs, setLoadingSecs] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Elapsed-time counter while generating
+  useEffect(() => {
+    if (!loading) { setLoadingSecs(0); return; }
+    const t = setInterval(() => setLoadingSecs((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [loading]);
 
   // Auto-fill prompt when style is selected (only if user hasn't customized it)
   const defaultPromptRef = useRef('');
@@ -352,17 +360,27 @@ export default function GenerateForm() {
           {loading ? (
             <motion.span
               key="loading"
-              className="flex items-center justify-center gap-3"
+              className="flex flex-col items-center justify-center gap-1"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <motion.div
-                className="w-4 h-4 rounded-full border-2 border-surface/40 border-t-surface"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-              />
-              {t('generating')}
+              <span className="flex items-center gap-3">
+                <motion.div
+                  className="w-4 h-4 rounded-full border-2 border-surface/40 border-t-surface"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                />
+                {t('generating')}
+                {loadingSecs > 0 && (
+                  <span className="text-surface/60 font-normal tabular-nums">{loadingSecs}s</span>
+                )}
+              </span>
+              {loadingSecs < 12 && (
+                <span className="text-[11px] text-surface/50 font-normal">
+                  通常5〜15秒
+                </span>
+              )}
             </motion.span>
           ) : (
             <motion.span
@@ -403,6 +421,7 @@ export default function GenerateForm() {
             <ImageResult
               variants={result.variants}
               hasWatermark={result.hasWatermark}
+              originalSrc={imageBase64 || undefined}
               onRegenerate={!result.hasWatermark ? handleGenerate : undefined}
             />
           </motion.div>

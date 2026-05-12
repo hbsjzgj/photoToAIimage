@@ -1,36 +1,49 @@
 import { fal } from '@fal-ai/client';
 import { AIProvider, GenerateParams } from './types';
 
-// Crafted per-style prompts: preserve identity, premium feel, SNS-avatar ready
+// Premium per-style prompts — cinematic, identity-preserving, SNS-avatar ready
 const FAL_STYLE_PROMPTS: Record<string, string> = {
   anime_basic:
-    'anime style portrait, beautiful cel-shaded illustration, clean expressive line art, vivid saturated colors, soft color gradients, detailed sparkling eyes, gentle highlights, kawaii aesthetics, square avatar crop',
+    'Japanese anime portrait, precise cel-shading, clean crisp linework, luminous soft eyes with detailed iris, cinematic side lighting, subtle gradient blush, muted pastel harmony, clean background, premium studio-quality digital illustration, face-centered square avatar, no distortion',
+
   soft_cartoon:
-    'soft cartoon character portrait, warm pastel color palette, friendly rounded face, Disney-Pixar inspired illustration, gentle shadow work, charming likeable expression, cozy storybook feel',
+    'gentle cartoon portrait, soft studio lighting, warm cream and blush palette, smooth rounded features, large expressive eyes with soft catchlights, delicate brush texture, natural skin tones, clean minimal background, charming dignified expression, premium editorial illustration quality',
+
   cute_pet:
-    'adorable kawaii chibi animal character avatar, big luminous sparkly eyes, soft pastel fur texture, cute anthropomorphic design, SNS profile picture, Japan-style illustration',
+    'adorable anthropomorphic animal portrait, soft painterly texture, luminous big eyes with detailed reflections, pastel fur with subtle color variation, cinematic diffused rim light, clean bright background, premium Japan-style character illustration, kawaii but sophisticated, balanced warm palette',
+
   simple_icon:
-    'minimalist flat vector portrait icon, bold geometric face simplification, clean flat color fills, modern mobile UI icon style, single vivid accent color, crisp white outline',
+    'minimalist geometric portrait icon, clean vector aesthetic, bold flat shapes with subtle gradient, single warm accent against neutral ground, precise linework, refined UI icon style, modern app icon composition, no excessive detail, premium design quality',
+
   '3d_cartoon':
-    'Pixar Disney 3D animated character, highly expressive face, realistic subsurface skin scattering, cinematic studio rim lighting, photoreal 3D render, top-tier CGI quality',
+    'Pixar-quality 3D character portrait, photorealistic subsurface skin scattering, expressive sculpted features, soft cinematic three-point studio lighting, rich ambient occlusion, fine hair strand detail, smooth shading transitions, clean neutral backdrop, high-end CG render quality',
+
   anime_pro:
-    'premium professional anime character portrait, dynamic dramatic illustration, rich jewel-tone colors, intricate hair and eye detail, top Japanese animation studio quality, volumetric lighting',
+    'premium anime portrait by a top Japanese animation studio, exquisite detailed eyes with multilayer iris shading, precise dynamic hair with individual strand rendering, cinematic volumetric side lighting, dramatic soft shadow on face, subtle lens flare, rich saturated jewel tones, editorial illustration quality, no cheap AI artifacts',
+
   soft_storybook:
-    'enchanting watercolor storybook portrait, dreamy soft warm tones, delicate hand-painted brushwork texture, fairy-tale picture-book cover illustration, gentle glowing atmosphere',
+    'fine watercolor storybook portrait, translucent layered washes, soft warm backlighting, delicate pencil undertone visible through color, natural paper texture, muted earthy palette with golden highlights, intimate close composition, gentle dreamy atmosphere, premium picture-book illustration quality',
+
   cyberpunk:
-    'cyberpunk neon portrait, holographic scanline overlay, dark futuristic megacity backdrop, electric cyan and magenta neon highlights, tech-enhanced augmented look, glitch-art aesthetic',
+    'premium cyberpunk portrait, dramatic low-key cinematic lighting, electric teal and magenta neon rim light, cool dark background with bokeh city reflections, subtle holographic skin overlay, clean sharp features, high-contrast editorial mood, sophisticated futuristic aesthetic, no garish excess',
+
   comic_hero:
-    'Marvel DC comic book superhero portrait, dynamic bold ink outlines, halftone dot shading, primary color blocking, heroic confident expression, action-pose energy',
+    'premium comic book portrait, confident dynamic composition, bold clean ink lines, selective limited color palette, subtle halftone texture overlay, strong rim light, heroic expression with depth, editorial quality, inspired by high-end Marvel variant cover art, no cheap filter look',
+
   fashion_avatar:
-    'high-fashion editorial portrait avatar, luxury couture styling, dramatic contour makeup, high-contrast glamour lighting, Vogue magazine cover aesthetic, premium SNS influencer vibe',
+    'high-fashion portrait, cinematic butterfly lighting, flawless editorial skin with natural pores, designer styling, subtle film grain, warm golden-hour color grade, bokeh background, Vogue-quality composition, glamorous yet approachable, premium Instagram influencer aesthetic, ultra-sharp detail on face',
+
   business_profile:
-    'polished professional business headshot, neutral gradient backdrop, confident poised expression, executive leadership presence, modern business attire, LinkedIn ready, approachable smile',
+    'premium professional headshot, clean soft-box lighting, warm neutral gradient backdrop, confident natural expression, contemporary business attire, sharp detail on face and eyes, subtle background bokeh, polished yet approachable, LinkedIn executive portrait quality, no harsh shadows',
+
   pet_portrait_pro:
-    'fine-art professional studio pet portrait, ultra-detailed realistic fur rendering, creamy bokeh background, warm golden-hour rim lighting, gallery exhibition quality photograph',
+    'fine-art pet portrait, exquisite micro-detail fur rendering with individual hair strands, warm cinematic split lighting, shallow depth-of-field with soft bokeh, natural eye reflections, museum exhibition quality, rich warm tones, soulful expressive gaze, premium photorealistic illustration',
+
   couple_avatar:
-    'matching couple chibi cartoon portrait pair, harmonious coordinated color palette, sweet romantic mood, coordinated matching outfits, cute SNS couple profile icon',
+    'premium matching couple chibi portrait, coordinated warm pastel palette, equal balanced composition, expressive luminous eyes, clean soft gradient background, tender natural chemistry, high-end Japan-style character illustration, Instagram couple avatar quality',
+
   kawaii_icon:
-    'ultra-kawaii hyper-cute chibi illustration, cotton-candy pastel palette, enormous luminous glitter eyes, rosy blush cheeks, heart motifs, premium Japan SNS avatar style',
+    'ultra-premium kawaii chibi portrait, cotton-candy gradient palette, large luminous gem-like eyes with multi-layer shine, delicate rosy blush, clean soft background, pastel color harmony, fine digital brushwork, polished Japan SNS avatar quality, sophisticated cute aesthetic, no cheap distortion',
 };
 
 interface FluxImg2ImgOutput {
@@ -163,7 +176,7 @@ export class FalProvider implements AIProvider {
     // ── Model invoke ──────────────────────────────────────────
     const stylePrompt =
       params.prompt || FAL_STYLE_PROMPTS[params.style] || `${params.style} style portrait`;
-    const fullPrompt = `${stylePrompt}, portrait orientation, face-centered composition, high resolution, masterpiece`;
+    const fullPrompt = `${stylePrompt}, centered portrait, preserve facial features and identity, high resolution, no distortion, no low quality`;
 
     const payload = {
       image_url: imageUrl,

@@ -2,103 +2,139 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import BeforeAfterSlider from './BeforeAfterSlider';
 
 interface Variant { id: string; imageUrl: string }
 
 interface Props {
   variants: Variant[];
   hasWatermark: boolean;
+  originalSrc?: string;
   onRegenerate?: () => void;
 }
 
-export default function ImageResult({ variants, hasWatermark, onRegenerate }: Props) {
+export default function ImageResult({ variants, hasWatermark, originalSrc, onRegenerate }: Props) {
   const [selected, setSelected] = useState(0);
+  const [showSlider, setShowSlider] = useState(!!originalSrc);
+  const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
-  async function download(url: string) {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `forma_${Date.now()}.png`;
-    a.click();
+  const currentUrl = variants[selected]?.imageUrl ?? '';
+
+  async function download() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(currentUrl);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `forma_avatar_${Date.now()}.${blob.type.includes('png') ? 'png' : 'jpg'}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  async function share() {
+    if (navigator.share) {
+      await navigator.share({ title: 'FORMA AI Avatar', url: window.location.href }).catch(() => {});
+    } else {
+      copyLink();
+    }
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(window.location.href).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
   }
 
   return (
     <motion.div
-      className="space-y-6"
+      className="space-y-5"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Header */}
+      {/* ── Header row ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium text-ink">生成完了</h3>
+          <h3 className="text-base font-semibold text-ink">生成完了</h3>
           {hasWatermark && (
             <p className="text-xs text-ink-muted mt-0.5">
               ウォーターマーク入り · クレジット購入でHD版を取得
             </p>
           )}
         </div>
-        {onRegenerate && (
-          <motion.button
-            onClick={onRegenerate}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="btn-ghost text-xs py-2 px-4"
-          >
-            再生成
-          </motion.button>
-        )}
-      </div>
-
-      {/* Main large preview */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selected}
-          className="relative aspect-square rounded-3xl overflow-hidden bg-[rgba(255,255,255,0.04)]
-                     border border-[rgba(255,255,255,0.07)] group"
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.02 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <Image
-            src={variants[selected].imageUrl}
-            alt="Generated"
-            fill
-            className="object-cover"
-            unoptimized
-          />
-
-          {/* Overlay on hover */}
-          <motion.div
-            className="absolute inset-0 bg-black/40 flex items-end justify-center pb-6 opacity-0 group-hover:opacity-100"
-            transition={{ duration: 0.3 }}
-          >
+        <div className="flex items-center gap-2">
+          {originalSrc && (
             <motion.button
-              onClick={() => download(variants[selected].imageUrl)}
+              onClick={() => setShowSlider((v) => !v)}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="px-6 py-3 rounded-2xl bg-ink text-surface font-medium text-sm
-                         backdrop-blur-md shadow-glass"
+              className="px-3 py-1.5 rounded-xl text-[11px] font-medium
+                         bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)]
+                         text-ink-secondary hover:text-ink transition-colors"
             >
-              {hasWatermark ? 'ダウンロード' : 'HD ダウンロード'}
+              {showSlider ? '結果のみ' : 'Before / After'}
             </motion.button>
-          </motion.div>
-
-          {/* Watermark badge */}
-          {hasWatermark && (
-            <div className="absolute top-4 right-4 px-2.5 py-1 rounded-xl
-                            bg-[rgba(0,0,0,0.6)] backdrop-blur-md
-                            text-xs text-ink-secondary border border-[rgba(255,255,255,0.08)]">
-              ウォーターマーク
-            </div>
           )}
-        </motion.div>
+          {onRegenerate && (
+            <motion.button
+              onClick={onRegenerate}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="btn-ghost text-xs py-2 px-4"
+            >
+              再生成
+            </motion.button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Main image area ── */}
+      <AnimatePresence mode="wait">
+        {showSlider && originalSrc ? (
+          <motion.div
+            key="slider"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <BeforeAfterSlider beforeSrc={originalSrc} afterSrc={currentUrl} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`result-${selected}`}
+            className="relative aspect-square rounded-3xl overflow-hidden
+                       bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]"
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Image
+              src={currentUrl}
+              alt="Generated avatar"
+              fill
+              className="object-cover"
+              unoptimized
+            />
+            {hasWatermark && (
+              <div className="absolute top-4 right-4 px-2.5 py-1 rounded-xl
+                              bg-[rgba(0,0,0,0.6)] backdrop-blur-md
+                              text-xs text-ink-secondary border border-[rgba(255,255,255,0.08)]">
+                ウォーターマーク
+              </div>
+            )}
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* Thumbnail strip (if multiple) */}
+      {/* ── Thumbnail strip ── */}
       {variants.length > 1 && (
         <div className="flex gap-3">
           {variants.map((v, i) => (
@@ -119,6 +155,72 @@ export default function ImageResult({ variants, hasWatermark, onRegenerate }: Pr
           ))}
         </div>
       )}
+
+      {/* ── Action buttons ── */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* Download */}
+        <motion.button
+          onClick={download}
+          disabled={downloading}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl
+                     bg-gold text-surface font-medium text-xs
+                     shadow-gold hover:bg-gold-light transition-colors
+                     disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>{downloading ? '...' : hasWatermark ? 'ダウンロード' : 'HD保存'}</span>
+        </motion.button>
+
+        {/* Share */}
+        <motion.button
+          onClick={share}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl
+                     bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)]
+                     text-ink-secondary text-xs font-medium
+                     hover:bg-[rgba(255,255,255,0.09)] hover:text-ink transition-colors"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+          </svg>
+          <span>シェア</span>
+        </motion.button>
+
+        {/* Copy link */}
+        <motion.button
+          onClick={copyLink}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl
+                     bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)]
+                     text-xs font-medium transition-colors
+                     hover:bg-[rgba(255,255,255,0.09)]"
+          style={{ color: copied ? 'var(--color-gold)' : undefined }}
+        >
+          <AnimatePresence mode="wait">
+            {copied ? (
+              <motion.svg key="check" className="w-5 h-5 text-gold"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </motion.svg>
+            ) : (
+              <motion.svg key="copy" className="w-5 h-5 text-ink-secondary"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+              </motion.svg>
+            )}
+          </AnimatePresence>
+          <span>{copied ? 'コピー済' : 'リンク'}</span>
+        </motion.button>
+      </div>
     </motion.div>
   );
 }

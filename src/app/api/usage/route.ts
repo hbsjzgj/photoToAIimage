@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   if (userId) {
     const used = await getFreeUsage(userId);
-    return NextResponse.json({ used, remaining: remainingFree(used) });
+    return NextResponse.json({ used, remaining: remainingFree(used, true) });
   }
 
   const ip =
@@ -19,5 +19,5 @@ export async function GET(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     'unknown';
   const used = await getFreeUsage(undefined, ip);
-  return NextResponse.json({ used, remaining: remainingFree(used) });
+  return NextResponse.json({ used, remaining: remainingFree(used, false) });
 }

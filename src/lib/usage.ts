@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { FREE_DAILY_LIMIT } from '@/types';
+import { FREE_DAILY_LIMIT, FREE_DAILY_LIMIT_ANON } from '@/types';
 
 function todayStr(): string {
   return new Date().toISOString().split('T')[0];
@@ -21,8 +21,9 @@ export async function getFreeUsage(userId?: string, anonymousId?: string): Promi
 }
 
 export async function canUseFree(userId?: string, anonymousId?: string): Promise<boolean> {
+  const limit = userId ? FREE_DAILY_LIMIT : FREE_DAILY_LIMIT_ANON;
   const used = await getFreeUsage(userId, anonymousId);
-  return used < FREE_DAILY_LIMIT;
+  return used < limit;
 }
 
 export async function incrementFreeUsage(
@@ -52,6 +53,7 @@ export async function incrementFreeUsage(
   return 0;
 }
 
-export function remainingFree(used: number): number {
-  return Math.max(0, FREE_DAILY_LIMIT - used);
+export function remainingFree(used: number, isLoggedIn = false): number {
+  const limit = isLoggedIn ? FREE_DAILY_LIMIT : FREE_DAILY_LIMIT_ANON;
+  return Math.max(0, limit - used);
 }
