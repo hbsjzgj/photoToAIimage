@@ -9,3 +9,4 @@ public/uploads/
 public/outputs/*
 !public/outputs/.gitkeep
 /tmp/outputs/
+tsconfig.tsbuildinfo

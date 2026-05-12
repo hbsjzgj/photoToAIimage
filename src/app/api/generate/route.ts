@@ -7,9 +7,7 @@ import { addWatermark, fetchImageBuffer } from '@/lib/watermark';
 import { spendCredits, getCredits } from '@/lib/credits';
 import { canUseFree, incrementFreeUsage } from '@/lib/usage';
 import { FREE_STYLES, GenerateRequest, FREE_OUTPUT_SIZE } from '@/types';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { getStorageProvider } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -54,14 +52,8 @@ export async function POST(req: NextRequest) {
           try {
             const buf = await fetchImageBuffer(url);
             const watermarked = await addWatermark(buf);
-            const isVercel = !!process.env.VERCEL;
-            const outputsDir = isVercel
-              ? path.join('/tmp', 'outputs')
-              : path.join(process.cwd(), 'public', 'outputs');
-            if (!existsSync(outputsDir)) await mkdir(outputsDir, { recursive: true });
             const filename = `wm_${crypto.randomUUID()}.png`;
-            await writeFile(path.join(outputsDir, filename), watermarked);
-            finalUrl = isVercel ? `/api/outputs/${filename}` : `/outputs/${filename}`;
+            finalUrl = await getStorageProvider().upload(watermarked, filename);
           } catch (err) {
             console.error('Watermark error, using original URL:', err);
           }
