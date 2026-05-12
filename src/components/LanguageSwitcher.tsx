@@ -36,8 +36,8 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200
-                   hover:bg-gray-50 text-sm font-medium transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                   border border-[var(--glass-border)] hover:bg-[var(--nav-hover)] text-ink"
       >
         <span>{current.flag}</span>
         <span>{current.label}</span>
@@ -47,13 +47,14 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-36 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+        <div className="absolute right-0 mt-1 w-36 rounded-xl shadow-lg border border-[var(--glass-border)] py-1 z-50"
+             style={{ backgroundColor: 'var(--color-surface-50)' }}>
           {LOCALES.map((l) => (
             <button
               key={l.code}
               onClick={() => switchLocale(l.code)}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors
-                ${l.code === locale ? 'text-brand-600 font-semibold' : 'text-gray-700'}`}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-[var(--nav-hover)] transition-colors
+                ${l.code === locale ? 'text-gold font-semibold' : 'text-ink-secondary'}`}
             >
               <span>{l.flag}</span>
               <span>{l.label}</span>
