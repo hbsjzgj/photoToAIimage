@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     payment_method_types: ['card'],
     line_items: [{ price: PRICE_IDS[packageId as CreditPackage], quantity: 1 }],
     mode: 'payment',
-    success_url: `${baseUrl}/${locale}/dashboard?success=true&credits=${CREDIT_AMOUNTS[packageId as CreditPackage]}`,
+    success_url: `${baseUrl}/${locale}/purchase/success?credits=${CREDIT_AMOUNTS[packageId as CreditPackage]}&package=${packageId}`,
     cancel_url: `${baseUrl}/${locale}/pricing?canceled=true`,
     metadata: {
       userId,
