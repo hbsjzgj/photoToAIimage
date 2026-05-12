@@ -13,7 +13,10 @@ export default function AuthPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') ?? `/${locale}/generate`;
+  const rawCallback = searchParams.get('callbackUrl');
+  const callbackUrl = rawCallback && rawCallback.startsWith('/') && !rawCallback.startsWith('//')
+    ? rawCallback
+    : `/${locale}/generate`;
 
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
   const [form, setForm] = useState({ name: '', email: '', password: '' });

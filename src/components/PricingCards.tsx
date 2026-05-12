@@ -24,7 +24,7 @@ export default function PricingCards() {
   useEffect(() => { analytics.pricingViewed(); }, []);
 
   async function handleBuy(packageId: PackageId) {
-    if (!session?.user) { router.push(`/${locale}/auth?callbackUrl=/${locale}/pricing`); return; }
+    if (!session?.user) { router.push(`/${locale}/auth?callbackUrl=${encodeURIComponent(`/${locale}/pricing`)}`); return; }
     const pkg = PACKAGES.find((p) => p.id === packageId);
     analytics.purchaseStarted({ package: packageId, credits: parseInt(pkg?.credits ?? '0') });
     setLoading(packageId);
