@@ -1,50 +1,6 @@
 import { fal } from '@fal-ai/client';
 import { AIProvider, GenerateParams } from './types';
-
-// Premium per-style prompts — cinematic, identity-preserving, SNS-avatar ready
-const FAL_STYLE_PROMPTS: Record<string, string> = {
-  anime_basic:
-    'Japanese anime portrait, precise cel-shading, clean crisp linework, luminous soft eyes with detailed iris, cinematic side lighting, subtle gradient blush, muted pastel harmony, clean background, premium studio-quality digital illustration, face-centered square avatar, no distortion',
-
-  soft_cartoon:
-    'gentle cartoon portrait, soft studio lighting, warm cream and blush palette, smooth rounded features, large expressive eyes with soft catchlights, delicate brush texture, natural skin tones, clean minimal background, charming dignified expression, premium editorial illustration quality',
-
-  cute_pet:
-    'adorable anthropomorphic animal portrait, soft painterly texture, luminous big eyes with detailed reflections, pastel fur with subtle color variation, cinematic diffused rim light, clean bright background, premium Japan-style character illustration, kawaii but sophisticated, balanced warm palette',
-
-  simple_icon:
-    'minimalist geometric portrait icon, clean vector aesthetic, bold flat shapes with subtle gradient, single warm accent against neutral ground, precise linework, refined UI icon style, modern app icon composition, no excessive detail, premium design quality',
-
-  '3d_cartoon':
-    'Pixar-quality 3D character portrait, photorealistic subsurface skin scattering, expressive sculpted features, soft cinematic three-point studio lighting, rich ambient occlusion, fine hair strand detail, smooth shading transitions, clean neutral backdrop, high-end CG render quality',
-
-  anime_pro:
-    'premium anime portrait by a top Japanese animation studio, exquisite detailed eyes with multilayer iris shading, precise dynamic hair with individual strand rendering, cinematic volumetric side lighting, dramatic soft shadow on face, subtle lens flare, rich saturated jewel tones, editorial illustration quality, no cheap AI artifacts',
-
-  soft_storybook:
-    'fine watercolor storybook portrait, translucent layered washes, soft warm backlighting, delicate pencil undertone visible through color, natural paper texture, muted earthy palette with golden highlights, intimate close composition, gentle dreamy atmosphere, premium picture-book illustration quality',
-
-  cyberpunk:
-    'premium cyberpunk portrait, dramatic low-key cinematic lighting, electric teal and magenta neon rim light, cool dark background with bokeh city reflections, subtle holographic skin overlay, clean sharp features, high-contrast editorial mood, sophisticated futuristic aesthetic, no garish excess',
-
-  comic_hero:
-    'premium comic book portrait, confident dynamic composition, bold clean ink lines, selective limited color palette, subtle halftone texture overlay, strong rim light, heroic expression with depth, editorial quality, inspired by high-end Marvel variant cover art, no cheap filter look',
-
-  fashion_avatar:
-    'high-fashion portrait, cinematic butterfly lighting, flawless editorial skin with natural pores, designer styling, subtle film grain, warm golden-hour color grade, bokeh background, Vogue-quality composition, glamorous yet approachable, premium Instagram influencer aesthetic, ultra-sharp detail on face',
-
-  business_profile:
-    'premium professional headshot, clean soft-box lighting, warm neutral gradient backdrop, confident natural expression, contemporary business attire, sharp detail on face and eyes, subtle background bokeh, polished yet approachable, LinkedIn executive portrait quality, no harsh shadows',
-
-  pet_portrait_pro:
-    'fine-art pet portrait, exquisite micro-detail fur rendering with individual hair strands, warm cinematic split lighting, shallow depth-of-field with soft bokeh, natural eye reflections, museum exhibition quality, rich warm tones, soulful expressive gaze, premium photorealistic illustration',
-
-  couple_avatar:
-    'premium matching couple chibi portrait, coordinated warm pastel palette, equal balanced composition, expressive luminous eyes, clean soft gradient background, tender natural chemistry, high-end Japan-style character illustration, Instagram couple avatar quality',
-
-  kawaii_icon:
-    'ultra-premium kawaii chibi portrait, cotton-candy gradient palette, large luminous gem-like eyes with multi-layer shine, delicate rosy blush, clean soft background, pastel color harmony, fine digital brushwork, polished Japan SNS avatar quality, sophisticated cute aesthetic, no cheap distortion',
-};
+import { getPromptForStyle, MODEL_PARAMS } from '@/lib/prompts';
 
 interface FluxImg2ImgOutput {
   images: Array<{ url: string; width: number; height: number; content_type: string }>;
@@ -175,16 +131,19 @@ export class FalProvider implements AIProvider {
     }
 
     // ── Model invoke ──────────────────────────────────────────
-    const stylePrompt =
-      params.prompt || FAL_STYLE_PROMPTS[params.style] || `${params.style} style portrait`;
-    const fullPrompt = `${stylePrompt}, centered portrait, preserve facial features and identity, high resolution, no distortion, no low quality`;
+    const { prompt: autoPrompt, negativePrompt } = getPromptForStyle(params.style);
+    const finalPrompt = params.prompt || autoPrompt;
+
+    const tier = params.mode === 'free' ? 'free' : 'paid';
+    const { strength, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
 
     const payload = {
       image_url: imageUrl,
-      prompt: fullPrompt,
-      strength: 0.78,
-      num_inference_steps: 28,
-      guidance_scale: 3.5,
+      prompt: finalPrompt,
+      negative_prompt: negativePrompt,
+      strength,
+      num_inference_steps,
+      guidance_scale,
       num_images: params.count,
       output_format: 'jpeg' as 'jpeg' | 'png',
       enable_safety_checker: true,

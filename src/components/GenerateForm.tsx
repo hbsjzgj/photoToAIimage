@@ -10,7 +10,6 @@ import StyleSelector from './StyleSelector';
 import ImageResult from './ImageResult';
 import { analytics } from '@/lib/analytics';
 import type { StyleId, GenerationMode } from '@/types';
-import { STYLE_INSTRUCTIONS } from '@/types';
 
 interface CreditsState { credits: number; freeRemaining: number }
 
@@ -52,16 +51,9 @@ export default function GenerateForm() {
     return () => clearInterval(t);
   }, [loading]);
 
-  // Auto-fill prompt when style is selected (only if user hasn't customized it)
-  const defaultPromptRef = useRef('');
   function handleStyleSelect(s: StyleId | '') {
     setStyle(s);
-    if (s) {
-      analytics.styleSelected(s);
-      const def = STYLE_INSTRUCTIONS[s as StyleId] ?? '';
-      defaultPromptRef.current = def;
-      setCustomPrompt(def);
-    }
+    if (s) analytics.styleSelected(s);
   }
 
   // Fetch free usage for all users (including anonymous)
@@ -295,15 +287,6 @@ export default function GenerateForm() {
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs text-ink-muted font-medium tracking-wider uppercase">{t('promptLabel')}</p>
-          {style && customPrompt !== (STYLE_INSTRUCTIONS[style as StyleId] ?? '') && (
-            <button
-              type="button"
-              onClick={() => setCustomPrompt(STYLE_INSTRUCTIONS[style as StyleId] ?? '')}
-              className="text-[10px] text-ink-muted hover:text-gold transition-colors"
-            >
-              {t('promptReset')}
-            </button>
-          )}
         </div>
         <textarea
           value={customPrompt}

@@ -4,6 +4,7 @@ export interface GenerateParams {
   count: 1 | 4;
   outputSize: string;
   imageBase64?: string;
+  mode?: 'free' | 'paid';
 }
 
 export interface ProviderResult {

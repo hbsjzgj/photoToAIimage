@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
 
       currentStage = 'generate';
       log('calling generateAvatar...');
-      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt);
+      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt, 'free');
       const { urls, provider: providerUsed, isTextToImage } = genResult;
       log(`generation SUCCESS — provider=${providerUsed} urls=[${urls.join(', ')}]`);
 
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
 
     currentStage = 'generate';
     log('calling generateAvatar (paid)...');
-    const result = await generateAvatar(imageBase64, style, count, size, customPrompt);
+    const result = await generateAvatar(imageBase64, style, count, size, customPrompt, 'paid');
     const { urls, provider: providerUsed, isTextToImage } = result;
     log(`generation SUCCESS — provider=${providerUsed} urlCount=${urls.length}`);
 

@@ -1,6 +1,6 @@
 import { AIProvider, GenerateParams } from './types';
 import { saveBufferToOutputs } from './utils';
-import { STYLE_INSTRUCTIONS } from '@/types';
+import { getPromptForStyle } from '@/lib/prompts';
 
 const HF_MODEL = 'timbrooks/instruct-pix2pix';
 const MAX_RETRIES = 3;
@@ -20,9 +20,8 @@ export class HuggingFaceProvider implements AIProvider {
     }
 
     const token = process.env.HUGGINGFACE_API_TOKEN!;
-    const instruction = params.prompt
-      || (STYLE_INSTRUCTIONS as Record<string, string>)[params.style]
-      || `convert this photo to ${params.style} style`;
+    const { prompt: autoPrompt } = getPromptForStyle(params.style);
+    const instruction = params.prompt || autoPrompt;
 
     // Strip data URI prefix: "data:image/jpeg;base64,<data>" → "<data>"
     const base64Data = params.imageBase64.includes(',')

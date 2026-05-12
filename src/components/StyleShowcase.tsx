@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ALL_STYLES, FREE_STYLES, STYLE_PROMPTS, StyleId } from '@/types';
+import { ALL_STYLES, FREE_STYLES, StyleId } from '@/types';
+import { getPromptForStyle } from '@/lib/prompts';
 import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
 
 const STYLE_LABELS: Record<StyleId, string> = {
@@ -61,7 +62,7 @@ export default function StyleShowcase() {
   const [copied, setCopied] = useState<StyleId | null>(null);
 
   function copyPrompt(style: StyleId) {
-    navigator.clipboard.writeText(STYLE_PROMPTS[style]);
+    navigator.clipboard.writeText(getPromptForStyle(style).prompt);
     setCopied(style);
     setTimeout(() => setCopied(null), 2000);
   }
