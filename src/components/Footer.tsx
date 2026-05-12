@@ -6,7 +6,7 @@ export default function Footer() {
   const locale = useLocale();
 
   return (
-    <footer className="mt-auto border-t border-[rgba(255,255,255,0.06)]">
+    <footer className="mt-auto border-t border-[var(--border-subtle)]">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
 
@@ -31,7 +31,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[rgba(255,255,255,0.05)] flex items-center justify-between">
+        <div className="mt-10 pt-6 border-t border-[var(--border-faint)] flex items-center justify-between">
           <p className="text-xs text-ink-muted">
             © {new Date().getFullYear()} FORMA. {t('footer.rights')}
           </p>

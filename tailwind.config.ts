@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  darkMode: 'class',
+  darkMode: 'media',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -11,15 +11,15 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: '#0F1115',
-          50:  '#1a1d24',
-          100: '#161920',
-          200: '#12151b',
+          DEFAULT: 'var(--color-surface)',
+          50:  'var(--color-surface-50)',
+          100: 'var(--color-surface-100)',
+          200: 'var(--color-surface-200)',
         },
         glass: {
-          DEFAULT: 'rgba(255,255,255,0.06)',
-          border: 'rgba(255,255,255,0.08)',
-          hover: 'rgba(255,255,255,0.10)',
+          DEFAULT: 'var(--glass-bg)',
+          border: 'var(--glass-border)',
+          hover: 'var(--glass-hover)',
         },
         gold: {
           DEFAULT: '#C8A96B',
@@ -28,9 +28,9 @@ const config: Config = {
           muted: 'rgba(200,169,107,0.15)',
         },
         ink: {
-          DEFAULT: '#F5F7FA',
-          secondary: '#AAB2C0',
-          muted: '#6B7585',
+          DEFAULT: 'var(--color-ink)',
+          secondary: 'var(--color-ink-sec)',
+          muted: 'var(--color-ink-muted)',
         }
       },
       fontFamily: {

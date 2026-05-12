@@ -23,7 +23,8 @@ export default function Header() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
       {/* Blur backing */}
-      <div className="absolute inset-0 bg-surface/70 backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)]" />
+      <div className="absolute inset-0 backdrop-blur-xl border-b border-[var(--border-subtle)]"
+           style={{ backgroundColor: 'var(--header-backdrop)' }} />
 
       <div className="relative max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
@@ -47,7 +48,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
-                  ${active ? 'text-ink' : 'text-ink-secondary hover:text-ink hover:bg-[rgba(255,255,255,0.05)]'}`}
+                  ${active ? 'text-ink' : 'text-ink-secondary hover:text-ink hover:bg-[var(--nav-hover)]'}`}
               >
                 {active && (
                   <motion.div

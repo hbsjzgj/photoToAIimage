@@ -35,7 +35,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${noto.variable} ${inter.variable} font-sans bg-surface text-ink`}>
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>{children}</SessionProvider>

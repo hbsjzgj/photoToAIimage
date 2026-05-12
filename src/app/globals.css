@@ -3,24 +3,76 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Light mode (default) ── */
   :root {
-    color-scheme: dark;
+    color-scheme: light dark;
+
     --color-gold:        #C8A96B;
     --color-gold-light:  #DEC08A;
-    --color-surface:     #0F1115;
-    --color-ink:         #F5F7FA;
-    --color-ink-sec:     #AAB2C0;
-    --color-ink-muted:   #6B7585;
-    --glass-bg:          rgba(255,255,255,0.05);
-    --glass-border:      rgba(255,255,255,0.08);
-    --glass-hover:       rgba(255,255,255,0.09);
+
+    --color-surface:     #F5F7FA;
+    --color-surface-50:  #EDEEF2;
+    --color-surface-100: #E4E6EC;
+    --color-surface-200: #D8DAE2;
+
+    --color-ink:         #111827;
+    --color-ink-sec:     #4B5563;
+    --color-ink-muted:   #9CA3AF;
+
+    --glass-bg:          rgba(255, 255, 255, 0.80);
+    --glass-border:      rgba(0, 0, 0, 0.08);
+    --glass-hover:       rgba(255, 255, 255, 0.95);
+
+    --border-subtle:     rgba(0, 0, 0, 0.07);
+    --border-faint:      rgba(0, 0, 0, 0.05);
+    --nav-hover:         rgba(0, 0, 0, 0.04);
+    --header-backdrop:   rgba(245, 247, 250, 0.85);
+
+    --scrollbar-track:   #F5F7FA;
+    --scrollbar-thumb:   rgba(0, 0, 0, 0.12);
+    --scrollbar-hover:   rgba(0, 0, 0, 0.22);
+
+    --shadow-glass:      0 4px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+    --shadow-glass-hover:0 8px 48px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.95);
+  }
+
+  /* ── Dark mode ── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+
+      --color-surface:     #0F1115;
+      --color-surface-50:  #1a1d24;
+      --color-surface-100: #161920;
+      --color-surface-200: #12151b;
+
+      --color-ink:         #F5F7FA;
+      --color-ink-sec:     #AAB2C0;
+      --color-ink-muted:   #6B7585;
+
+      --glass-bg:          rgba(255, 255, 255, 0.05);
+      --glass-border:      rgba(255, 255, 255, 0.08);
+      --glass-hover:       rgba(255, 255, 255, 0.09);
+
+      --border-subtle:     rgba(255, 255, 255, 0.06);
+      --border-faint:      rgba(255, 255, 255, 0.05);
+      --nav-hover:         rgba(255, 255, 255, 0.05);
+      --header-backdrop:   rgba(15, 17, 21, 0.70);
+
+      --scrollbar-track:   #0F1115;
+      --scrollbar-thumb:   rgba(255, 255, 255, 0.10);
+      --scrollbar-hover:   rgba(255, 255, 255, 0.18);
+
+      --shadow-glass:      0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+      --shadow-glass-hover:0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+    }
   }
 
   * { box-sizing: border-box; }
 
   html {
     scroll-behavior: smooth;
-    background-color: #0F1115;
+    background-color: var(--color-surface);
   }
 
   body {
@@ -33,13 +85,13 @@
 
   ::selection {
     background: rgba(200, 169, 107, 0.25);
-    color: #F5F7FA;
+    color: var(--color-ink);
   }
 
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #0F1115; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 }
 
 @layer components {
@@ -52,7 +104,7 @@
     padding: 0.75rem 1.5rem;
     border-radius: 1rem;
     background-color: var(--color-gold);
-    color: var(--color-surface);
+    color: #ffffff;
     font-weight: 600;
     letter-spacing: 0.025em;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -62,7 +114,7 @@
   }
   .btn-gold:hover {
     background-color: var(--color-gold-light);
-    box-shadow: 0 0 32px rgba(200, 169, 107, 0.25);
+    box-shadow: 0 0 32px rgba(200, 169, 107, 0.30);
   }
   .btn-gold:active { transform: scale(0.97); }
   .btn-gold:disabled {
@@ -78,8 +130,8 @@
     justify-content: center;
     padding: 0.75rem 1.5rem;
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    background-color: var(--nav-hover);
     color: var(--color-ink);
     font-weight: 500;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -87,8 +139,8 @@
     outline: none;
   }
   .btn-ghost:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.16);
+    background-color: var(--glass-border);
+    border-color: var(--glass-border);
   }
   .btn-ghost:active { transform: scale(0.97); }
   .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -102,24 +154,24 @@
     border-radius: 1.5rem;
     border: 1px solid var(--glass-border);
     background-color: var(--glass-bg);
-    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-card-hover {
     border-radius: 1.5rem;
     border: 1px solid var(--glass-border);
     background-color: var(--glass-bg);
-    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .glass-card-hover:hover {
     background-color: var(--glass-hover);
-    border-color: rgba(255, 255, 255, 0.13);
-    box-shadow: 0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow-glass-hover);
   }
 
   /* legacy */
@@ -127,8 +179,8 @@
     border-radius: 1.5rem;
     border: 1px solid var(--glass-border);
     background-color: var(--glass-bg);
-    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
-    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-glass);
+    backdrop-filter: blur(12px);
     padding: 1.5rem;
   }
 
@@ -137,8 +189,8 @@
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: 1rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: var(--nav-hover);
+    border: 1px solid var(--glass-border);
     color: var(--color-ink);
     font-size: 0.875rem;
     transition: all 0.3s ease;
@@ -155,9 +207,9 @@
     border-radius: 1rem;
     background: linear-gradient(
       90deg,
-      rgba(255,255,255,0.04) 25%,
-      rgba(255,255,255,0.09) 50%,
-      rgba(255,255,255,0.04) 75%
+      var(--nav-hover) 25%,
+      var(--glass-border) 50%,
+      var(--nav-hover) 75%
     );
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
