@@ -4,6 +4,7 @@ import path from 'path';
 import { generateAvatar } from '@/lib/generate';
 import { addWatermark, fetchImageBuffer } from '@/lib/watermark';
 import { getStorageProvider, getStorageProviderName } from '@/lib/storage';
+import { getFalLastDebug, resetFalDebug } from '@/lib/providers/fal';
 import type { StyleId } from '@/types';
 
 export const runtime = 'nodejs';
@@ -54,10 +55,12 @@ export async function POST(req: NextRequest) {
     log(`VERCEL: ${process.env.VERCEL ? 'yes' : 'no'}`);
 
     // ── Generate ──
+    resetFalDebug();
     log('Calling generateAvatar...');
     const genStart = Date.now();
     const genResult = await generateAvatar(imageBase64, style, 1, '768x768');
     const durationMs = Date.now() - genStart;
+    const falDebug = getFalLastDebug();
     log(`generateAvatar OK — provider=${genResult.provider} duration=${durationMs}ms urls=[${genResult.urls.join(', ')}]`);
 
     let finalUrl = genResult.urls[0];
@@ -114,6 +117,7 @@ export async function POST(req: NextRequest) {
       watermarkStatus,
       storageStatus,
       imageUrl: finalUrl,
+      falDebug,
       logs,
       error: null,
     });
@@ -125,11 +129,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: false,
       provider: null,
+      durationMs: null,
+      fallbackUsed: null,
       imageBase64Length: 0,
       storageProvider: getStorageProviderName(),
       watermarkStatus: 'unknown',
       storageStatus: 'unknown',
       imageUrl: null,
+      falDebug: getFalLastDebug(),
       logs,
       error: msg,
     }, { status: 500 });

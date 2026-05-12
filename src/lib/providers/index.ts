@@ -36,6 +36,15 @@ function getProviderChain(): AIProvider[] {
   return [new MockProvider()];
 }
 
+function serializeError(err: unknown): string {
+  if (err instanceof Error) {
+    const obj: Record<string, unknown> = { name: err.name, message: err.message, stack: err.stack };
+    for (const key of Object.keys(err)) obj[key] = (err as unknown as Record<string, unknown>)[key];
+    try { return JSON.stringify(obj, null, 2); } catch { return `${err.name}: ${err.message}`; }
+  }
+  try { return JSON.stringify(err, null, 2); } catch { return String(err); }
+}
+
 export async function generateWithFallback(params: GenerateParams): Promise<ProviderResult> {
   const chain = getProviderChain();
   const start = Date.now();
@@ -53,7 +62,9 @@ export async function generateWithFallback(params: GenerateParams): Promise<Prov
       console.log(`[AI] ${provider.name} succeeded in ${durationMs}ms, urls: ${urls.join(', ')}`);
       return { urls, provider: provider.name, fallbackUsed: !firstProvider, durationMs, isTextToImage: provider.isTextToImage };
     } catch (err) {
-      console.error(`[AI] ${provider.name} failed:`, err instanceof Error ? err.message : err);
+      // Log the full error before falling back — message alone hides SDK response bodies
+      const errJson = serializeError(err);
+      console.error(`[AI] ${provider.name} FAILED — fallback reason:\n${errJson}`);
       firstProvider = false;
     }
   }

@@ -1,6 +1,22 @@
 'use client';
 import { useState } from 'react';
 
+interface FalDebugState {
+  keyPresent: boolean;
+  keyPrefix: string;
+  initialized: boolean;
+  uploadStart: boolean;
+  uploadSuccess: boolean;
+  uploadUrl: string | null;
+  modelInvoked: boolean;
+  modelId: string;
+  requestPayload: Record<string, unknown> | null;
+  rawResponse: unknown;
+  errorMessage: string | null;
+  errorStack: string | null;
+  errorJson: string | null;
+}
+
 interface DebugResult {
   ok: boolean;
   provider: string | null;
@@ -11,6 +27,7 @@ interface DebugResult {
   watermarkStatus: string;
   storageStatus: string;
   imageUrl: string | null;
+  falDebug?: FalDebugState | null;
   logs: string[];
   error: string | null;
 }
@@ -161,6 +178,40 @@ export default function GenerateDebugPage() {
               </pre>
             </div>
           </div>
+
+          {/* Fal Debug */}
+          {result.falDebug && (
+            <div style={{ marginTop: '20px' }}>
+              <p style={{ fontSize: '11px', color: '#888', marginBottom: '8px' }}>FalProvider Diagnostics</p>
+              <div style={{ background: '#0d1117', borderRadius: '8px', padding: '14px', border: '1px solid #222', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px' }}>
+                {([
+                  ['keyPresent', result.falDebug.keyPresent ? 'yes' : 'NO ← check Vercel env'],
+                  ['keyPrefix', result.falDebug.keyPrefix],
+                  ['initialized', result.falDebug.initialized ? 'yes' : 'no'],
+                  ['uploadStart', result.falDebug.uploadStart ? 'yes' : 'no'],
+                  ['uploadSuccess', result.falDebug.uploadSuccess ? 'yes' : 'NO ← upload failed'],
+                  ['uploadUrl', result.falDebug.uploadUrl ?? '(none)'],
+                  ['modelInvoked', result.falDebug.modelInvoked ? 'yes' : 'no'],
+                  ['modelId', result.falDebug.modelId],
+                ] as [string, string][]).map(([k, v]) => (
+                  <div key={k} style={{ fontSize: '11px', lineHeight: '1.8' }}>
+                    <span style={{ color: '#666' }}>{k}: </span>
+                    <span style={{ color: v.startsWith('NO') ? '#f87' : v === 'yes' ? '#6b9' : '#ccc' }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+              {result.falDebug.requestPayload && (
+                <pre style={{ marginTop: '8px', background: '#141720', padding: '10px', borderRadius: '6px', fontSize: '10px', overflow: 'auto', maxHeight: '200px', border: '1px solid #222', color: '#8af', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  payload: {JSON.stringify(result.falDebug.requestPayload, null, 2)}
+                </pre>
+              )}
+              {result.falDebug.errorJson && (
+                <pre style={{ marginTop: '8px', background: '#1a0a0a', padding: '10px', borderRadius: '6px', fontSize: '10px', overflow: 'auto', maxHeight: '300px', border: '1px solid #a33', color: '#f87', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  error: {result.falDebug.errorJson}
+                </pre>
+              )}
+            </div>
+          )}
 
           {/* Logs */}
           {result.logs?.length > 0 && (
