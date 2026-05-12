@@ -9,6 +9,7 @@ import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import ImageResult from './ImageResult';
 import type { StyleId, GenerationMode } from '@/types';
+import { STYLE_INSTRUCTIONS } from '@/types';
 
 interface CreditsState { credits: number; freeRemaining: number }
 
@@ -30,6 +31,7 @@ export default function GenerateForm() {
   const [imageBase64, setImageBase64] = useState('');
   const [preview, setPreview] = useState('');
   const [style, setStyle] = useState<StyleId | ''>('');
+  const [customPrompt, setCustomPrompt] = useState('');
   const [mode, setMode] = useState<GenerationMode>('free');
   const [count, setCount] = useState<1 | 4>(1);
   const [outputSize, setOutputSize] = useState('1024x1024');
@@ -40,6 +42,17 @@ export default function GenerateForm() {
   const [dragging, setDragging] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-fill prompt when style is selected (only if user hasn't customized it)
+  const defaultPromptRef = useRef('');
+  function handleStyleSelect(s: StyleId | '') {
+    setStyle(s);
+    if (s) {
+      const def = STYLE_INSTRUCTIONS[s as StyleId] ?? '';
+      defaultPromptRef.current = def;
+      setCustomPrompt(def);
+    }
+  }
 
   // Fetch free usage for all users (including anonymous)
   useEffect(() => {
@@ -90,7 +103,7 @@ export default function GenerateForm() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, style, mode, count, outputSize }),
+        body: JSON.stringify({ imageBase64, style, mode, count, outputSize, customPrompt: customPrompt.trim() || undefined }),
         signal: controller.signal
       });
       clearTimeout(timeoutId);
@@ -197,7 +210,7 @@ export default function GenerateForm() {
           {(['free', 'paid'] as GenerationMode[]).map((m) => (
             <motion.button
               key={m}
-              onClick={() => { setMode(m); setStyle(''); }}
+              onClick={() => { setMode(m); handleStyleSelect(''); }}
               className={`relative flex-1 py-3 rounded-xl text-sm font-medium transition-colors duration-300
                           ${mode === m ? 'text-ink' : 'text-ink-muted hover:text-ink-secondary'}`}
             >
@@ -219,7 +232,30 @@ export default function GenerateForm() {
       {/* ── Style Selector ── */}
       <div>
         <p className="text-xs text-ink-muted font-medium tracking-wider uppercase mb-4">{t('styleLabel')}</p>
-        <StyleSelector selected={style} onSelect={setStyle} mode={session?.user ? mode : 'free'} />
+        <StyleSelector selected={style} onSelect={handleStyleSelect} mode={session?.user ? mode : 'free'} />
+      </div>
+
+      {/* ── Custom Prompt ── */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-ink-muted font-medium tracking-wider uppercase">{t('promptLabel')}</p>
+          {style && customPrompt !== (STYLE_INSTRUCTIONS[style as StyleId] ?? '') && (
+            <button
+              type="button"
+              onClick={() => setCustomPrompt(STYLE_INSTRUCTIONS[style as StyleId] ?? '')}
+              className="text-[10px] text-ink-muted hover:text-gold transition-colors"
+            >
+              {t('promptReset')}
+            </button>
+          )}
+        </div>
+        <textarea
+          value={customPrompt}
+          onChange={(e) => setCustomPrompt(e.target.value)}
+          placeholder={t('promptPlaceholder')}
+          rows={2}
+          className="w-full input-field text-sm resize-none leading-relaxed"
+        />
       </div>
 
       {/* ── Paid options ── */}

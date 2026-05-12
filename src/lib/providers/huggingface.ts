@@ -20,8 +20,9 @@ export class HuggingFaceProvider implements AIProvider {
     }
 
     const token = process.env.HUGGINGFACE_API_TOKEN!;
-    const instruction = (STYLE_INSTRUCTIONS as Record<string, string>)[params.style]
-      ?? `convert this photo to ${params.style} style`;
+    const instruction = params.prompt
+      || (STYLE_INSTRUCTIONS as Record<string, string>)[params.style]
+      || `convert this photo to ${params.style} style`;
 
     // Strip data URI prefix: "data:image/jpeg;base64,<data>" → "<data>"
     const base64Data = params.imageBase64.includes(',')

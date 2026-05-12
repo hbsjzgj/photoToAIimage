@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as { id?: string } | undefined)?.id;
 
-    const body: GenerateRequest = await req.json();
-    const { imageBase64, style, mode, count, outputSize } = body;
+    const body: GenerateRequest & { customPrompt?: string } = await req.json();
+    const { imageBase64, style, mode, count, outputSize, customPrompt } = body;
 
     if (!imageBase64 || !style) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'limitReached' }, { status: 429 });
       }
 
-      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE);
+      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt);
       const { urls, provider: providerUsed, isTextToImage } = genResult;
 
       const finalUrls: string[] = [];
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'insufficientCredits' }, { status: 402 });
     }
 
-    const result = await generateAvatar(imageBase64, style, count, size);
+    const result = await generateAvatar(imageBase64, style, count, size, customPrompt);
     const { urls, provider: providerUsed, isTextToImage } = result;
 
     const variants = await Promise.all(

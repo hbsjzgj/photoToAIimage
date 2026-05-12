@@ -19,7 +19,8 @@ export async function generateAvatar(
   imageBase64: string,
   style: StyleId,
   count: 1 | 4,
-  outputSize: string
+  outputSize: string,
+  customPrompt?: string
 ): Promise<ProviderResult> {
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
     await new Promise((r) => setTimeout(r, 1500));
@@ -30,7 +31,7 @@ export async function generateAvatar(
   if (process.env.AI_PROVIDER === 'replicate' && process.env.REPLICATE_API_TOKEN) {
     const [width, height] = outputSize.split('x').map(Number);
     const styleName = STYLE_TO_REPLICATE[style];
-    const prompt = `${STYLE_PROMPTS[style]}, img`;
+    const prompt = `${customPrompt || STYLE_PROMPTS[style]}, img`;
     const start = Date.now();
 
     const output = (await replicate.run(PHOTOMAKER_MODEL, {
@@ -57,6 +58,6 @@ export async function generateAvatar(
   }
 
   // Default: free provider chain (HuggingFace → Mock), passes imageBase64 for img2img
-  const prompt = STYLE_PROMPTS[style] ?? style;
+  const prompt = customPrompt || (STYLE_PROMPTS[style] ?? style);
   return generateWithFallback({ style, prompt, count, outputSize, imageBase64 });
 }
