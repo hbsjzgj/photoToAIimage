@@ -258,6 +258,7 @@
   "auth": {
     "signin": {
       "title": "登录",
+      "subtitle": "登录你的账号",
       "email": "邮箱",
       "password": "密码",
       "submit": "登录",
@@ -267,6 +268,7 @@
     },
     "signup": {
       "title": "创建账号",
+      "subtitle": "创建账号",
       "name": "姓名",
       "email": "邮箱",
       "password": "密码（至少8位）",

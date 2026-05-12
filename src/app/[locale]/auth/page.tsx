@@ -75,7 +75,7 @@ export default function AuthPage() {
             </div>
             <h1 className="text-xl font-medium text-ink">FORMA</h1>
             <p className="text-ink-muted text-sm mt-1">
-              {tab === 'signin' ? 'アカウントにサインイン' : 'アカウントを作成'}
+              {tab === 'signin' ? t('signin.subtitle') : t('signup.subtitle')}
             </p>
           </div>
 

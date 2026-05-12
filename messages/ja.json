@@ -258,6 +258,7 @@
   "auth": {
     "signin": {
       "title": "ログイン",
+      "subtitle": "アカウントにサインイン",
       "email": "メールアドレス",
       "password": "パスワード",
       "submit": "ログイン",
@@ -267,6 +268,7 @@
     },
     "signup": {
       "title": "新規登録",
+      "subtitle": "アカウントを作成",
       "name": "お名前",
       "email": "メールアドレス",
       "password": "パスワード（8文字以上）",
