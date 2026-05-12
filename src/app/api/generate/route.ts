@@ -70,21 +70,23 @@ export async function POST(req: NextRequest) {
     const customPrompt = sanitizePrompt(body.customPrompt);
 
     log(`request received — style=${style} mode=${mode} imageBase64Length=${imageBase64?.length ?? 0}`);
-    if (!IS_PROD) {
-      log(`AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} HF_TOKEN=${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
-      log(`storageProvider=${getStorageProviderName()} VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`);
-    }
+    // Always log env state to server console (never in response body)
+    console.log(`[generate] env: AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} FAL_KEY=${process.env.FAL_KEY ? `set(${process.env.FAL_KEY.substring(0, 8)}...)` : 'NOT SET'} VERCEL=${process.env.VERCEL ? 'yes' : 'no'} storage=${getStorageProviderName()}`);
 
-    if (!imageBase64 || !style) {
-      log('ERROR: missing required fields');
-      return fail(400, 'Missing required fields');
+    if (!imageBase64) {
+      log('ERROR: missing imageBase64');
+      return fail(400, 'noImage');
+    }
+    if (!style) {
+      log('ERROR: missing style');
+      return fail(400, 'noStyle');
     }
 
     // ── FREE MODE ─────────────────────────────────────────────
     if (mode === 'free') {
       if (!FREE_STYLES.includes(style as never)) {
         log(`ERROR: style "${style}" not available in free mode`);
-        return fail(403, 'Style not available in free mode');
+        return fail(403, 'styleForbidden');
       }
 
       currentStage = 'rateLimit';
