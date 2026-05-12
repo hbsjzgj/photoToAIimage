@@ -3,69 +3,37 @@
 @tailwind utilities;
 
 @layer base {
-  /* ── Light mode (default) ── */
   :root {
-    color-scheme: light dark;
+    color-scheme: dark;
 
     --color-gold:        #C8A96B;
     --color-gold-light:  #DEC08A;
 
-    --color-surface:     #F5F7FA;
-    --color-surface-50:  #EDEEF2;
-    --color-surface-100: #E4E6EC;
-    --color-surface-200: #D8DAE2;
+    --color-surface:     #0F1115;
+    --color-surface-50:  #1a1d24;
+    --color-surface-100: #161920;
+    --color-surface-200: #12151b;
 
-    --color-ink:         #111827;
-    --color-ink-sec:     #4B5563;
-    --color-ink-muted:   #9CA3AF;
+    /* 主文字 #F5F7FA，次级 #B8C2D0（比之前 #AAB2C0 稍亮），辅助 #8A97A8（比之前 #6B7585 明显亮） */
+    --color-ink:         #F5F7FA;
+    --color-ink-sec:     #B8C2D0;
+    --color-ink-muted:   #8A97A8;
 
-    --glass-bg:          rgba(255, 255, 255, 0.80);
-    --glass-border:      rgba(0, 0, 0, 0.08);
-    --glass-hover:       rgba(255, 255, 255, 0.95);
+    --glass-bg:          rgba(255, 255, 255, 0.05);
+    --glass-border:      rgba(255, 255, 255, 0.08);
+    --glass-hover:       rgba(255, 255, 255, 0.09);
 
-    --border-subtle:     rgba(0, 0, 0, 0.07);
-    --border-faint:      rgba(0, 0, 0, 0.05);
-    --nav-hover:         rgba(0, 0, 0, 0.04);
-    --header-backdrop:   rgba(245, 247, 250, 0.85);
+    --border-subtle:     rgba(255, 255, 255, 0.06);
+    --border-faint:      rgba(255, 255, 255, 0.05);
+    --nav-hover:         rgba(255, 255, 255, 0.05);
+    --header-backdrop:   rgba(15, 17, 21, 0.70);
 
-    --scrollbar-track:   #F5F7FA;
-    --scrollbar-thumb:   rgba(0, 0, 0, 0.12);
-    --scrollbar-hover:   rgba(0, 0, 0, 0.22);
+    --scrollbar-track:   #0F1115;
+    --scrollbar-thumb:   rgba(255, 255, 255, 0.10);
+    --scrollbar-hover:   rgba(255, 255, 255, 0.18);
 
-    --shadow-glass:      0 4px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
-    --shadow-glass-hover:0 8px 48px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.95);
-  }
-
-  /* ── Dark mode ── */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-
-      --color-surface:     #0F1115;
-      --color-surface-50:  #1a1d24;
-      --color-surface-100: #161920;
-      --color-surface-200: #12151b;
-
-      --color-ink:         #F5F7FA;
-      --color-ink-sec:     #AAB2C0;
-      --color-ink-muted:   #6B7585;
-
-      --glass-bg:          rgba(255, 255, 255, 0.05);
-      --glass-border:      rgba(255, 255, 255, 0.08);
-      --glass-hover:       rgba(255, 255, 255, 0.09);
-
-      --border-subtle:     rgba(255, 255, 255, 0.06);
-      --border-faint:      rgba(255, 255, 255, 0.05);
-      --nav-hover:         rgba(255, 255, 255, 0.05);
-      --header-backdrop:   rgba(15, 17, 21, 0.70);
-
-      --scrollbar-track:   #0F1115;
-      --scrollbar-thumb:   rgba(255, 255, 255, 0.10);
-      --scrollbar-hover:   rgba(255, 255, 255, 0.18);
-
-      --shadow-glass:      0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-      --shadow-glass-hover:0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
-    }
+    --shadow-glass:      0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    --shadow-glass-hover:0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
   }
 
   * { box-sizing: border-box; }
