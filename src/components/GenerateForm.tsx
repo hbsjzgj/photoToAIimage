@@ -544,7 +544,7 @@ export default function GenerateForm() {
               <div className="w-full input-field text-sm text-ink-muted/70
                               bg-[rgba(255,255,255,0.02)] cursor-default select-text
                               leading-relaxed">
-                {STYLE_DISPLAY_PROMPTS[style] ?? style}
+                {(t as (k: string) => string)(`stylePrompts.${style}`) || STYLE_DISPLAY_PROMPTS[style] || style}
               </div>
             </motion.div>
           )}

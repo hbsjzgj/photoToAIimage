@@ -9,6 +9,7 @@ import { canUseFree, incrementFreeUsage } from '@/lib/usage';
 import { FREE_STYLES, GenerateRequest, FREE_OUTPUT_SIZE } from '@/types';
 import { getStorageProvider, getStorageProviderName } from '@/lib/storage';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { toEnglish } from '@/lib/translate';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -67,7 +68,13 @@ export async function POST(req: NextRequest) {
     const { imageBase64, style, mode, count, outputSize } = body;
 
     // Sanitize custom prompt (throws promptRejected if blocked)
-    const customPrompt = sanitizePrompt(body.customPrompt);
+    // Then translate to English so non-English input works reliably with the AI
+    let customPrompt = sanitizePrompt(body.customPrompt);
+    if (customPrompt) {
+      const translated = await toEnglish(customPrompt);
+      if (translated !== customPrompt) log(`prompt translated: "${customPrompt.slice(0, 40)}" → "${translated.slice(0, 40)}"`);
+      customPrompt = translated;
+    }
 
     log(`request received — style=${style} mode=${mode} imageBase64Length=${imageBase64?.length ?? 0}`);
     // Always log env state to server console (never in response body)
