@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,11 +11,9 @@ export default function PricingPage() {
   const t = useTranslations('pricing');
   const tDashboard = useTranslations('dashboard');
   const searchParams = useSearchParams();
-  const [showCanceled, setShowCanceled] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get('canceled') === 'true') setShowCanceled(true);
-  }, [searchParams]);
+  const [showCanceled, setShowCanceled] = useState(
+    () => searchParams.get('canceled') === 'true'
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
