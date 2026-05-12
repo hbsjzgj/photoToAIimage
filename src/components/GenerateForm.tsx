@@ -143,7 +143,7 @@ export default function GenerateForm() {
               <Image src={preview} alt="Preview" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
-                <span className="text-sm text-ink/80">アップロード済み</span>
+                <span className="text-sm text-ink/80">{t('upload.label')}</span>
                 <motion.button
                   onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
                   className="px-4 py-2 rounded-xl bg-[rgba(0,0,0,0.5)] backdrop-blur-md
@@ -152,7 +152,7 @@ export default function GenerateForm() {
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
                 >
-                  変更
+                  {t('upload.change')}
                 </motion.button>
               </div>
             </motion.div>
@@ -209,7 +209,7 @@ export default function GenerateForm() {
                 />
               )}
               <span className="relative">
-                {m === 'free' ? `${t('freeMode')} (残り${creditsState.freeRemaining}回)` : `${t('paidMode')} (${creditsState.credits} cr)`}
+                {m === 'free' ? `${t('freeMode')} (${creditsState.freeRemaining})` : `${t('paidMode')} (${creditsState.credits} cr)`}
               </span>
             </motion.button>
           ))}
@@ -218,7 +218,7 @@ export default function GenerateForm() {
 
       {/* ── Style Selector ── */}
       <div>
-        <p className="text-xs text-ink-muted font-medium tracking-wider uppercase mb-4">スタイルを選択</p>
+        <p className="text-xs text-ink-muted font-medium tracking-wider uppercase mb-4">{t('styleLabel')}</p>
         <StyleSelector selected={style} onSelect={setStyle} mode={session?.user ? mode : 'free'} />
       </div>
 
@@ -233,7 +233,7 @@ export default function GenerateForm() {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             <div>
-              <p className="text-xs text-ink-muted uppercase tracking-wider mb-4">枚数</p>
+              <p className="text-xs text-ink-muted uppercase tracking-wider mb-4">{t('countLabel')}</p>
               <div className="space-y-2">
                 {([1, 4] as (1 | 4)[]).map((n) => (
                   <label key={n} className="flex items-center gap-3 cursor-pointer group">
@@ -248,7 +248,7 @@ export default function GenerateForm() {
               </div>
             </div>
             <div>
-              <p className="text-xs text-ink-muted uppercase tracking-wider mb-4">解像度</p>
+              <p className="text-xs text-ink-muted uppercase tracking-wider mb-4">{t('sizeLabel')}</p>
               <div className="space-y-2">
                 {['1024x1024', '1536x1536'].map((s) => (
                   <label key={s} className="flex items-center gap-3 cursor-pointer group">

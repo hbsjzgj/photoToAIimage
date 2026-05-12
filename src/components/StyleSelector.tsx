@@ -1,29 +1,29 @@
 'use client';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { StyleId, FREE_STYLES, ALL_STYLES } from '@/types';
 
-interface StyleMeta {
-  emoji: string;
+interface StyleVisual {
   gradient: string;
-  textColor: string;
+  accent: string;
 }
 
-const STYLE_META: Record<StyleId, StyleMeta> = {
-  anime_basic:      { emoji: '🌸', gradient: 'from-rose-500/20 via-pink-500/10 to-transparent',    textColor: '#f9a8d4' },
-  soft_cartoon:     { emoji: '🎨', gradient: 'from-orange-400/20 via-amber-400/10 to-transparent', textColor: '#fbbf24' },
-  cute_pet:         { emoji: '🐱', gradient: 'from-yellow-400/20 via-orange-300/10 to-transparent',textColor: '#fb923c' },
-  simple_icon:      { emoji: '⭕', gradient: 'from-zinc-400/15 via-gray-400/8 to-transparent',     textColor: '#d1d5db' },
-  '3d_cartoon':     { emoji: '🎭', gradient: 'from-purple-500/20 via-violet-400/10 to-transparent',textColor: '#c084fc' },
-  anime_pro:        { emoji: '✨', gradient: 'from-violet-500/20 via-purple-500/10 to-transparent',textColor: '#a78bfa' },
-  soft_storybook:   { emoji: '📖', gradient: 'from-green-500/15 via-emerald-400/8 to-transparent', textColor: '#6ee7b7' },
-  cyberpunk:        { emoji: '🤖', gradient: 'from-cyan-500/20 via-blue-500/10 to-transparent',    textColor: '#22d3ee' },
-  comic_hero:       { emoji: '💥', gradient: 'from-red-500/20 via-orange-500/10 to-transparent',   textColor: '#f87171' },
-  fashion_avatar:   { emoji: '👗', gradient: 'from-amber-400/20 via-gold/10 to-transparent',       textColor: '#C8A96B' },
-  business_profile: { emoji: '💼', gradient: 'from-slate-400/15 via-gray-500/8 to-transparent',   textColor: '#94a3b8' },
-  pet_portrait_pro: { emoji: '🐾', gradient: 'from-amber-600/20 via-yellow-600/10 to-transparent',textColor: '#d97706' },
-  couple_avatar:    { emoji: '💑', gradient: 'from-pink-500/20 via-rose-400/10 to-transparent',   textColor: '#fb7185' },
-  kawaii_icon:      { emoji: '🌈', gradient: 'from-sky-400/20 via-indigo-400/10 to-transparent',  textColor: '#38bdf8' },
+const STYLE_VISUALS: Record<StyleId, StyleVisual> = {
+  anime_basic:      { gradient: 'from-rose-600/60 via-pink-700/40 to-[#0F1115]',      accent: '#f9a8d4' },
+  soft_cartoon:     { gradient: 'from-amber-500/60 via-orange-600/40 to-[#0F1115]',   accent: '#fbbf24' },
+  cute_pet:         { gradient: 'from-yellow-400/60 via-orange-400/40 to-[#0F1115]',  accent: '#fb923c' },
+  simple_icon:      { gradient: 'from-slate-400/50 via-gray-600/30 to-[#0F1115]',     accent: '#d1d5db' },
+  '3d_cartoon':     { gradient: 'from-purple-600/60 via-violet-700/40 to-[#0F1115]',  accent: '#c084fc' },
+  anime_pro:        { gradient: 'from-violet-600/60 via-indigo-700/40 to-[#0F1115]',  accent: '#a78bfa' },
+  soft_storybook:   { gradient: 'from-emerald-500/50 via-green-600/30 to-[#0F1115]',  accent: '#6ee7b7' },
+  cyberpunk:        { gradient: 'from-cyan-500/60 via-blue-600/40 to-[#0F1115]',      accent: '#22d3ee' },
+  comic_hero:       { gradient: 'from-red-600/60 via-orange-600/40 to-[#0F1115]',     accent: '#f87171' },
+  fashion_avatar:   { gradient: 'from-amber-400/60 via-yellow-600/40 to-[#0F1115]',   accent: '#C8A96B' },
+  business_profile: { gradient: 'from-slate-500/50 via-gray-600/30 to-[#0F1115]',     accent: '#94a3b8' },
+  pet_portrait_pro: { gradient: 'from-amber-700/60 via-yellow-700/40 to-[#0F1115]',   accent: '#d97706' },
+  couple_avatar:    { gradient: 'from-pink-600/60 via-rose-600/40 to-[#0F1115]',      accent: '#fb7185' },
+  kawaii_icon:      { gradient: 'from-sky-400/60 via-indigo-500/40 to-[#0F1115]',     accent: '#38bdf8' },
 };
 
 interface Props {
@@ -32,70 +32,123 @@ interface Props {
   mode: 'free' | 'paid';
 }
 
+function StyleCard({
+  style,
+  isSelected,
+  isFree,
+  index,
+  onSelect,
+  t,
+}: {
+  style: StyleId;
+  isSelected: boolean;
+  isFree: boolean;
+  index: number;
+  onSelect: (s: StyleId) => void;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const visual = STYLE_VISUALS[style];
+
+  return (
+    <motion.button
+      onClick={() => onSelect(style)}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: index * 0.035, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ scale: 1.025, y: -3 }}
+      whileTap={{ scale: 0.97 }}
+      className={`relative flex flex-col rounded-2xl overflow-hidden cursor-pointer
+                  aspect-[3/4] text-left group
+                  transition-shadow duration-400
+                  ${isSelected
+                    ? 'shadow-[0_0_0_2px_rgba(200,169,107,0.7),0_8px_32px_rgba(200,169,107,0.20)]'
+                    : 'shadow-[0_2px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_28px_rgba(0,0,0,0.5)]'
+                  }`}
+    >
+      {/* Gradient fallback background — always visible until image loads */}
+      <div className={`absolute inset-0 bg-gradient-to-b ${visual.gradient} transition-opacity duration-500
+                       ${imgLoaded && !imgError ? 'opacity-0' : 'opacity-100'}`} />
+
+      {/* Preview image */}
+      {!imgError && (
+        <img
+          src={`/style-previews/${style}.webp`}
+          alt={t(`styles.${style}`)}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgError(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500
+                       group-hover:scale-105
+                       ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
+
+      {/* Bottom overlay — always on top of image */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3
+                      bg-gradient-to-t from-[rgba(10,11,14,0.96)] via-[rgba(10,11,14,0.6)] to-transparent
+                      pointer-events-none" />
+
+      {/* Selected gold ring */}
+      {isSelected && (
+        <motion.div
+          layoutId="style-ring"
+          className="absolute inset-0 rounded-2xl border-2 border-[rgba(200,169,107,0.7)] z-10"
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+        />
+      )}
+
+      {/* Selected gold tick */}
+      {isSelected && (
+        <div className="absolute top-2.5 right-2.5 z-20 w-5 h-5 rounded-full flex items-center justify-center"
+             style={{ backgroundColor: 'var(--color-gold)' }}>
+          <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      )}
+
+      {/* FREE / PRO badge */}
+      <div className={`absolute top-2.5 left-2.5 z-20 text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-full
+                       ${isFree
+                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                         : 'border text-[rgba(200,169,107,0.9)] bg-[rgba(200,169,107,0.12)] border-[rgba(200,169,107,0.25)]'
+                       }`}>
+        {isFree ? 'FREE' : 'PRO'}
+      </div>
+
+      {/* Text info */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-3">
+        <p className="text-xs font-semibold text-white leading-tight mb-0.5 truncate"
+           style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+          {t(`styles.${style}`)}
+        </p>
+        <p className="text-[10px] leading-snug truncate"
+           style={{ color: 'rgba(184,194,208,0.75)', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+          {t(`styleDesc.${style}`)}
+        </p>
+      </div>
+    </motion.button>
+  );
+}
+
 export default function StyleSelector({ selected, onSelect, mode }: Props) {
   const t = useTranslations();
   const available = mode === 'free' ? FREE_STYLES : ALL_STYLES;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-      {available.map((style, i) => {
-        const meta = STYLE_META[style];
-        const isFree = FREE_STYLES.includes(style);
-        const isSelected = selected === style;
-
-        return (
-          <motion.button
-            key={style}
-            onClick={() => onSelect(style)}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.03, y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            className={`relative flex flex-col items-center gap-3 p-5 rounded-3xl border
-                        overflow-hidden text-left cursor-pointer group
-                        transition-all duration-400
-                        ${isSelected
-                          ? 'border-gold/50 bg-gold/8 shadow-gold-sm'
-                          : 'border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.13)]'
-                        }`}
-          >
-            {/* Gradient bg on hover / selected */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient}
-                             transition-opacity duration-400
-                             ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'}`} />
-
-            {/* Selected ring */}
-            {isSelected && (
-              <motion.div
-                layoutId="style-selected"
-                className="absolute inset-0 rounded-3xl border-2 border-gold/60"
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              />
-            )}
-
-            <span className="relative text-3xl transition-transform duration-400 group-hover:scale-110">
-              {meta.emoji}
-            </span>
-
-            <div className="relative w-full">
-              <p className="text-xs font-medium text-ink-secondary group-hover:text-ink
-                             transition-colors duration-300 leading-tight text-center">
-                {t(`styles.${style}`)}
-              </p>
-            </div>
-
-            {/* Free / Pro badge */}
-            <div className={`relative text-[9px] font-semibold tracking-wider px-2 py-0.5 rounded-full
-                             ${isFree
-                               ? 'text-emerald-400/80 bg-emerald-500/10'
-                               : 'text-gold/70 bg-gold/8'
-                             }`}>
-              {isFree ? 'FREE' : 'PRO'}
-            </div>
-          </motion.button>
-        );
-      })}
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+      {available.map((style, i) => (
+        <StyleCard
+          key={style}
+          style={style}
+          isSelected={selected === style}
+          isFree={FREE_STYLES.includes(style)}
+          index={i}
+          onSelect={onSelect}
+          t={t}
+        />
+      ))}
     </div>
   );
 }

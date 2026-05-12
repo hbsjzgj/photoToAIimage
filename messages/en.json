@@ -72,6 +72,7 @@
   },
   "generate": {
     "title": "Generate AI Avatar",
+    "subtitle": "Upload a photo and transform it into an AI art style",
     "upload": {
       "label": "Upload Your Photo",
       "hint": "JPG / PNG / WebP · Max 10MB",
@@ -132,6 +133,22 @@
     "pet_portrait_pro": "Pet Portrait (Pro)",
     "couple_avatar": "Couple Avatar",
     "kawaii_icon": "Kawaii Icon"
+  },
+  "styleDesc": {
+    "anime_basic": "Clean anime-style portrait",
+    "soft_cartoon": "Soft pastel cartoon illustration",
+    "cute_pet": "Adorable pet character transform",
+    "simple_icon": "Minimal flat icon style",
+    "3d_cartoon": "Pixar-inspired 3D character",
+    "anime_pro": "Pro-quality anime illustration",
+    "soft_storybook": "Soft watercolor storybook art",
+    "cyberpunk": "Neon-lit cyberpunk aesthetic",
+    "comic_hero": "Dynamic comic book hero",
+    "fashion_avatar": "Stylish fashion avatar",
+    "business_profile": "Polished professional headshot",
+    "pet_portrait_pro": "Hyper-detailed pet portrait",
+    "couple_avatar": "Matching couple avatar set",
+    "kawaii_icon": "Super-cute pastel kawaii icon"
   },
   "pricing": {
     "title": "Pricing",

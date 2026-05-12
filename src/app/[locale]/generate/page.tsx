@@ -16,7 +16,7 @@ export default async function GeneratePage() {
             <p className="text-gold text-xs font-medium tracking-widest uppercase mb-4">Studio</p>
             <h1 className="text-4xl font-light text-ink">{t('title')}</h1>
             <p className="mt-3 text-ink-secondary text-sm font-light">
-              写真をアップロードして、AIアートスタイルに変換します
+              {t('subtitle')}
             </p>
           </div>
           <GenerateForm />

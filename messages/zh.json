@@ -72,6 +72,7 @@
   },
   "generate": {
     "title": "生成AI头像",
+    "subtitle": "上传照片，将其转换为AI艺术风格",
     "upload": {
       "label": "上传照片",
       "hint": "JPG / PNG / WebP · 最大10MB",
@@ -132,6 +133,22 @@
     "pet_portrait_pro": "宠物肖像（专业）",
     "couple_avatar": "情侣头像",
     "kawaii_icon": "可爱图标"
+  },
+  "styleDesc": {
+    "anime_basic": "清晰的动漫风格肖像",
+    "soft_cartoon": "柔和色调卡通插画",
+    "cute_pet": "超萌宠物角色变换",
+    "simple_icon": "极简扁平化图标",
+    "3d_cartoon": "皮克斯风3D卡通角色",
+    "anime_pro": "专业级动漫插画",
+    "soft_storybook": "柔和水彩绘本风格",
+    "cyberpunk": "霓虹赛博朋克美学",
+    "comic_hero": "动感漫画英雄风格",
+    "fashion_avatar": "时尚潮流头像",
+    "business_profile": "精致职业形象照",
+    "pet_portrait_pro": "超写实宠物肖像",
+    "couple_avatar": "情侣匹配头像套装",
+    "kawaii_icon": "超可爱柔和风图标"
   },
   "pricing": {
     "title": "定价方案",

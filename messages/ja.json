@@ -72,6 +72,7 @@
   },
   "generate": {
     "title": "AIアバター生成",
+    "subtitle": "写真をアップロードして、AIアートスタイルに変換します",
     "upload": {
       "label": "写真をアップロード",
       "hint": "JPG / PNG / WebP・最大10MB",
@@ -132,6 +133,22 @@
     "pet_portrait_pro": "ペットポートレート（プロ）",
     "couple_avatar": "カップルアバター",
     "kawaii_icon": "かわいいアイコン"
+  },
+  "styleDesc": {
+    "anime_basic": "クリアなアニメ風ポートレート",
+    "soft_cartoon": "柔らかな色合いのカートゥン",
+    "cute_pet": "キュートなペットキャラクターに",
+    "simple_icon": "ミニマルなフラットアイコン",
+    "3d_cartoon": "ピクサー風3Dキャラクター",
+    "anime_pro": "プロ品質アニメイラスト",
+    "soft_storybook": "柔らかい水彩絵本スタイル",
+    "cyberpunk": "ネオン輝くサイバーパンク",
+    "comic_hero": "ダイナミックなコミックヒーロー",
+    "fashion_avatar": "おしゃれなファッションアバター",
+    "business_profile": "信頼感あるビジネス写真",
+    "pet_portrait_pro": "毛並みリアルなペット肖像",
+    "couple_avatar": "マッチングカップルアバター",
+    "kawaii_icon": "超キュートなパステルアイコン"
   },
   "pricing": {
     "title": "料金プラン",

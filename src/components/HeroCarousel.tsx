@@ -4,11 +4,38 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
 const SLIDES = [
-  { key: 'animePro',   gradient: 'from-rose-900/60 via-pink-900/40 to-surface',   emoji: '✨', accent: '#f472b6' },
-  { key: 'cyberpunk',  gradient: 'from-cyan-900/60 via-blue-900/40 to-surface',    emoji: '🤖', accent: '#22d3ee' },
-  { key: 'fashion',    gradient: 'from-amber-900/60 via-yellow-900/40 to-surface', emoji: '👗', accent: '#C8A96B' },
-  { key: 'watercolor', gradient: 'from-violet-900/60 via-purple-900/40 to-surface',emoji: '🎨', accent: '#a78bfa' },
+  { key: 'animePro',   styleId: 'anime_pro',       gradient: 'from-rose-900/80 via-pink-900/60 to-[#0F1115]',    accent: '#f472b6' },
+  { key: 'cyberpunk',  styleId: 'cyberpunk',        gradient: 'from-cyan-900/80 via-blue-900/60 to-[#0F1115]',    accent: '#22d3ee' },
+  { key: 'fashion',    styleId: 'fashion_avatar',   gradient: 'from-amber-900/80 via-yellow-900/60 to-[#0F1115]', accent: '#C8A96B' },
+  { key: 'watercolor', styleId: 'soft_storybook',   gradient: 'from-violet-900/80 via-purple-900/60 to-[#0F1115]',accent: '#a78bfa' },
 ];
+
+function SlideImage({ styleId, gradient }: { styleId: string; gradient: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="absolute inset-0">
+      {/* Gradient fallback — always rendered below image */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+
+      {/* Preview image */}
+      {!error && (
+        <img
+          src={`/style-previews/${styleId}.webp`}
+          alt={styleId}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700
+                       ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
+
+      {/* Bottom vignette */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[rgba(10,11,14,0.7)] to-transparent" />
+    </div>
+  );
+}
 
 export default function HeroCarousel() {
   const t = useTranslations('home.carousel');
@@ -28,32 +55,13 @@ export default function HeroCarousel() {
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
-            className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}
+            className="absolute inset-0"
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          />
-        </AnimatePresence>
-
-        {/* Floating emoji avatar */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`emoji-${current}`}
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <motion.div
-              className="w-36 h-36 rounded-full flex items-center justify-center text-8xl
-                         bg-[rgba(0,0,0,0.25)] backdrop-blur-sm border border-[rgba(255,255,255,0.10)]"
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              {slide.emoji}
-            </motion.div>
+            <SlideImage styleId={slide.styleId} gradient={slide.gradient} />
           </motion.div>
         </AnimatePresence>
 
@@ -61,13 +69,13 @@ export default function HeroCarousel() {
         <AnimatePresence mode="wait">
           <motion.div
             key={`label-${current}`}
-            className="absolute bottom-6 left-0 right-0 flex justify-center"
+            className="absolute bottom-6 left-0 right-0 flex justify-center z-10"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <span className="px-4 py-2 rounded-full bg-[rgba(0,0,0,0.5)] backdrop-blur-md
+            <span className="px-4 py-2 rounded-full bg-[rgba(0,0,0,0.55)] backdrop-blur-md
                              text-xs font-medium text-ink border border-[rgba(255,255,255,0.10)]">
               {t(slide.key as 'animePro' | 'cyberpunk' | 'fashion' | 'watercolor')}
             </span>
