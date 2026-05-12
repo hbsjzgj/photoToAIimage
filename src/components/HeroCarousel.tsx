@@ -1,15 +1,17 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 const SLIDES = [
-  { label: 'アニメ・プロ',   gradient: 'from-rose-900/60 via-pink-900/40 to-surface',   emoji: '✨', accent: '#f472b6' },
-  { label: 'サイバーパンク', gradient: 'from-cyan-900/60 via-blue-900/40 to-surface',    emoji: '🤖', accent: '#22d3ee' },
-  { label: 'ファッション',   gradient: 'from-amber-900/60 via-yellow-900/40 to-surface', emoji: '👗', accent: '#C8A96B' },
-  { label: '水彩アート',     gradient: 'from-violet-900/60 via-purple-900/40 to-surface',emoji: '🎨', accent: '#a78bfa' },
+  { key: 'animePro',   gradient: 'from-rose-900/60 via-pink-900/40 to-surface',   emoji: '✨', accent: '#f472b6' },
+  { key: 'cyberpunk',  gradient: 'from-cyan-900/60 via-blue-900/40 to-surface',    emoji: '🤖', accent: '#22d3ee' },
+  { key: 'fashion',    gradient: 'from-amber-900/60 via-yellow-900/40 to-surface', emoji: '👗', accent: '#C8A96B' },
+  { key: 'watercolor', gradient: 'from-violet-900/60 via-purple-900/40 to-surface',emoji: '🎨', accent: '#a78bfa' },
 ];
 
 export default function HeroCarousel() {
+  const t = useTranslations('home.carousel');
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function HeroCarousel() {
           >
             <span className="px-4 py-2 rounded-full bg-[rgba(0,0,0,0.5)] backdrop-blur-md
                              text-xs font-medium text-ink border border-[rgba(255,255,255,0.10)]">
-              {slide.label}
+              {t(slide.key as 'animePro' | 'cyberpunk' | 'fashion' | 'watercolor')}
             </span>
           </motion.div>
         </AnimatePresence>
@@ -101,14 +103,14 @@ export default function HeroCarousel() {
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
       >
-        14 スタイル
+        {t('styleCount')}
       </motion.div>
       <motion.div
         className="absolute -bottom-4 -left-4 px-3 py-1.5 rounded-2xl glass-card text-xs text-gold"
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       >
-        HD 品質
+        {t('quality')}
       </motion.div>
     </div>
   );

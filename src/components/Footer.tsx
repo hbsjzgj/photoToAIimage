@@ -19,7 +19,7 @@ export default function Footer() {
               <span className="font-semibold text-ink text-sm tracking-wide">FORMA</span>
             </div>
             <p className="text-xs text-ink-muted leading-relaxed max-w-xs">
-              写真を、芸術に。<br />AIがあなたの肖像を高品位なアートに変換します。
+              {t('footer.tagline')}
             </p>
           </div>
 

@@ -24,9 +24,22 @@
   "home": {
     "hero": {
       "title": "写真をAIカートゥンアバターに変換",
+      "badge": "AI スタイル変換",
+      "titlePart1": "写真を、",
+      "titleHighlight": "芸術",
+      "titleSuffix": "に。",
+      "freeTrial": "1日3回無料 · クレジットカード不要",
       "subtitle": "TikTok・Instagram・YouTube・小紅書に最適なAIアバターを、あなたの写真から数秒で生成。14種類のスタイルから選択可能。",
       "ctaPrimary": "無料で始める",
       "ctaSecondary": "サンプルを見る"
+    },
+    "carousel": {
+      "animePro": "アニメ・プロ",
+      "cyberpunk": "サイバーパンク",
+      "fashion": "ファッション",
+      "watercolor": "水彩アート",
+      "styleCount": "14 スタイル",
+      "quality": "HD 品質"
     },
     "howItWorks": {
       "title": "使い方",
@@ -241,6 +254,7 @@
     }
   },
   "footer": {
+    "tagline": "写真を、芸術に。AIがあなたの肖像を高品位なアートに変換します。",
     "rights": "All rights reserved.",
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",

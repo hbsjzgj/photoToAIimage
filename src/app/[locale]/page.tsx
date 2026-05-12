@@ -40,13 +40,13 @@ export default async function HomePage({ params }: Props) {
                               bg-gold/10 border border-gold/20 text-gold text-xs font-medium
                               animate-fade-in">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-gold" />
-                AI スタイル変換
+                {t('home.hero.badge')}
               </div>
 
               <div className="space-y-4 animate-fade-up" style={{ animationDelay: '100ms', opacity: 0, animationFillMode: 'forwards' }}>
                 <h1 className="text-5xl lg:text-6xl xl:text-7xl font-light text-ink leading-[1.1] tracking-tight text-balance">
-                  写真を、<br />
-                  <span className="font-semibold text-gold">芸術</span>に。
+                  {t('home.hero.titlePart1')}<br />
+                  <span className="font-semibold text-gold">{t('home.hero.titleHighlight')}</span>{t('home.hero.titleSuffix')}
                 </h1>
                 <p className="text-ink-secondary text-lg lg:text-xl leading-relaxed max-w-md font-light">
                   {t('home.hero.subtitle')}
@@ -65,7 +65,7 @@ export default async function HomePage({ params }: Props) {
 
               <p className="text-xs text-ink-muted animate-fade-in"
                  style={{ animationDelay: '400ms', opacity: 0, animationFillMode: 'forwards' }}>
-                1日3回無料 · クレジットカード不要
+                {t('home.hero.freeTrial')}
               </p>
             </div>
 

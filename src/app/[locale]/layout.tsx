@@ -3,6 +3,22 @@ import { getMessages } from 'next-intl/server';
 import { SessionProvider } from '@/components/SessionProvider';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { Noto_Sans_JP, Inter } from 'next/font/google';
+import '../globals.css';
+
+const noto = Noto_Sans_JP({
+  subsets: ['latin'],
+  variable: '--font-noto',
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
 
 interface Props {
   children: React.ReactNode;
@@ -19,8 +35,12 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <SessionProvider>{children}</SessionProvider>
-    </NextIntlClientProvider>
+    <html lang={locale} className="dark" suppressHydrationWarning>
+      <body className={`${noto.variable} ${inter.variable} font-sans bg-surface text-ink`}>
+        <NextIntlClientProvider messages={messages}>
+          <SessionProvider>{children}</SessionProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }
