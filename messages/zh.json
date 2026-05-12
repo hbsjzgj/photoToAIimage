@@ -116,10 +116,17 @@
       "notLoggedIn": "请先登录",
       "uploadFailed": "上传失败",
       "generationFailed": "生成失败，请重试",
-      "limitReached": "今日免费生成次数（3次）已用完。",
+      "limitReached": "今日免费生成次数已用完，请明天再试或购买积分。",
       "insufficientCredits": "积分不足。",
       "timeout": "生成超时，请重试。",
-      "styleForbidden": "此风格在免费模式下不可用。"
+      "styleForbidden": "此风格在免费模式下不可用。",
+      "invalidFileType": "仅支持 JPEG、PNG、WebP（不支持 SVG 和 GIF）",
+      "fileTooLarge": "文件大小不能超过 5MB",
+      "imageTooSmall": "图片尺寸最小为 256×256px",
+      "imageTooLarge": "图片尺寸最大为 4096×4096px",
+      "nsfwContent": "因安全原因无法生成该图片",
+      "rateLimited": "请求过于频繁，请稍后再试",
+      "promptRejected": "提示词包含不允许的内容"
     }
   },
   "styles": {

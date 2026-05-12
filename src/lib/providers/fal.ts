@@ -50,6 +50,7 @@ interface FluxImg2ImgOutput {
   images: Array<{ url: string; width: number; height: number; content_type: string }>;
   seed: number;
   prompt: string;
+  has_nsfw_concepts?: boolean[];
 }
 
 // Per-call debug state — written during generate(), read by the debug API
@@ -216,6 +217,15 @@ export class FalProvider implements AIProvider {
     if (!data?.images?.length) {
       const msg = `FalProvider: no images in response — raw=${JSON.stringify(rawResult)}`;
       debug.errorMessage = msg;
+      throw new Error(msg);
+    }
+
+    // NSFW safety check — fal.ai safety checker flag
+    if (data.has_nsfw_concepts?.some(Boolean)) {
+      const msg = 'nsfwContent';
+      debug.errorMessage = msg;
+      debug.errorJson = JSON.stringify({ nsfwDetected: true, has_nsfw_concepts: data.has_nsfw_concepts });
+      console.warn('[FAL] NSFW content detected — blocking result');
       throw new Error(msg);
     }
 

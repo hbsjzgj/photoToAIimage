@@ -8,9 +8,23 @@ import { spendCredits, getCredits } from '@/lib/credits';
 import { canUseFree, incrementFreeUsage } from '@/lib/usage';
 import { FREE_STYLES, GenerateRequest, FREE_OUTPUT_SIZE } from '@/types';
 import { getStorageProvider, getStorageProviderName } from '@/lib/storage';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+// Prompt safety filter — server-side second check (frontend enforces too)
+const BLOCKED_TERMS = /\b(nude|nsfw|explicit|porn|pornographic|violence|gore|naked|hentai)\b/i;
+
+function sanitizePrompt(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const trimmed = raw.trim().slice(0, 200);
+  if (!trimmed) return undefined;
+  if (BLOCKED_TERMS.test(trimmed)) throw new Error('promptRejected');
+  return trimmed;
+}
 
 export async function POST(req: NextRequest) {
   const debugLogs: string[] = [];
@@ -22,27 +36,44 @@ export async function POST(req: NextRequest) {
     debugLogs.push(entry);
   };
 
+  // Hide internals from production responses
   const fail = (status: number, error: string, extra?: Record<string, unknown>) =>
     NextResponse.json({
       success: false,
       error,
-      stage: currentStage,
-      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+      ...(!IS_PROD ? { stage: currentStage } : {}),
+      ...(!IS_PROD ? { debug: { logs: debugLogs, storageProvider: getStorageProviderName() } } : {}),
       ...extra,
     }, { status });
 
   try {
+    // ── IP Rate Limit — 10 req/min ──────────────────────────
+    currentStage = 'ipRateLimit';
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      req.headers.get('x-real-ip') ??
+      'unknown';
+    if (!checkRateLimit(`gen:${ip}`, 10, 60_000)) {
+      log(`IP rate limit exceeded: ${ip}`);
+      return fail(429, 'rateLimited');
+    }
+
     currentStage = 'session';
     const session = await getServerSession(authOptions);
     const userId = (session?.user as { id?: string } | undefined)?.id;
 
     currentStage = 'parse';
     const body: GenerateRequest & { customPrompt?: string } = await req.json();
-    const { imageBase64, style, mode, count, outputSize, customPrompt } = body;
+    const { imageBase64, style, mode, count, outputSize } = body;
+
+    // Sanitize custom prompt (throws promptRejected if blocked)
+    const customPrompt = sanitizePrompt(body.customPrompt);
 
     log(`request received — style=${style} mode=${mode} imageBase64Length=${imageBase64?.length ?? 0}`);
-    log(`AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} HF_TOKEN=${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
-    log(`storageProvider=${getStorageProviderName()} VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`);
+    if (!IS_PROD) {
+      log(`AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} HF_TOKEN=${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
+      log(`storageProvider=${getStorageProviderName()} VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`);
+    }
 
     if (!imageBase64 || !style) {
       log('ERROR: missing required fields');
@@ -57,19 +88,15 @@ export async function POST(req: NextRequest) {
       }
 
       currentStage = 'rateLimit';
-      const ip =
-        req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-        req.headers.get('x-real-ip') ??
-        'unknown';
       const anonymousId = userId ? undefined : ip;
-      log(`checking rate limit — userId=${userId ?? 'anon'} ip=${ip}`);
+      log(`checking daily limit — userId=${userId ?? 'anon'} ip=${ip}`);
 
       const allowed = await canUseFree(userId, anonymousId);
       if (!allowed) {
         log('ERROR: daily limit reached');
         return fail(429, 'limitReached');
       }
-      log('rate limit OK');
+      log('daily limit OK');
 
       currentStage = 'generate';
       log('calling generateAvatar...');
@@ -79,7 +106,7 @@ export async function POST(req: NextRequest) {
 
       const finalUrls: string[] = [];
       for (const url of urls) {
-        let finalUrl = url; // safe default
+        let finalUrl = url;
 
         if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
           currentStage = 'watermark';
@@ -97,7 +124,6 @@ export async function POST(req: NextRequest) {
               const stored = await getStorageProvider().upload(watermarked, filename);
               log(`storage upload OK: ${stored}`);
 
-              // LocalProvider on Vercel writes to /tmp (ephemeral across lambdas) → inline data URL
               if (stored.startsWith('/api/outputs/') && !!process.env.VERCEL) {
                 finalUrl = `data:image/png;base64,${watermarked.toString('base64')}`;
                 log('Vercel + LocalProvider: converted to inline data URL');
@@ -112,7 +138,6 @@ export async function POST(req: NextRequest) {
           } catch (wmErr) {
             const msg = wmErr instanceof Error ? wmErr.message : String(wmErr);
             log(`watermark FAILED (non-fatal): ${msg} — using original URL`);
-            // finalUrl stays as the static /demo-results/ path
           }
         }
 
@@ -155,7 +180,7 @@ export async function POST(req: NextRequest) {
         isDemo: isTextToImage,
         provider: providerUsed,
         imageUrl: finalUrls[0],
-        debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+        ...(!IS_PROD ? { debug: { logs: debugLogs, storageProvider: getStorageProviderName() } } : {}),
       });
     }
 
@@ -209,18 +234,27 @@ export async function POST(req: NextRequest) {
       isDemo: isTextToImage,
       provider: providerUsed,
       imageUrl: variants[0]?.imageUrl,
-      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+      ...(!IS_PROD ? { debug: { logs: debugLogs, storageProvider: getStorageProviderName() } } : {}),
     });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[generate] FATAL at stage', currentStage, ':', err);
     debugLogs.push(`[${currentStage}] FATAL: ${msg}`);
+
+    // Surface specific known errors as proper codes
+    const knownErrors: Record<string, number> = {
+      nsfwContent: 400,
+      promptRejected: 400,
+    };
+    if (msg in knownErrors) {
+      return fail(knownErrors[msg], msg);
+    }
+
     return NextResponse.json({
       success: false,
       error: 'generationFailed',
-      stage: currentStage,
-      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+      ...(!IS_PROD ? { stage: currentStage, debug: { logs: debugLogs, storageProvider: getStorageProviderName() } } : {}),
     }, { status: 500 });
   }
 }

@@ -76,14 +76,38 @@ export default function GenerateForm() {
   }, [session, result]);
 
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith('image/')) return;
+    // Allowed types: JPEG, PNG, WebP — no SVG, no GIF
+    const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+    if (!ALLOWED.includes(file.type)) {
+      setError(t('errors.invalidFileType'));
+      return;
+    }
+    // Max 5 MB
+    if (file.size > 5 * 1024 * 1024) {
+      setError(t('errors.fileTooLarge'));
+      return;
+    }
+
     const objectUrl = URL.createObjectURL(file);
     const img = document.createElement('img');
     img.onload = () => {
+      const { naturalWidth: w0, naturalHeight: h0 } = img;
+      // Dimension guards
+      if (w0 < 256 || h0 < 256) {
+        setError(t('errors.imageTooSmall'));
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+      if (w0 > 4096 || h0 > 4096) {
+        setError(t('errors.imageTooLarge'));
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
       const MAX = 768;
-      const scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
-      const w = Math.round(img.naturalWidth * scale);
-      const h = Math.round(img.naturalHeight * scale);
+      const scale = Math.min(1, MAX / Math.max(w0, h0));
+      const w = Math.round(w0 * scale);
+      const h = Math.round(h0 * scale);
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
@@ -97,7 +121,7 @@ export default function GenerateForm() {
     };
     img.onerror = () => URL.revokeObjectURL(objectUrl);
     img.src = objectUrl;
-  }, []);
+  }, [t]);
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -270,11 +294,16 @@ export default function GenerateForm() {
         </div>
         <textarea
           value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
+          onChange={(e) => setCustomPrompt(e.target.value.slice(0, 200))}
           placeholder={t('promptPlaceholder')}
           rows={2}
+          maxLength={200}
           className="w-full input-field text-sm resize-none leading-relaxed"
         />
+        <p className={`text-right text-[10px] mt-1 tabular-nums transition-colors
+                       ${customPrompt.length >= 190 ? 'text-gold/70' : 'text-ink-muted/40'}`}>
+          {customPrompt.length}/200
+        </p>
       </div>
 
       {/* ── Paid options ── */}

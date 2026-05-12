@@ -116,10 +116,17 @@
       "notLoggedIn": "ログインが必要です",
       "uploadFailed": "アップロードに失敗しました",
       "generationFailed": "生成に失敗しました。再度お試しください",
-      "limitReached": "本日の無料生成回数（3回）に達しました。",
+      "limitReached": "本日の無料生成回数に達しました。明日また試すか、クレジットを購入してください。",
       "insufficientCredits": "クレジットが不足しています。",
       "timeout": "生成がタイムアウトしました。再度お試しください。",
-      "styleForbidden": "このスタイルは無料モードでは使用できません。"
+      "styleForbidden": "このスタイルは無料モードでは使用できません。",
+      "invalidFileType": "JPEG・PNG・WebPのみ対応しています（SVG・GIFは不可）",
+      "fileTooLarge": "ファイルサイズは5MB以下にしてください",
+      "imageTooSmall": "画像は256×256px以上が必要です",
+      "imageTooLarge": "画像は4096×4096px以下にしてください",
+      "nsfwContent": "安全上の理由により生成できませんでした",
+      "rateLimited": "リクエストが多すぎます。少し待ってから再度お試しください",
+      "promptRejected": "プロンプトに不適切な言葉が含まれています"
     }
   },
   "styles": {
