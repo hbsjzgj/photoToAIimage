@@ -19,7 +19,7 @@ export async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
       <rect x="0" y="${height - fontSize * 2 - padding}" width="${width}" height="${fontSize * 2 + padding}"
             fill="black" fill-opacity="0.35" />
       <text x="${width / 2}" y="${height - padding}" text-anchor="middle" class="wm">
-        AI Avatar Generator
+        FORMA
       </text>
     </svg>`;
 

@@ -30,13 +30,21 @@ export default function Header() {
         {/* Logo */}
         <Link href={`/${locale}`} className="flex items-center gap-2.5 group">
           <motion.div
-            className="w-7 h-7 rounded-lg bg-gold/90 flex items-center justify-center"
+            className="relative w-7 h-7 rounded-lg bg-gold/90 flex items-center justify-center overflow-hidden flex-shrink-0"
             whileHover={{ scale: 1.08, rotate: 3 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
           >
-            <span className="text-surface text-xs font-black tracking-tighter">F</span>
+            <span className="text-surface text-xs font-black tracking-tighter select-none">F</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/forma-icon.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-contain"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
           </motion.div>
-          <span className="font-semibold text-ink tracking-wide text-sm">FORMA</span>
+          <span className="hidden sm:block font-semibold text-ink tracking-wide text-sm">FORMA</span>
         </Link>
 
         {/* Nav */}

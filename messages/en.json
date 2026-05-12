@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "AI Avatar",
-    "tagline": "Turn photos into AI cartoon avatars",
+    "appName": "FORMA",
+    "tagline": "AI-powered premium avatar studio",
     "loading": "Loading...",
     "error": "Something went wrong",
     "signIn": "Sign In",
@@ -23,13 +23,13 @@
   },
   "home": {
     "hero": {
-      "title": "Turn Your Photo Into an AI Cartoon Avatar",
-      "badge": "AI Style Transform",
+      "title": "Turn your photo into premium AI avatar art.",
+      "badge": "Japanese Premium AI Avatar Studio",
       "titlePart1": "Your photo,",
-      "titleHighlight": "reimagined",
+      "titleHighlight": "elevated",
       "titleSuffix": ".",
       "freeTrial": "3 free per day · No credit card required",
-      "subtitle": "Create stunning AI avatars for TikTok, Instagram, YouTube & more. Choose from 14 unique styles in seconds.",
+      "subtitle": "Turn your photo into premium AI avatar art.",
       "ctaPrimary": "Start for Free",
       "ctaSecondary": "See Examples"
     },
@@ -282,7 +282,7 @@
     }
   },
   "footer": {
-    "tagline": "Turn photos into art. AI transforms your portraits into premium art styles.",
+    "tagline": "AI-powered premium avatar studio.",
     "rights": "All rights reserved.",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",

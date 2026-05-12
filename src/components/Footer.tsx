@@ -13,8 +13,15 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-md bg-gold/90 flex items-center justify-center">
-                <span className="text-surface text-[10px] font-black">F</span>
+              <div className="relative w-6 h-6 rounded-md bg-gold/90 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <span className="text-surface text-[10px] font-black select-none">F</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/brand/forma-icon.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
               </div>
               <span className="font-semibold text-ink text-sm tracking-wide">FORMA</span>
             </div>

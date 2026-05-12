@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "AIアバター",
-    "tagline": "写真をAIカートゥンアバターに変換",
+    "appName": "FORMA",
+    "tagline": "AIパワードのプレミアムアバタースタジオ",
     "loading": "読み込み中...",
     "error": "エラーが発生しました",
     "signIn": "ログイン",
@@ -23,13 +23,13 @@
   },
   "home": {
     "hero": {
-      "title": "写真をAIカートゥンアバターに変換",
-      "badge": "AI スタイル変換",
+      "title": "写真を、あなたらしいアートへ。",
+      "badge": "Japanese Premium AI Avatar Studio",
       "titlePart1": "写真を、",
-      "titleHighlight": "芸術",
-      "titleSuffix": "に。",
+      "titleHighlight": "あなたらしい",
+      "titleSuffix": "アートへ。",
       "freeTrial": "1日3回無料 · クレジットカード不要",
-      "subtitle": "TikTok・Instagram・YouTube・小紅書に最適なAIアバターを、あなたの写真から数秒で生成。14種類のスタイルから選択可能。",
+      "subtitle": "FORMAは、あなたの写真を上質なAIアバターへ変換します。",
       "ctaPrimary": "無料で始める",
       "ctaSecondary": "サンプルを見る"
     },
@@ -282,7 +282,7 @@
     }
   },
   "footer": {
-    "tagline": "写真を、芸術に。AIがあなたの肖像を高品位なアートに変換します。",
+    "tagline": "AI-powered premium avatar studio.",
     "rights": "All rights reserved.",
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",

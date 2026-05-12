@@ -58,8 +58,15 @@ export default function AuthPage() {
         >
           {/* Logo */}
           <div className="text-center mb-10">
-            <div className="w-10 h-10 rounded-2xl bg-gold/90 flex items-center justify-center mx-auto mb-4">
-              <span className="text-surface font-black">F</span>
+            <div className="relative w-12 h-12 rounded-2xl bg-gold/90 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              <span className="text-surface font-black text-lg select-none">F</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/forma-icon.png"
+                alt="FORMA"
+                className="absolute inset-0 w-full h-full object-contain"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             </div>
             <h1 className="text-xl font-medium text-ink">FORMA</h1>
             <p className="text-ink-muted text-sm mt-1">

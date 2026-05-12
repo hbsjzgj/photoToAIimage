@@ -1,7 +1,7 @@
 {
   "common": {
-    "appName": "AI头像",
-    "tagline": "将照片转换为AI卡通头像",
+    "appName": "FORMA",
+    "tagline": "AI 驱动的高级头像工作室",
     "loading": "加载中...",
     "error": "发生错误",
     "signIn": "登录",
@@ -23,13 +23,13 @@
   },
   "home": {
     "hero": {
-      "title": "将照片转换为AI卡通头像",
-      "badge": "AI 风格变换",
+      "title": "将你的照片变成高级 AI 头像作品。",
+      "badge": "Japanese Premium AI Avatar Studio",
       "titlePart1": "照片，",
-      "titleHighlight": "变成艺术",
+      "titleHighlight": "升华为艺术",
       "titleSuffix": "。",
       "freeTrial": "每天3次免费 · 无需信用卡",
-      "subtitle": "为小红书、抖音、B站、Instagram创建精美AI头像。14种独特风格，数秒即可完成。",
+      "subtitle": "将你的照片变成高级 AI 头像作品。",
       "ctaPrimary": "免费开始",
       "ctaSecondary": "查看示例"
     },
@@ -282,7 +282,7 @@
     }
   },
   "footer": {
-    "tagline": "将照片变成艺术。AI将您的肖像转换为高品质艺术风格。",
+    "tagline": "AI-powered premium avatar studio.",
     "rights": "保留所有权利。",
     "terms": "服务条款",
     "privacy": "隐私政策",
