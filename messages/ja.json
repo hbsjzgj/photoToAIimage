@@ -97,7 +97,11 @@
       "noStyle": "スタイルを選択してください",
       "notLoggedIn": "ログインが必要です",
       "uploadFailed": "アップロードに失敗しました",
-      "generationFailed": "生成に失敗しました。再度お試しください"
+      "generationFailed": "生成に失敗しました。再度お試しください",
+      "limitReached": "本日の無料生成回数（3回）に達しました。",
+      "insufficientCredits": "クレジットが不足しています。",
+      "timeout": "生成がタイムアウトしました。再度お試しください。",
+      "styleForbidden": "このスタイルは無料モードでは使用できません。"
     }
   },
   "styles": {
@@ -200,7 +204,14 @@
     "stats": {
       "totalGenerated": "総生成数",
       "creditsUsed": "使用クレジット",
-      "savedImages": "保存済み画像"
+      "savedImages": "保存済み画像",
+      "freeRemaining": "本日の残り無料回数"
+    },
+    "banner": {
+      "successTitle": "購入が完了しました！",
+      "successSubtitle": "クレジットがアカウントに追加されました。",
+      "canceledTitle": "支払いがキャンセルされました",
+      "canceledSubtitle": "請求はされていません。いつでも再試行できます。"
     }
   },
   "auth": {
@@ -234,5 +245,25 @@
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",
     "contact": "お問い合わせ"
+  },
+  "terms": {
+    "title": "利用規約",
+    "lastUpdated": "最終更新: 2026年5月"
+  },
+  "privacy": {
+    "title": "プライバシーポリシー",
+    "lastUpdated": "最終更新: 2026年5月"
+  },
+  "purchase": {
+    "successTitle": "購入完了",
+    "successSubtitle": "クレジットがアカウントに追加されました",
+    "creditsAdded": "{count} クレジット追加",
+    "startGenerating": "生成を始める",
+    "viewDashboard": "ダッシュボードを見る"
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "subtitle": "お探しのページは存在しません。",
+    "home": "ホームへ戻る"
   }
 }

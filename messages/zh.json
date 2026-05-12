@@ -97,7 +97,11 @@
       "noStyle": "请选择风格",
       "notLoggedIn": "请先登录",
       "uploadFailed": "上传失败",
-      "generationFailed": "生成失败，请重试"
+      "generationFailed": "生成失败，请重试",
+      "limitReached": "今日免费生成次数（3次）已用完。",
+      "insufficientCredits": "积分不足。",
+      "timeout": "生成超时，请重试。",
+      "styleForbidden": "此风格在免费模式下不可用。"
     }
   },
   "styles": {
@@ -200,7 +204,14 @@
     "stats": {
       "totalGenerated": "总生成数",
       "creditsUsed": "已用积分",
-      "savedImages": "保存的图片"
+      "savedImages": "保存的图片",
+      "freeRemaining": "今日剩余免费次数"
+    },
+    "banner": {
+      "successTitle": "购买成功！",
+      "successSubtitle": "积分已添加到您的账户。",
+      "canceledTitle": "支付已取消",
+      "canceledSubtitle": "未收取任何费用，您可以随时重试。"
     }
   },
   "auth": {
@@ -234,5 +245,25 @@
     "terms": "服务条款",
     "privacy": "隐私政策",
     "contact": "联系我们"
+  },
+  "terms": {
+    "title": "服务条款",
+    "lastUpdated": "最后更新：2026年5月"
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "lastUpdated": "最后更新：2026年5月"
+  },
+  "purchase": {
+    "successTitle": "购买成功",
+    "successSubtitle": "积分已添加到您的账户",
+    "creditsAdded": "已添加 {count} 积分",
+    "startGenerating": "开始生成",
+    "viewDashboard": "查看控制台"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "subtitle": "您访问的页面不存在。",
+    "home": "返回首页"
   }
 }

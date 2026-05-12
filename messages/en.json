@@ -97,7 +97,11 @@
       "noStyle": "Please select a style",
       "notLoggedIn": "Please sign in to generate",
       "uploadFailed": "Upload failed",
-      "generationFailed": "Generation failed. Please try again"
+      "generationFailed": "Generation failed. Please try again",
+      "limitReached": "Daily free limit (3) reached.",
+      "insufficientCredits": "Not enough credits.",
+      "timeout": "Generation timed out. Please try again.",
+      "styleForbidden": "This style is not available in free mode."
     }
   },
   "styles": {
@@ -200,7 +204,14 @@
     "stats": {
       "totalGenerated": "Total Generated",
       "creditsUsed": "Credits Used",
-      "savedImages": "Saved Images"
+      "savedImages": "Saved Images",
+      "freeRemaining": "Free uses remaining today"
+    },
+    "banner": {
+      "successTitle": "Purchase successful!",
+      "successSubtitle": "Credits have been added to your account.",
+      "canceledTitle": "Payment canceled",
+      "canceledSubtitle": "No charges were made. You can try again anytime."
     }
   },
   "auth": {
@@ -234,5 +245,25 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "contact": "Contact"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: May 2026"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: May 2026"
+  },
+  "purchase": {
+    "successTitle": "Purchase Complete",
+    "successSubtitle": "Credits have been added to your account",
+    "creditsAdded": "{count} credits added",
+    "startGenerating": "Start Generating",
+    "viewDashboard": "View Dashboard"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "subtitle": "The page you're looking for doesn't exist.",
+    "home": "Back to Home"
   }
 }
