@@ -1,11 +1,11 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default async function NotFound() {
   const t = await getTranslations('notFound');
-  const locale = 'ja';
+  const locale = await getLocale();
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
