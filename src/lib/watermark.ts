@@ -1,4 +1,6 @@
 import sharp from 'sharp';
+import { readFile } from 'fs/promises';
+import path from 'path';
 
 export async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
   const { width = 768, height = 768 } = await sharp(imageBuffer).metadata();
@@ -27,7 +29,25 @@ export async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
 }
 
 export async function fetchImageBuffer(url: string): Promise<Buffer> {
+  // Local /demo-results/ or /outputs/ paths → read from public/ directory
+  if (url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/api/')) {
+    const relPath = url.slice(1); // strip leading slash
+    const filePath = path.join(process.cwd(), 'public', relPath);
+    return readFile(filePath);
+  }
+
+  // /api/outputs/ → read from the outputs directory (LocalProvider path)
+  if (url.startsWith('/api/outputs/')) {
+    const filename = path.basename(url);
+    const dir = process.env.VERCEL
+      ? path.join('/tmp', 'outputs')
+      : path.join(process.cwd(), 'public', 'outputs');
+    return readFile(path.join(dir, filename));
+  }
+
+  // Remote URL
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetchImageBuffer: HTTP ${res.status} for ${url}`);
   const arrayBuffer = await res.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }

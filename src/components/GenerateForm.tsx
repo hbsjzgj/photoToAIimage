@@ -69,15 +69,26 @@ export default function GenerateForm() {
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const b64 = e.target?.result as string;
+    const objectUrl = URL.createObjectURL(file);
+    const img = document.createElement('img');
+    img.onload = () => {
+      const MAX = 768;
+      const scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      const b64 = canvas.toDataURL('image/jpeg', 0.8);
+      URL.revokeObjectURL(objectUrl);
       setImageBase64(b64);
       setPreview(b64);
       setResult(null);
       setError('');
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => URL.revokeObjectURL(objectUrl);
+    img.src = objectUrl;
   }, []);
 
   function onDrop(e: React.DragEvent) {

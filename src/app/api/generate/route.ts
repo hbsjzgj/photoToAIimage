@@ -47,15 +47,26 @@ export async function POST(req: NextRequest) {
 
       const finalUrls: string[] = [];
       for (const url of urls) {
-        let finalUrl = url;
+        let finalUrl = url; // safe default: always has a value
         if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
           try {
             const buf = await fetchImageBuffer(url);
             const watermarked = await addWatermark(buf);
-            const filename = `wm_${crypto.randomUUID()}.png`;
-            finalUrl = await getStorageProvider().upload(watermarked, filename);
-          } catch (err) {
-            console.error('Watermark error, using original URL:', err);
+            try {
+              const filename = `wm_${crypto.randomUUID()}.png`;
+              const stored = await getStorageProvider().upload(watermarked, filename);
+              // LocalProvider on Vercel writes to /tmp (ephemeral, not accessible across lambdas)
+              // Fall back to inline data URL so the image is always displayable
+              finalUrl = (stored.startsWith('/api/outputs/') && !!process.env.VERCEL)
+                ? `data:image/png;base64,${watermarked.toString('base64')}`
+                : stored;
+            } catch {
+              // Storage unavailable — return watermarked image inline
+              finalUrl = `data:image/png;base64,${watermarked.toString('base64')}`;
+            }
+          } catch (wmErr) {
+            console.error('[generate] Watermark error, using original URL:', wmErr);
+            // finalUrl stays as the mock demo path — browser can fetch it as a static asset
           }
         }
         finalUrls.push(finalUrl);

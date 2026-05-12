@@ -6,7 +6,9 @@ function getProviderChain(): AIProvider[] {
   const forced = process.env.AI_PROVIDER;
   if (forced === 'mock') return [new MockProvider()];
   if (forced === 'huggingface') return [new HuggingFaceProvider(), new MockProvider()];
-  return [new HuggingFaceProvider(), new MockProvider()];
+  // Default: only try HuggingFace when token is actually set — otherwise go straight to mock
+  if (process.env.HUGGINGFACE_API_TOKEN) return [new HuggingFaceProvider(), new MockProvider()];
+  return [new MockProvider()];
 }
 
 export async function generateWithFallback(params: GenerateParams): Promise<ProviderResult> {
