@@ -4,10 +4,24 @@ import { MockProvider } from './mock';
 
 function getProviderChain(): AIProvider[] {
   const forced = process.env.AI_PROVIDER;
-  if (forced === 'mock') return [new MockProvider()];
-  if (forced === 'huggingface') return [new HuggingFaceProvider(), new MockProvider()];
-  // Default: only try HuggingFace when token is actually set — otherwise go straight to mock
-  if (process.env.HUGGINGFACE_API_TOKEN) return [new HuggingFaceProvider(), new MockProvider()];
+
+  if (forced === 'mock') {
+    console.log('[AI] Using MockProvider (AI_PROVIDER=mock)');
+    return [new MockProvider()];
+  }
+
+  if (forced === 'huggingface') {
+    console.log('[AI] Using HuggingFace chain (AI_PROVIDER=huggingface)');
+    return [new HuggingFaceProvider(), new MockProvider()];
+  }
+
+  // Default: only try HuggingFace when token is actually present
+  if (process.env.HUGGINGFACE_API_TOKEN) {
+    console.log('[AI] Using HuggingFace → Mock chain (HUGGINGFACE_API_TOKEN set)');
+    return [new HuggingFaceProvider(), new MockProvider()];
+  }
+
+  console.log('[AI] Using MockProvider (no HUGGINGFACE_API_TOKEN, no AI_PROVIDER)');
   return [new MockProvider()];
 }
 
@@ -25,7 +39,7 @@ export async function generateWithFallback(params: GenerateParams): Promise<Prov
       console.log(`[AI] trying ${provider.name}...`);
       const urls = await provider.generate(params);
       const durationMs = Date.now() - start;
-      console.log(`[AI] ${provider.name} succeeded in ${durationMs}ms`);
+      console.log(`[AI] ${provider.name} succeeded in ${durationMs}ms, urls: ${urls.join(', ')}`);
       return { urls, provider: provider.name, fallbackUsed: !firstProvider, durationMs, isTextToImage: provider.isTextToImage };
     } catch (err) {
       console.error(`[AI] ${provider.name} failed:`, err instanceof Error ? err.message : err);

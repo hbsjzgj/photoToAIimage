@@ -16,16 +16,25 @@ function isConfigured(value: string | undefined): boolean {
   return !!value && !PLACEHOLDER_VALUES.has(value.trim());
 }
 
+function cloudinaryConfigured(): boolean {
+  return (
+    isConfigured(process.env.CLOUDINARY_CLOUD_NAME) &&
+    isConfigured(process.env.CLOUDINARY_API_KEY) &&
+    isConfigured(process.env.CLOUDINARY_API_SECRET)
+  );
+}
+
 let _provider: StorageProvider | null = null;
 
 export function getStorageProvider(): StorageProvider {
   if (!_provider) {
-    const useCloudinary =
-      isConfigured(process.env.CLOUDINARY_CLOUD_NAME) &&
-      isConfigured(process.env.CLOUDINARY_API_KEY) &&
-      isConfigured(process.env.CLOUDINARY_API_SECRET);
+    const useCloudinary = cloudinaryConfigured();
     _provider = useCloudinary ? new CloudinaryProvider() : new LocalProvider();
-    console.log(`[storage] Using ${useCloudinary ? 'Cloudinary' : 'Local'} provider`);
+    console.log(`[storage] Using ${useCloudinary ? 'CloudinaryProvider' : 'LocalProvider'}`);
   }
   return _provider;
+}
+
+export function getStorageProviderName(): string {
+  return cloudinaryConfigured() ? 'cloudinary' : 'local';
 }

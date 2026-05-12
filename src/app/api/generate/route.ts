@@ -7,172 +7,220 @@ import { addWatermark, fetchImageBuffer } from '@/lib/watermark';
 import { spendCredits, getCredits } from '@/lib/credits';
 import { canUseFree, incrementFreeUsage } from '@/lib/usage';
 import { FREE_STYLES, GenerateRequest, FREE_OUTPUT_SIZE } from '@/types';
-import { getStorageProvider } from '@/lib/storage';
+import { getStorageProvider, getStorageProviderName } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
+  const debugLogs: string[] = [];
+  let currentStage = 'init';
+
+  const log = (msg: string) => {
+    const entry = `[${currentStage}] ${msg}`;
+    console.log('[generate]', entry);
+    debugLogs.push(entry);
+  };
+
+  const fail = (status: number, error: string, extra?: Record<string, unknown>) =>
+    NextResponse.json({
+      success: false,
+      error,
+      stage: currentStage,
+      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+      ...extra,
+    }, { status });
+
   try {
+    currentStage = 'session';
     const session = await getServerSession(authOptions);
     const userId = (session?.user as { id?: string } | undefined)?.id;
 
+    currentStage = 'parse';
     const body: GenerateRequest & { customPrompt?: string } = await req.json();
     const { imageBase64, style, mode, count, outputSize, customPrompt } = body;
 
+    log(`request received — style=${style} mode=${mode} imageBase64Length=${imageBase64?.length ?? 0}`);
+    log(`AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} HF_TOKEN=${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
+    log(`storageProvider=${getStorageProviderName()} VERCEL=${process.env.VERCEL ? 'yes' : 'no'}`);
+
     if (!imageBase64 || !style) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      log('ERROR: missing required fields');
+      return fail(400, 'Missing required fields');
     }
 
-    // ── FREE MODE (no login required) ─────────────────────────
+    // ── FREE MODE ─────────────────────────────────────────────
     if (mode === 'free') {
       if (!FREE_STYLES.includes(style as never)) {
-        return NextResponse.json({ error: 'Style not available in free mode' }, { status: 403 });
+        log(`ERROR: style "${style}" not available in free mode`);
+        return fail(403, 'Style not available in free mode');
       }
 
-      // Use userId if logged in, otherwise use IP as anonymous identifier
+      currentStage = 'rateLimit';
       const ip =
         req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
         req.headers.get('x-real-ip') ??
         'unknown';
       const anonymousId = userId ? undefined : ip;
+      log(`checking rate limit — userId=${userId ?? 'anon'} ip=${ip}`);
 
       const allowed = await canUseFree(userId, anonymousId);
       if (!allowed) {
-        return NextResponse.json({ error: 'limitReached' }, { status: 429 });
+        log('ERROR: daily limit reached');
+        return fail(429, 'limitReached');
       }
+      log('rate limit OK');
 
+      currentStage = 'generate';
+      log('calling generateAvatar...');
       const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt);
       const { urls, provider: providerUsed, isTextToImage } = genResult;
+      log(`generation SUCCESS — provider=${providerUsed} urls=[${urls.join(', ')}]`);
 
       const finalUrls: string[] = [];
       for (const url of urls) {
-        let finalUrl = url; // safe default: always has a value
+        let finalUrl = url; // safe default
+
         if (process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') {
+          currentStage = 'watermark';
           try {
+            log(`fetchImageBuffer: ${url}`);
             const buf = await fetchImageBuffer(url);
+            log(`fetchImageBuffer OK: ${buf.length} bytes`);
+
             const watermarked = await addWatermark(buf);
+            log(`addWatermark OK: ${watermarked.length} bytes`);
+
+            currentStage = 'storage';
             try {
               const filename = `wm_${crypto.randomUUID()}.png`;
               const stored = await getStorageProvider().upload(watermarked, filename);
-              // LocalProvider on Vercel writes to /tmp (ephemeral, not accessible across lambdas)
-              // Fall back to inline data URL so the image is always displayable
-              finalUrl = (stored.startsWith('/api/outputs/') && !!process.env.VERCEL)
-                ? `data:image/png;base64,${watermarked.toString('base64')}`
-                : stored;
-            } catch {
-              // Storage unavailable — return watermarked image inline
+              log(`storage upload OK: ${stored}`);
+
+              // LocalProvider on Vercel writes to /tmp (ephemeral across lambdas) → inline data URL
+              if (stored.startsWith('/api/outputs/') && !!process.env.VERCEL) {
+                finalUrl = `data:image/png;base64,${watermarked.toString('base64')}`;
+                log('Vercel + LocalProvider: converted to inline data URL');
+              } else {
+                finalUrl = stored;
+              }
+            } catch (storageErr) {
+              const msg = storageErr instanceof Error ? storageErr.message : String(storageErr);
+              log(`storage FAILED (non-fatal): ${msg} — using inline data URL`);
               finalUrl = `data:image/png;base64,${watermarked.toString('base64')}`;
             }
           } catch (wmErr) {
-            console.error('[generate] Watermark error, using original URL:', wmErr);
-            // finalUrl stays as the mock demo path — browser can fetch it as a static asset
+            const msg = wmErr instanceof Error ? wmErr.message : String(wmErr);
+            log(`watermark FAILED (non-fatal): ${msg} — using original URL`);
+            // finalUrl stays as the static /demo-results/ path
           }
         }
+
         finalUrls.push(finalUrl);
+        log(`finalUrl: ${finalUrl.startsWith('data:') ? 'data:image/png;base64,... (inline)' : finalUrl}`);
       }
 
-      // Persist project only for logged-in users
+      currentStage = 'persist';
       let projectId: string | null = null;
       if (userId) {
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        const project = await prisma.project.create({
-          data: {
-            userId,
-            status: 'completed',
-            inputImageUrl: 'uploaded',
-            style,
-            generationMode: 'free',
-            creditsUsed: 0,
-            outputSize: FREE_OUTPUT_SIZE,
-            hasWatermark: true,
-            expiresAt
-          }
-        });
-        await Promise.all(
-          finalUrls.map((url) =>
-            prisma.projectVariant.create({ data: { projectId: project.id, imageUrl: url } })
-          )
-        );
-        projectId = project.id;
+        try {
+          const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          const project = await prisma.project.create({
+            data: { userId, status: 'completed', inputImageUrl: 'uploaded', style, generationMode: 'free', creditsUsed: 0, outputSize: FREE_OUTPUT_SIZE, hasWatermark: true, expiresAt }
+          });
+          await Promise.all(finalUrls.map((u) => prisma.projectVariant.create({ data: { projectId: project.id, imageUrl: u } })));
+          projectId = project.id;
+          log(`DB persist OK: projectId=${projectId}`);
+        } catch (dbErr) {
+          log(`DB persist FAILED (non-fatal): ${dbErr instanceof Error ? dbErr.message : String(dbErr)}`);
+        }
       }
 
-      await incrementFreeUsage(userId, anonymousId);
+      try {
+        await incrementFreeUsage(userId, anonymousId);
+        log('incrementFreeUsage OK');
+      } catch (e) {
+        log(`incrementFreeUsage FAILED (non-fatal): ${e instanceof Error ? e.message : String(e)}`);
+      }
 
+      currentStage = 'complete';
+      log('response: success');
       return NextResponse.json({
+        success: true,
         projectId,
         variants: finalUrls.map((imageUrl, i) => ({ id: String(i), imageUrl })),
         creditsUsed: 0,
         hasWatermark: true,
         providerUsed,
-        isDemo: isTextToImage
+        isDemo: isTextToImage,
+        provider: providerUsed,
+        imageUrl: finalUrls[0],
+        debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
       });
     }
 
-    // ── PAID MODE (login required) ────────────────────────────
+    // ── PAID MODE ─────────────────────────────────────────────
+    currentStage = 'auth';
     if (!userId) {
-      return NextResponse.json({ error: 'notLoggedIn' }, { status: 401 });
+      log('ERROR: paid mode requires login');
+      return fail(401, 'notLoggedIn');
     }
 
+    currentStage = 'credits';
     const creditCost = count;
     const balance = await getCredits(userId);
+    log(`credits: balance=${balance} required=${creditCost}`);
     if (balance < creditCost) {
-      return NextResponse.json({ error: 'insufficientCredits', balance }, { status: 402 });
+      return fail(402, 'insufficientCredits', { balance });
     }
 
+    currentStage = 'persist';
     const size = outputSize || '1024x1024';
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
     const project = await prisma.project.create({
-      data: {
-        userId,
-        status: 'processing',
-        inputImageUrl: 'uploaded',
-        style,
-        generationMode: 'paid',
-        creditsUsed: creditCost,
-        outputSize: size,
-        hasWatermark: false,
-        expiresAt
-      }
+      data: { userId, status: 'processing', inputImageUrl: 'uploaded', style, generationMode: 'paid', creditsUsed: creditCost, outputSize: size, hasWatermark: false, expiresAt }
     });
-
-    const { success } = await spendCredits(
-      userId,
-      creditCost,
-      project.id,
-      `Generate ${count} × ${style}`
-    );
-
-    if (!success) {
+    const { success: spendOk } = await spendCredits(userId, creditCost, project.id, `Generate ${count} × ${style}`);
+    if (!spendOk) {
       await prisma.project.update({ where: { id: project.id }, data: { status: 'failed' } });
-      return NextResponse.json({ error: 'insufficientCredits' }, { status: 402 });
+      return fail(402, 'insufficientCredits');
     }
+    log(`credits spent OK: ${creditCost}`);
 
+    currentStage = 'generate';
+    log('calling generateAvatar (paid)...');
     const result = await generateAvatar(imageBase64, style, count, size, customPrompt);
     const { urls, provider: providerUsed, isTextToImage } = result;
+    log(`generation SUCCESS — provider=${providerUsed} urlCount=${urls.length}`);
 
-    const variants = await Promise.all(
-      urls.map((url) =>
-        prisma.projectVariant.create({ data: { projectId: project.id, imageUrl: url } })
-      )
-    );
+    currentStage = 'persist';
+    const variants = await Promise.all(urls.map((url) => prisma.projectVariant.create({ data: { projectId: project.id, imageUrl: url } })));
+    await prisma.project.update({ where: { id: project.id }, data: { status: 'completed' } });
+    log('paid project persisted OK');
 
-    await prisma.project.update({
-      where: { id: project.id },
-      data: { status: 'completed' }
-    });
-
+    currentStage = 'complete';
     return NextResponse.json({
+      success: true,
       projectId: project.id,
       variants: variants.map((v) => ({ id: v.id, imageUrl: v.imageUrl })),
       creditsUsed: creditCost,
       hasWatermark: false,
       providerUsed,
-      isDemo: isTextToImage
+      isDemo: isTextToImage,
+      provider: providerUsed,
+      imageUrl: variants[0]?.imageUrl,
+      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
     });
+
   } catch (err) {
-    console.error('Generate error:', err);
-    return NextResponse.json({ error: 'generationFailed' }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[generate] FATAL at stage', currentStage, ':', err);
+    debugLogs.push(`[${currentStage}] FATAL: ${msg}`);
+    return NextResponse.json({
+      success: false,
+      error: 'generationFailed',
+      stage: currentStage,
+      debug: { logs: debugLogs, storageProvider: getStorageProviderName() },
+    }, { status: 500 });
   }
 }
