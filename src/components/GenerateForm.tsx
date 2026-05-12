@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import StyleSelector from './StyleSelector';
-import ImageResult from './ImageResult';
 import BeforeAfterSlider from './BeforeAfterSlider';
 import { analytics } from '@/lib/analytics';
 import { STYLE_DISPLAY_PROMPTS } from '@/lib/prompts';
@@ -70,6 +69,8 @@ export default function GenerateForm() {
   const [loadingSecs, setLoadingSecs] = useState(0);
   const [originalImageBase64, setOriginalImageBase64] = useState('');
   const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
+  const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -97,6 +98,37 @@ export default function GenerateForm() {
     const cropped = await applyCrop(originalImageBase64, w, h);
     setImageBase64(cropped);
     setPreview(cropped);
+  }
+
+  async function download() {
+    const url = result?.variants[0]?.imageUrl;
+    if (!url || downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `forma_avatar_${Date.now()}.${blob.type.includes('png') ? 'png' : 'jpg'}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  async function share() {
+    if (navigator.share) {
+      await navigator.share({ title: 'FORMA AI Avatar', url: window.location.href }).catch(() => {});
+    } else {
+      copyLink();
+    }
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(window.location.href).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
   }
 
   // Fetch free usage for all users (including anonymous)
@@ -237,107 +269,195 @@ export default function GenerateForm() {
   }
 
   const canGenerate = !loading && !!imageBase64 && !!style;
+  const showSlider = !!(result && imageBase64);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
 
-      {/* ── Upload ── */}
-      <motion.div
-        className={`relative rounded-3xl overflow-hidden border transition-all duration-400 cursor-pointer
-                    ${dragging
-                      ? 'border-gold/50 bg-gold/5'
-                      : preview
-                        ? 'border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]'
-                        : 'border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.13)] hover:bg-[rgba(255,255,255,0.05)]'
-                    }`}
-        onDrop={onDrop}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onClick={result && imageBase64 ? undefined : () => inputRef.current?.click()}
-        whileHover={!preview ? { scale: 1.005 } : {}}
-        transition={{ duration: 0.3 }}
-      >
-        <AnimatePresence mode="wait">
-          {result && imageBase64 ? (
-            /* ── State 3: After generation — Before/After slider ── */
-            <motion.div
-              key="slider"
-              className="relative w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <BeforeAfterSlider
-                beforeSrc={imageBase64}
-                afterSrc={result.variants[0]?.imageUrl ?? ''}
-              />
-              <div className="absolute top-3 right-3 z-20">
-                <motion.button
-                  onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                  className="px-3 py-1.5 rounded-xl bg-[rgba(0,0,0,0.6)] backdrop-blur-md
-                             border border-[rgba(255,255,255,0.10)] text-xs text-ink
-                             hover:bg-[rgba(0,0,0,0.8)] transition-colors"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  {t('upload.change')}
-                </motion.button>
-              </div>
-            </motion.div>
-          ) : preview ? (
-            /* ── State 2: Image uploaded — show preview ── */
-            <motion.div
-              key="preview"
-              className="relative w-full aspect-[4/3] bg-[rgba(0,0,0,0.25)]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Image src={preview} alt="Preview" fill className="object-contain" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
-                <span className="text-sm text-ink/80">{t('upload.label')}</span>
-                <motion.button
-                  onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                  className="px-4 py-2 rounded-xl bg-[rgba(0,0,0,0.5)] backdrop-blur-md
-                             border border-[rgba(255,255,255,0.10)] text-xs text-ink
-                             hover:bg-[rgba(0,0,0,0.7)] transition-colors"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  {t('upload.change')}
-                </motion.button>
-              </div>
-            </motion.div>
-          ) : (
-            /* ── State 1: Empty — drag zone ── */
-            <motion.div
-              key="empty"
-              className="flex flex-col items-center justify-center py-20 gap-5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+      {/* ── Upload area + action buttons ── */}
+      <div className="flex gap-3 items-stretch">
+
+        {/* Upload / Preview / Slider */}
+        <motion.div
+          className={`relative rounded-3xl overflow-hidden border transition-all duration-400
+                      flex-1 min-w-0
+                      ${showSlider ? 'cursor-default' : 'cursor-pointer'}
+                      ${dragging
+                        ? 'border-gold/50 bg-gold/5'
+                        : preview
+                          ? 'border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]'
+                          : 'border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.13)] hover:bg-[rgba(255,255,255,0.05)]'
+                      }`}
+          onDrop={onDrop}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onClick={showSlider ? undefined : () => inputRef.current?.click()}
+          whileHover={!preview ? { scale: 1.005 } : {}}
+          transition={{ duration: 0.3 }}
+        >
+          <AnimatePresence mode="wait">
+            {showSlider ? (
+              /* ── State 3: generation done — Before/After slider ── */
               <motion.div
-                className="w-16 h-16 rounded-2xl border border-[rgba(255,255,255,0.10)]
-                           bg-[rgba(255,255,255,0.04)] flex items-center justify-center"
-                animate={dragging ? { scale: 1.1, borderColor: 'rgba(200,169,107,0.5)' } : {}}
+                key="slider"
+                className="relative w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
               >
-                <svg className="w-6 h-6 text-ink-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round"
-                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                </svg>
+                <BeforeAfterSlider
+                  beforeSrc={imageBase64}
+                  afterSrc={result!.variants[0]?.imageUrl ?? ''}
+                />
+                <div className="absolute top-3 right-3 z-20">
+                  <motion.button
+                    onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+                    className="px-3 py-1.5 rounded-xl bg-[rgba(0,0,0,0.6)] backdrop-blur-md
+                               border border-[rgba(255,255,255,0.10)] text-xs text-ink
+                               hover:bg-[rgba(0,0,0,0.8)] transition-colors"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {t('upload.change')}
+                  </motion.button>
+                </div>
               </motion.div>
-              <div className="text-center">
-                <p className="text-ink-secondary text-sm">{t('upload.drag')}</p>
-                <p className="text-ink-muted text-xs mt-1">{t('upload.hint')}</p>
-              </div>
+            ) : preview ? (
+              /* ── State 2: image uploaded — preview ── */
+              <motion.div
+                key="preview"
+                className="relative w-full aspect-[4/3] bg-[rgba(0,0,0,0.25)]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Image src={preview} alt="Preview" fill className="object-contain" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
+                  <span className="text-sm text-ink/80">{t('upload.label')}</span>
+                  <motion.button
+                    onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+                    className="px-4 py-2 rounded-xl bg-[rgba(0,0,0,0.5)] backdrop-blur-md
+                               border border-[rgba(255,255,255,0.10)] text-xs text-ink
+                               hover:bg-[rgba(0,0,0,0.7)] transition-colors"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {t('upload.change')}
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : (
+              /* ── State 1: empty drag zone ── */
+              <motion.div
+                key="empty"
+                className="flex flex-col items-center justify-center py-20 gap-5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className="w-16 h-16 rounded-2xl border border-[rgba(255,255,255,0.10)]
+                             bg-[rgba(255,255,255,0.04)] flex items-center justify-center"
+                  animate={dragging ? { scale: 1.1, borderColor: 'rgba(200,169,107,0.5)' } : {}}
+                >
+                  <svg className="w-6 h-6 text-ink-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                </motion.div>
+                <div className="text-center">
+                  <p className="text-ink-secondary text-sm">{t('upload.drag')}</p>
+                  <p className="text-ink-muted text-xs mt-1">{t('upload.hint')}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* ── Action buttons column (visible after generation) ── */}
+        <AnimatePresence>
+          {showSlider && (
+            <motion.div
+              className="flex flex-col gap-2.5 justify-center flex-shrink-0"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* Download */}
+              <motion.button
+                onClick={download}
+                disabled={downloading}
+                whileHover={{ scale: 1.07, y: -1 }}
+                whileTap={{ scale: 0.93 }}
+                className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-1
+                           bg-gold text-surface
+                           shadow-[0_4px_20px_rgba(200,169,107,0.35)]
+                           hover:bg-gold-light transition-all duration-200
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                <span className="text-[9px] font-semibold tracking-wider">
+                  {downloading ? '…' : result?.hasWatermark ? 'SAVE' : 'HD'}
+                </span>
+              </motion.button>
+
+              {/* Share */}
+              <motion.button
+                onClick={share}
+                whileHover={{ scale: 1.07, y: -1 }}
+                whileTap={{ scale: 0.93 }}
+                className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-1
+                           bg-[rgba(255,255,255,0.07)] border border-[rgba(255,255,255,0.10)]
+                           text-ink-secondary hover:text-ink hover:bg-[rgba(255,255,255,0.11)]
+                           transition-all duration-200"
+              >
+                <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                </svg>
+                <span className="text-[9px] font-semibold tracking-wider">SHARE</span>
+              </motion.button>
+
+              {/* Copy link */}
+              <motion.button
+                onClick={copyLink}
+                whileHover={{ scale: 1.07, y: -1 }}
+                whileTap={{ scale: 0.93 }}
+                className="w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-1
+                           bg-[rgba(255,255,255,0.07)] border border-[rgba(255,255,255,0.10)]
+                           transition-all duration-200 hover:bg-[rgba(255,255,255,0.11)]"
+                style={{ color: copied ? 'var(--color-gold)' : undefined }}
+              >
+                <AnimatePresence mode="wait">
+                  {copied ? (
+                    <motion.svg key="check" className="w-[18px] h-[18px]"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round"
+                      initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                      <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </motion.svg>
+                  ) : (
+                    <motion.svg key="link" className="w-[18px] h-[18px] text-ink-secondary"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round"
+                      initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                      <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </motion.svg>
+                  )}
+                </AnimatePresence>
+                <span className="text-[9px] font-semibold tracking-wider">
+                  {copied ? 'DONE' : 'LINK'}
+                </span>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       <input
         ref={inputRef}
@@ -409,7 +529,6 @@ export default function GenerateForm() {
 
       {/* ── Style Prompt + Custom Supplement ── */}
       <div className="space-y-3">
-        {/* Style prompt — read-only, shown when a style is selected */}
         <AnimatePresence>
           {style && (
             <motion.div
@@ -431,7 +550,6 @@ export default function GenerateForm() {
           )}
         </AnimatePresence>
 
-        {/* Custom supplement — always visible */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <p className="text-xs text-ink-muted font-medium tracking-wider uppercase">
@@ -570,38 +688,6 @@ export default function GenerateForm() {
           )}
         </AnimatePresence>
       </motion.button>
-
-      {/* ── Result ── */}
-      <AnimatePresence>
-        {result && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-card p-6"
-          >
-            {result.providerUsed && (
-              <div className="mb-5 flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.07)]
-                                 text-xs text-ink-muted font-mono">
-                  {result.providerUsed}
-                </span>
-                {result.isDemo && (
-                  <span className="px-2.5 py-1 rounded-xl bg-gold/10 border border-gold/20
-                                   text-xs text-gold/80">
-                    デモ
-                  </span>
-                )}
-              </div>
-            )}
-            <ImageResult
-              variants={result.variants}
-              hasWatermark={result.hasWatermark}
-              onRegenerate={!result.hasWatermark ? handleGenerate : undefined}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Upgrade nudge (free result only) ── */}
       <AnimatePresence>
