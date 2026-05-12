@@ -37,6 +37,7 @@ export default function GenerateForm() {
   const [outputSize, setOutputSize] = useState('1024x1024');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorCode, setErrorCode] = useState('');
   const [result, setResult] = useState<ResultData | null>(null);
   const [creditsState, setCreditsState] = useState<CreditsState>({ credits: 0, freeRemaining: 3 });
   const [dragging, setDragging] = useState(false);
@@ -132,6 +133,7 @@ export default function GenerateForm() {
 
     setLoading(true);
     setError('');
+    setErrorCode('');
     setResult(null);
 
     const startMs = Date.now();
@@ -151,6 +153,7 @@ export default function GenerateForm() {
       const data = await res.json();
       if (!res.ok) {
         analytics.generationFailed({ style: style as string, mode, error: data.error ?? 'unknown' });
+        setErrorCode(data.error ?? '');
         setError(t(`errors.${data.error}`) || data.error);
         return;
       }
@@ -356,7 +359,7 @@ export default function GenerateForm() {
             exit={{ opacity: 0 }}
           >
             <span>{error}</span>
-            {error === t('errors.insufficientCredits') && (
+            {errorCode === 'insufficientCredits' && (
               <Link
                 href={`/${locale}/pricing`}
                 className="text-gold hover:text-gold-light text-xs font-medium whitespace-nowrap transition-colors"
