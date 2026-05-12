@@ -7,11 +7,18 @@ export default async function GeneratePage() {
   const t = await getTranslations('generate');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-surface">
       <Header />
-      <main className="flex-1 py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">{t('title')}</h1>
+      <main className="flex-1 pt-28 pb-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          {/* Page header */}
+          <div className="text-center mb-14">
+            <p className="text-gold text-xs font-medium tracking-widest uppercase mb-4">Studio</p>
+            <h1 className="text-4xl font-light text-ink">{t('title')}</h1>
+            <p className="mt-3 text-ink-secondary text-sm font-light">
+              写真をアップロードして、AIアートスタイルに変換します
+            </p>
+          </div>
           <GenerateForm />
         </div>
       </main>

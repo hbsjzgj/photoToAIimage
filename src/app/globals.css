@@ -4,45 +4,221 @@
 
 @layer base {
   :root {
-    --foreground: #0f0f0f;
-    --background: #ffffff;
+    color-scheme: dark;
+    --color-gold:        #C8A96B;
+    --color-gold-light:  #DEC08A;
+    --color-surface:     #0F1115;
+    --color-ink:         #F5F7FA;
+    --color-ink-sec:     #AAB2C0;
+    --color-ink-muted:   #6B7585;
+    --glass-bg:          rgba(255,255,255,0.05);
+    --glass-border:      rgba(255,255,255,0.08);
+    --glass-hover:       rgba(255,255,255,0.09);
   }
 
   * { box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    background-color: #0F1115;
+  }
 
   body {
-    color: var(--foreground);
-    background: var(--background);
-    font-feature-settings: 'kern' 1;
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    font-feature-settings: 'kern' 1, 'liga' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  ::selection {
+    background: rgba(200, 169, 107, 0.25);
+    color: #F5F7FA;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0F1115; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 }
 
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl
-           bg-brand-600 hover:bg-brand-700 text-white font-semibold
-           transition-all duration-200 shadow-sm hover:shadow-md
-           disabled:opacity-50 disabled:cursor-not-allowed;
+
+  /* ── Gold Button ── */
+  .btn-gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1rem;
+    background-color: var(--color-gold);
+    color: var(--color-surface);
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  .btn-gold:hover {
+    background-color: var(--color-gold-light);
+    box-shadow: 0 0 32px rgba(200, 169, 107, 0.25);
+  }
+  .btn-gold:active { transform: scale(0.97); }
+  .btn-gold:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl
-           border-2 border-brand-600 text-brand-600 hover:bg-brand-50
-           font-semibold transition-all duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed;
+  /* ── Ghost Button ── */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--color-ink);
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    outline: none;
+  }
+  .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+  .btn-ghost:active { transform: scale(0.97); }
+  .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* legacy aliases */
+  .btn-primary { @apply btn-gold; }
+  .btn-secondary { @apply btn-ghost; }
+
+  /* ── Glass Card ── */
+  .glass-card {
+    border-radius: 1.5rem;
+    border: 1px solid var(--glass-border);
+    background-color: var(--glass-bg);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
+  .glass-card-hover {
+    border-radius: 1.5rem;
+    border: 1px solid var(--glass-border);
+    background-color: var(--glass-bg);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card-hover:hover {
+    background-color: var(--glass-hover);
+    border-color: rgba(255, 255, 255, 0.13);
+    box-shadow: 0 8px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+  }
+
+  /* legacy */
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+    border-radius: 1.5rem;
+    border: 1px solid var(--glass-border);
+    background-color: var(--glass-bg);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    padding: 1.5rem;
   }
 
+  /* ── Input ── */
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-gray-200 bg-white
-           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
-           transition-all duration-200 text-sm;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    outline: none;
   }
+  .input-field::placeholder { color: var(--color-ink-muted); }
+  .input-field:focus {
+    border-color: rgba(200, 169, 107, 0.4);
+    box-shadow: 0 0 0 1px rgba(200, 169, 107, 0.2);
+  }
+
+  /* ── Skeleton ── */
+  .skeleton {
+    border-radius: 1rem;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04) 25%,
+      rgba(255,255,255,0.09) 50%,
+      rgba(255,255,255,0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  .glow-gold {
+    filter: drop-shadow(0 0 20px rgba(200,169,107,0.35));
+  }
+
+  .motion-delay-100 { animation-delay: 100ms; }
+  .motion-delay-200 { animation-delay: 200ms; }
+  .motion-delay-300 { animation-delay: 300ms; }
+  .motion-delay-400 { animation-delay: 400ms; }
+}
+
+/* ── Global keyframes ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes pulseGold {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulseGold 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
 }

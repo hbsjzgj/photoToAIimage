@@ -1,13 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import Link from 'next/link';
 
 export default function CreditsDisplay() {
   const { data: session } = useSession();
-  const t = useTranslations('generate.paid');
   const locale = useLocale();
   const [credits, setCredits] = useState<number | null>(null);
 
@@ -23,11 +21,17 @@ export default function CreditsDisplay() {
   return (
     <Link
       href={`/${locale}/pricing`}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100
-                 text-brand-700 text-sm font-medium transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                 bg-gold-muted border border-gold/20
+                 text-gold text-xs font-medium
+                 hover:bg-gold/20 hover:border-gold/40
+                 transition-all duration-300"
     >
-      <span>💎</span>
-      <span>{t('credits', { count: credits })}</span>
+      <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M6 3.5v5M4 5.5h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+      <span>{credits} cr</span>
     </Link>
   );
 }
