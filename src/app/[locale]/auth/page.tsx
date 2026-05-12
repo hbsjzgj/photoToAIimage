@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signIn } from 'next-auth/react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { analytics } from '@/lib/analytics';
@@ -12,6 +12,8 @@ export default function AuthPage() {
   const t = useTranslations('auth');
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') ?? `/${locale}/generate`;
 
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -28,7 +30,7 @@ export default function AuthPage() {
     setLoading(false);
     if (result?.error) { setError(t('signin.error')); return; }
     analytics.loginCompleted();
-    router.push(`/${locale}/generate`);
+    router.push(callbackUrl);
   }
 
   async function handleSignUp(e: React.FormEvent) {
