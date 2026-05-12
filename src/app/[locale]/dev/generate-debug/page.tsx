@@ -4,6 +4,8 @@ import { useState } from 'react';
 interface DebugResult {
   ok: boolean;
   provider: string | null;
+  durationMs?: number;
+  fallbackUsed?: boolean;
   imageBase64Length: number;
   storageProvider: string | null;
   watermarkStatus: string;
@@ -129,6 +131,8 @@ export default function GenerateDebugPage() {
               {result.ok ? '✓ SUCCESS' : '✗ FAILED'}
             </span>
             {result.provider && <span style={{ marginLeft: '12px', fontSize: '12px', color: '#888' }}>provider: {result.provider}</span>}
+            {result.durationMs != null && <span style={{ marginLeft: '12px', fontSize: '12px', color: '#888' }}>duration: {(result.durationMs / 1000).toFixed(1)}s</span>}
+            {result.fallbackUsed && <span style={{ marginLeft: '12px', fontSize: '12px', color: '#c84' }}>fallback used</span>}
             {result.storageProvider && <span style={{ marginLeft: '12px', fontSize: '12px', color: '#888' }}>storage: {result.storageProvider}</span>}
           </div>
 

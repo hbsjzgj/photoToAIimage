@@ -1,4 +1,5 @@
 import { AIProvider, GenerateParams, ProviderResult } from './types';
+import { FalProvider } from './fal';
 import { HuggingFaceProvider } from './huggingface';
 import { MockProvider } from './mock';
 
@@ -10,18 +11,28 @@ function getProviderChain(): AIProvider[] {
     return [new MockProvider()];
   }
 
+  if (forced === 'fal') {
+    console.log('[AI] Using FalProvider (AI_PROVIDER=fal)');
+    return [new FalProvider(), new MockProvider()];
+  }
+
   if (forced === 'huggingface') {
     console.log('[AI] Using HuggingFace chain (AI_PROVIDER=huggingface)');
     return [new HuggingFaceProvider(), new MockProvider()];
   }
 
-  // Default: only try HuggingFace when token is actually present
+  // Default: prefer Fal if key is set, else HuggingFace if token set, else Mock
+  if (process.env.FAL_KEY) {
+    console.log('[AI] Using FalProvider → Mock chain (FAL_KEY set)');
+    return [new FalProvider(), new MockProvider()];
+  }
+
   if (process.env.HUGGINGFACE_API_TOKEN) {
     console.log('[AI] Using HuggingFace → Mock chain (HUGGINGFACE_API_TOKEN set)');
     return [new HuggingFaceProvider(), new MockProvider()];
   }
 
-  console.log('[AI] Using MockProvider (no HUGGINGFACE_API_TOKEN, no AI_PROVIDER)');
+  console.log('[AI] Using MockProvider (no FAL_KEY, no HUGGINGFACE_API_TOKEN)');
   return [new MockProvider()];
 }
 

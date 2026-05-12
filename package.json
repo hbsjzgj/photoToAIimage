@@ -13,6 +13,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@fal-ai/client": "^1.10.1",
     "@prisma/client": "^5.22.0",
     "@stripe/stripe-js": "^4.9.0",
     "bcryptjs": "^2.4.3",

@@ -12,9 +12,10 @@ export const maxDuration = 60;
 export async function GET() {
   return NextResponse.json({
     usage: 'POST { imageBase64?: string, style?: string }',
-    note: 'Omit imageBase64 to auto-use demo-1.jpg. Always uses MockProvider path.',
+    note: 'Omit imageBase64 to auto-use demo-1.jpg.',
     env: {
       AI_PROVIDER: process.env.AI_PROVIDER ?? '(not set)',
+      FAL_KEY: process.env.FAL_KEY ? 'set' : 'not set',
       HUGGINGFACE_API_TOKEN: process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set',
       storageProvider: getStorageProviderName(),
       VERCEL: process.env.VERCEL ? 'yes' : 'no',
@@ -47,14 +48,17 @@ export async function POST(req: NextRequest) {
 
     // Env state
     log(`AI_PROVIDER: ${process.env.AI_PROVIDER ?? '(not set)'}`);
+    log(`FAL_KEY: ${process.env.FAL_KEY ? 'set' : 'not set'}`);
     log(`HUGGINGFACE_API_TOKEN: ${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
     log(`storageProvider: ${getStorageProviderName()}`);
     log(`VERCEL: ${process.env.VERCEL ? 'yes' : 'no'}`);
 
     // ── Generate ──
     log('Calling generateAvatar...');
+    const genStart = Date.now();
     const genResult = await generateAvatar(imageBase64, style, 1, '768x768');
-    log(`generateAvatar OK — provider=${genResult.provider} urls=[${genResult.urls.join(', ')}]`);
+    const durationMs = Date.now() - genStart;
+    log(`generateAvatar OK — provider=${genResult.provider} duration=${durationMs}ms urls=[${genResult.urls.join(', ')}]`);
 
     let finalUrl = genResult.urls[0];
     let watermarkStatus: string = 'pending';
@@ -103,6 +107,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       provider: genResult.provider,
+      durationMs,
+      fallbackUsed: genResult.fallbackUsed,
       imageBase64Length: imageBase64.length,
       storageProvider: getStorageProviderName(),
       watermarkStatus,
