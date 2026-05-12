@@ -1,30 +1,49 @@
 import type { StyleId } from '@/types';
 
-const BASE = 'https://image.pollinations.ai/prompt';
-const PARAMS = 'width=512&height=682&nologo=true&enhance=false';
+// Static path — available after running: node scripts/download-previews.mjs
+// Falls back to Pollinations.ai when the file hasn't been downloaded yet.
+const STATIC_BASE = '/style-previews';
+const POLLINATIONS_BASE = 'https://image.pollinations.ai/prompt';
+const POLLINATIONS_PARAMS = 'width=512&height=512&nologo=true&model=flux-schnell';
 
-const PROMPTS: Record<StyleId, { prompt: string; seed: number }> = {
-  anime_basic:      { prompt: 'anime style portrait young woman clean lines soft lighting pastel blue background high quality',          seed: 1001 },
-  anime_pro:        { prompt: 'professional anime girl portrait cinematic dramatic lighting dark atmospheric background ultra detailed',  seed: 1002 },
-  soft_cartoon:     { prompt: 'cute soft cartoon girl portrait round face warm pastel tones gentle smile disney pixar inspired',         seed: 1003 },
-  cute_pet:         { prompt: 'kawaii cat girl anime portrait fluffy white ears big sparkly eyes pastel pink background adorable',       seed: 1004 },
-  simple_icon:      { prompt: 'flat vector portrait minimal design two tone clean geometric shapes modern icon style white background',  seed: 1005 },
-  '3d_cartoon':     { prompt: '3D rendered cartoon girl portrait pixar cgi quality round face studio lighting vibrant smooth render',   seed: 1006 },
-  soft_storybook:   { prompt: 'watercolor portrait illustration storybook art style soft pastel colors dreamy gentle brushwork',        seed: 1007 },
-  cyberpunk:        { prompt: 'cyberpunk girl portrait neon purple cyan lights futuristic dark city dramatic shadows edgy aesthetic',   seed: 1008 },
-  comic_hero:       { prompt: 'comic book hero girl portrait bold ink lines bright saturated colors dynamic superhero style artwork',   seed: 1009 },
-  fashion_avatar:   { prompt: 'fashion illustration portrait elegant woman high fashion runway style warm golden tones chic magazine',  seed: 1010 },
-  business_profile: { prompt: 'professional headshot woman clean studio background confident expression smart business attire',         seed: 1011 },
-  pet_portrait_pro: { prompt: 'hyperrealistic cat portrait detailed fur texture soft studio lighting dark background award winning',    seed: 1012 },
-  couple_avatar:    { prompt: 'cute couple cartoon portrait matching manga style soft romantic pink tones loving expression',           seed: 1013 },
-  kawaii_icon:      { prompt: 'super cute kawaii chibi girl huge round eyes pastel pink blue adorable sticker illustration',           seed: 1014 },
+// Prompt + seed are tuned so each style generates a recognisable example portrait.
+// These must stay in sync with scripts/download-previews.mjs.
+export const STYLE_META: Record<StyleId, { prompt: string; seed: number }> = {
+  anime_basic:      { prompt: 'anime girl portrait, soft pink background, clean art style, pastel',                     seed: 3101 },
+  anime_pro:        { prompt: 'professional anime portrait, cinematic dark background, high detail',                    seed: 3102 },
+  soft_cartoon:     { prompt: 'cute cartoon girl portrait, soft pastel colors, round face, warm tones',                 seed: 3103 },
+  cute_pet:         { prompt: 'anime girl with cat ears, kawaii style, big eyes, pastel background',                    seed: 3104 },
+  simple_icon:      { prompt: 'flat minimal vector portrait, two colors, geometric shapes, icon design',               seed: 3105 },
+  '3d_cartoon':     { prompt: '3D Pixar cartoon girl portrait, vibrant, studio lighting, smooth render',               seed: 3106 },
+  soft_storybook:   { prompt: 'soft watercolor portrait, storybook illustration, dreamy pastel colors',                seed: 3107 },
+  cyberpunk:        { prompt: 'cyberpunk girl portrait, neon purple cyan lights, futuristic city, dramatic',           seed: 3108 },
+  comic_hero:       { prompt: 'comic book superhero girl portrait, bold ink outlines, vivid saturated colors',         seed: 3109 },
+  fashion_avatar:   { prompt: 'fashion model portrait, elegant woman, golden warm tones, high fashion',                seed: 3110 },
+  business_profile: { prompt: 'professional business headshot, clean white background, confident woman, suit',         seed: 3111 },
+  pet_portrait_pro: { prompt: 'realistic cat portrait, detailed fur texture, soft studio lighting, dark background',   seed: 3112 },
+  couple_avatar:    { prompt: 'cute anime couple portrait, matching style, soft pink romantic tones',                  seed: 3113 },
+  kawaii_icon:      { prompt: 'kawaii chibi girl portrait, huge round eyes, pastel pink blue, sticker style',          seed: 3114 },
 };
 
+function pollinationsUrl(styleId: StyleId): string {
+  const { prompt, seed } = STYLE_META[styleId];
+  return `${POLLINATIONS_BASE}/${encodeURIComponent(prompt)}?${POLLINATIONS_PARAMS}&seed=${seed}`;
+}
+
+// Components call getStyleImageUrl(styleId).
+// The <img> tag shows the static file; if it 404s, onError can swap to pollinationsUrl.
 export function getStyleImageUrl(styleId: StyleId): string {
-  const { prompt, seed } = PROMPTS[styleId];
-  return `${BASE}/${encodeURIComponent(prompt)}?${PARAMS}&seed=${seed}`;
+  return `${STATIC_BASE}/${styleId}.jpg`;
+}
+
+export function getStyleFallbackUrl(styleId: StyleId): string {
+  return pollinationsUrl(styleId);
 }
 
 export const STYLE_IMAGE_URLS: Record<StyleId, string> = Object.fromEntries(
-  (Object.keys(PROMPTS) as StyleId[]).map((id) => [id, getStyleImageUrl(id)])
+  (Object.keys(STYLE_META) as StyleId[]).map((id) => [id, getStyleImageUrl(id)])
+) as Record<StyleId, string>;
+
+export const STYLE_FALLBACK_URLS: Record<StyleId, string> = Object.fromEntries(
+  (Object.keys(STYLE_META) as StyleId[]).map((id) => [id, pollinationsUrl(id)])
 ) as Record<StyleId, string>;

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { StyleId, FREE_STYLES, ALL_STYLES } from '@/types';
-import { STYLE_IMAGE_URLS } from '@/lib/styleImages';
+import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
 
 interface StyleVisual {
   gradient: string;
@@ -49,9 +49,18 @@ function StyleCard({
   t: ReturnType<typeof useTranslations>;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(STYLE_IMAGE_URLS[style]);
   const [imgError, setImgError] = useState(false);
   const visual = STYLE_VISUALS[style];
-  const imageUrl = STYLE_IMAGE_URLS[style];
+
+  function handleError() {
+    const fallback = STYLE_FALLBACK_URLS[style];
+    if (imgSrc !== fallback) {
+      setImgSrc(fallback);  // retry with Pollinations.ai
+    } else {
+      setImgError(true);    // both failed — show gradient only
+    }
+  }
 
   return (
     <motion.button
@@ -73,13 +82,14 @@ function StyleCard({
       <div className={`absolute inset-0 bg-gradient-to-b ${visual.gradient} transition-opacity duration-500
                        ${imgLoaded && !imgError ? 'opacity-0' : 'opacity-100'}`} />
 
-      {/* Preview image */}
+      {/* Preview image: tries /style-previews/{style}.jpg first, falls back to Pollinations.ai */}
       {!imgError && (
         <img
-          src={imageUrl}
+          src={imgSrc}
           alt={t(`styles.${style}`)}
+          loading="lazy"
           onLoad={() => setImgLoaded(true)}
-          onError={() => setImgError(true)}
+          onError={handleError}
           className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-700
                        group-hover:scale-105
                        ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}

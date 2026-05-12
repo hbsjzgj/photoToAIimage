@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ALL_STYLES, FREE_STYLES, STYLE_PROMPTS, StyleId } from '@/types';
-import { STYLE_IMAGE_URLS } from '@/lib/styleImages';
+import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
 
 const STYLE_LABELS: Record<StyleId, string> = {
   anime_basic: 'Anime Basic',
@@ -21,6 +21,31 @@ const STYLE_LABELS: Record<StyleId, string> = {
   couple_avatar: 'Couple',
   kawaii_icon: 'Kawaii'
 };
+
+function ShowcaseImage({ style }: { style: StyleId }) {
+  const [src, setSrc] = useState(STYLE_IMAGE_URLS[style]);
+  const [loaded, setLoaded] = useState(false);
+
+  function handleError() {
+    const fallback = STYLE_FALLBACK_URLS[style];
+    if (src !== fallback) setSrc(fallback);
+    else setSrc('');
+  }
+
+  if (!src) return null;
+
+  return (
+    <img
+      src={src}
+      alt={STYLE_LABELS[style]}
+      loading="lazy"
+      onLoad={() => setLoaded(true)}
+      onError={handleError}
+      className={`w-full h-full object-cover object-top transition-all duration-700
+                   group-hover:scale-105 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+    />
+  );
+}
 
 export default function StyleShowcase() {
   const t = useTranslations('home.styles');
@@ -54,17 +79,12 @@ export default function StyleShowcase() {
                 whileHover={{ scale: 1.03 }}
               >
                 {/* Image area */}
-                <div className="aspect-square bg-[rgba(255,255,255,0.03)] relative overflow-hidden">
-                  <img
-                    src={STYLE_IMAGE_URLS[style]}
-                    alt={STYLE_LABELS[style]}
-                    className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                  {/* Skeleton shown if image missing */}
+                <div className="aspect-square relative overflow-hidden bg-[rgba(255,255,255,0.03)]">
+                  <ShowcaseImage style={style} />
+                  {/* Shimmer skeleton always behind the image */}
                   <div className="absolute inset-0 skeleton -z-10" />
 
-                  {/* Hover overlay with copy button */}
+                  {/* Hover overlay with copy-prompt button */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <motion.button
                       onClick={() => copyPrompt(style)}
@@ -86,13 +106,11 @@ export default function StyleShowcase() {
                   </div>
                 </div>
 
-                {/* Label */}
+                {/* Label row */}
                 <div className="p-2.5 flex items-center justify-between">
                   <span className="text-[11px] font-medium text-ink-secondary truncate">{STYLE_LABELS[style]}</span>
                   <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ml-1 ${
-                    isFree
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-gold/10 text-gold'
+                    isFree ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gold/10 text-gold'
                   }`}>
                     {isFree ? t('freeTag') : t('paidTag')}
                   </span>

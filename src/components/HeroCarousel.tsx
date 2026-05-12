@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { STYLE_IMAGE_URLS } from '@/lib/styleImages';
+import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
 import type { StyleId } from '@/types';
 
 const SLIDES: { key: 'animePro' | 'cyberpunk' | 'fashion' | 'watercolor'; styleId: StyleId; gradient: string }[] = [
@@ -13,19 +13,25 @@ const SLIDES: { key: 'animePro' | 'cyberpunk' | 'fashion' | 'watercolor'; styleI
   { key: 'watercolor', styleId: 'soft_storybook',  gradient: 'from-[#130a1e] via-[#1e1030] to-[#0F1115]' },
 ];
 
-function SlideVisual({ styleId, gradient, active }: { styleId: StyleId; gradient: string; active: boolean }) {
+function SlideVisual({ styleId, gradient }: { styleId: StyleId; gradient: string }) {
   const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+  const [src, setSrc] = useState(STYLE_IMAGE_URLS[styleId]);
+
+  function handleError() {
+    const fallback = STYLE_FALLBACK_URLS[styleId];
+    if (src !== fallback) setSrc(fallback);
+    else setSrc('');
+  }
 
   return (
     <div className="absolute inset-0">
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
-      {!error && (
+      {src && (
         <img
-          src={active ? STYLE_IMAGE_URLS[styleId] : undefined}
+          src={src}
           alt=""
           onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
+          onError={handleError}
           className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-1000
                        ${loaded ? 'opacity-100' : 'opacity-0'}`}
         />
@@ -64,7 +70,7 @@ export default function HeroCarousel() {
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           >
-            <SlideVisual styleId={slide.styleId} gradient={slide.gradient} active={true} />
+            <SlideVisual styleId={slide.styleId} gradient={slide.gradient} />
           </motion.div>
         </AnimatePresence>
 
