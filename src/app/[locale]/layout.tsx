@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { SessionProvider } from '@/components/SessionProvider';
+import { PostHogProvider } from '@/components/PostHogProvider';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Noto_Sans_JP, Inter } from 'next/font/google';
@@ -38,7 +39,9 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale} suppressHydrationWarning>
       <body className={`${noto.variable} ${inter.variable} font-sans bg-surface text-ink`}>
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider>{children}</SessionProvider>
+          <PostHogProvider>
+            <SessionProvider>{children}</SessionProvider>
+          </PostHogProvider>
         </NextIntlClientProvider>
       </body>
     </html>

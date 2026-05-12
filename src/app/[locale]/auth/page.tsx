@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { analytics } from '@/lib/analytics';
 
 export default function AuthPage() {
   const t = useTranslations('auth');
@@ -26,6 +27,7 @@ export default function AuthPage() {
     const result = await signIn('credentials', { email: form.email, password: form.password, redirect: false });
     setLoading(false);
     if (result?.error) { setError(t('signin.error')); return; }
+    analytics.loginCompleted();
     router.push(`/${locale}/generate`);
   }
 
@@ -39,6 +41,7 @@ export default function AuthPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(t(`errors.${data.error}`) || data.error); return; }
+    analytics.signupCompleted();
     setSuccess(t('signup.success'));
     setTab('signin');
   }

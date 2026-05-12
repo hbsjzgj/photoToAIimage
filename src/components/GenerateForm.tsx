@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import ImageResult from './ImageResult';
+import { analytics } from '@/lib/analytics';
 import type { StyleId, GenerationMode } from '@/types';
 import { STYLE_INSTRUCTIONS } from '@/types';
 
@@ -56,6 +57,7 @@ export default function GenerateForm() {
   function handleStyleSelect(s: StyleId | '') {
     setStyle(s);
     if (s) {
+      analytics.styleSelected(s);
       const def = STYLE_INSTRUCTIONS[s as StyleId] ?? '';
       defaultPromptRef.current = def;
       setCustomPrompt(def);
@@ -114,6 +116,7 @@ export default function GenerateForm() {
       canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
       const b64 = canvas.toDataURL('image/jpeg', 0.8);
       URL.revokeObjectURL(objectUrl);
+      analytics.uploadStarted();
       setImageBase64(b64);
       setPreview(b64);
       setResult(null);
@@ -139,6 +142,9 @@ export default function GenerateForm() {
     setError('');
     setResult(null);
 
+    const startMs = Date.now();
+    analytics.generationStarted({ style: style as string, mode });
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 55_000);
 
@@ -151,13 +157,20 @@ export default function GenerateForm() {
       });
       clearTimeout(timeoutId);
       const data = await res.json();
-      if (!res.ok) { setError(t(`errors.${data.error}`) || data.error); return; }
+      if (!res.ok) {
+        analytics.generationFailed({ style: style as string, mode, error: data.error ?? 'unknown' });
+        setError(t(`errors.${data.error}`) || data.error);
+        return;
+      }
+      analytics.generationSuccess({ style: style as string, provider: data.providerUsed ?? 'unknown', durationMs: Date.now() - startMs, mode });
       setResult(data);
     } catch (err) {
       clearTimeout(timeoutId);
       if (err instanceof Error && err.name === 'AbortError') {
+        analytics.generationFailed({ style: style as string, mode, error: 'timeout' });
         setError(t('errors.timeout'));
       } else {
+        analytics.generationFailed({ style: style as string, mode, error: 'clientError' });
         setError(t('errors.generationFailed'));
       }
     } finally {

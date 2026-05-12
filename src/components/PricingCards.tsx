@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { analytics } from '@/lib/analytics';
 
 type PackageId = 'starter' | 'creator' | 'pro';
 
@@ -20,8 +21,12 @@ export default function PricingCards() {
   const router = useRouter();
   const [loading, setLoading] = useState<PackageId | null>(null);
 
+  useEffect(() => { analytics.pricingViewed(); }, []);
+
   async function handleBuy(packageId: PackageId) {
     if (!session?.user) { router.push(`/${locale}/auth`); return; }
+    const pkg = PACKAGES.find((p) => p.id === packageId);
+    analytics.purchaseStarted({ package: packageId, credits: parseInt(pkg?.credits ?? '0') });
     setLoading(packageId);
     try {
       const res = await fetch('/api/checkout', {
