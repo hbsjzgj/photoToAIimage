@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import ImageResult from './ImageResult';
 import type { StyleId, GenerationMode } from '@/types';
@@ -82,17 +83,27 @@ export default function GenerateForm() {
     setError('');
     setResult(null);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55_000);
+
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, style, mode, count, outputSize })
+        body: JSON.stringify({ imageBase64, style, mode, count, outputSize }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       if (!res.ok) { setError(t(`errors.${data.error}`) || data.error); return; }
       setResult(data);
-    } catch {
-      setError(t('errors.generationFailed'));
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError(t('errors.timeout'));
+      } else {
+        setError(t('errors.generationFailed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -259,12 +270,20 @@ export default function GenerateForm() {
       <AnimatePresence>
         {error && (
           <motion.div
-            className="px-5 py-4 rounded-2xl bg-red-500/8 border border-red-500/20 text-red-400 text-sm"
+            className="px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between gap-3"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            {error}
+            <span>{error}</span>
+            {error === t('errors.insufficientCredits') && (
+              <Link
+                href={`/${locale}/pricing`}
+                className="text-gold hover:text-gold-light text-xs font-medium whitespace-nowrap transition-colors"
+              >
+                {t('paid.buyCredits')} →
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
