@@ -84,6 +84,7 @@
     "freeMode": "無料（1日3回まで）",
     "paidMode": "有料（クレジット使用）",
     "styleLabel": "スタイルを選択",
+    "stylePromptLabel": "スタイル説明",
     "promptLabel": "プロンプト（任意）",
     "promptPlaceholder": "スタイルの説明を入力してください…",
     "promptReset": "リセット",
@@ -127,6 +128,9 @@
       "nsfwContent": "安全上の理由により生成できませんでした",
       "rateLimited": "リクエストが多すぎます。少し待ってから再度お試しください",
       "promptRejected": "プロンプトに不適切な言葉が含まれています"
+    },
+    "crop": {
+      "original": "オリジナル"
     },
     "upgradeNudge": {
       "title": "HD・透かしなし版を入手",

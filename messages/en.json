@@ -84,6 +84,7 @@
     "freeMode": "Free (3/day limit)",
     "paidMode": "Paid (uses credits)",
     "styleLabel": "Select Style",
+    "stylePromptLabel": "Style",
     "promptLabel": "Prompt (optional)",
     "promptPlaceholder": "Describe the style transformation…",
     "promptReset": "Reset",
@@ -127,6 +128,9 @@
       "nsfwContent": "Could not generate due to safety restrictions",
       "rateLimited": "Too many requests. Please wait a moment and try again",
       "promptRejected": "Your prompt contains disallowed content"
+    },
+    "crop": {
+      "original": "Original"
     },
     "upgradeNudge": {
       "title": "Get HD without watermark",

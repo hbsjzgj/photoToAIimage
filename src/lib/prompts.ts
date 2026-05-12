@@ -59,6 +59,23 @@ export function getPromptForStyle(styleId: string): { prompt: string; negativePr
   };
 }
 
+export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
+  anime_basic:      'Clean anime portrait · soft lighting · expressive eyes',
+  soft_cartoon:     'Soft premium cartoon · warm cinematic tones · elegant rendering',
+  cute_pet:         'Adorable kawaii pet portrait · fluffy details · expressive eyes',
+  simple_icon:      'Minimal flat illustration · clean modern app icon aesthetic',
+  '3d_cartoon':     'Pixar-inspired 3D animated portrait · cinematic global illumination',
+  anime_pro:        'Premium Japanese anime · cinematic rim lighting · high-end detail',
+  soft_storybook:   'Dreamy watercolor storybook · whimsical mood · hand-painted texture',
+  cyberpunk:        'Neon-lit cyberpunk portrait · futuristic atmosphere · holographic glow',
+  comic_hero:       'Cinematic superhero portrait · dramatic lighting · graphic novel quality',
+  fashion_avatar:   'Luxury fashion editorial · premium magazine aesthetic · elegant lighting',
+  business_profile: 'Professional executive portrait · premium LinkedIn style · studio quality',
+  pet_portrait_pro: 'Luxury pet portrait photography · cinematic studio lighting · rich warm tones',
+  couple_avatar:    'Romantic couple portrait · cinematic emotional lighting · harmonious mood',
+  kawaii_icon:      'Super cute Japanese kawaii icon · soft pastel palette · rounded modern design',
+};
+
 export interface ModelParams {
   strength: number;
   num_inference_steps: number;

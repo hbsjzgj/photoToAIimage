@@ -84,6 +84,7 @@
     "freeMode": "免费（每天3次）",
     "paidMode": "付费（消耗积分）",
     "styleLabel": "选择风格",
+    "stylePromptLabel": "风格说明",
     "promptLabel": "Prompt（可选）",
     "promptPlaceholder": "描述风格变换效果…",
     "promptReset": "重置",
@@ -127,6 +128,9 @@
       "nsfwContent": "因安全原因无法生成该图片",
       "rateLimited": "请求过于频繁，请稍后再试",
       "promptRejected": "提示词包含不允许的内容"
+    },
+    "crop": {
+      "original": "原始比例"
     },
     "upgradeNudge": {
       "title": "获取高清无水印版本",

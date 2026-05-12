@@ -39,16 +39,16 @@ export default function BeforeAfterSlider({ beforeSrc, afterSrc }: Props) {
       style={{ touchAction: 'none' }}
     >
       {/* AI result — full layer underneath */}
-      <div className="absolute inset-0">
-        <Image src={afterSrc} alt="AI result" fill className="object-cover" unoptimized />
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.3)]">
+        <Image src={afterSrc} alt="AI result" fill className="object-contain" unoptimized />
       </div>
 
       {/* Original — clipped to left side of slider */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-[rgba(0,0,0,0.3)]"
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
       >
-        <Image src={beforeSrc} alt="Original" fill className="object-cover" unoptimized />
+        <Image src={beforeSrc} alt="Original" fill className="object-contain" unoptimized />
       </div>
 
       {/* Divider line + handle */}

@@ -2,20 +2,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import BeforeAfterSlider from './BeforeAfterSlider';
 
 interface Variant { id: string; imageUrl: string }
 
 interface Props {
   variants: Variant[];
   hasWatermark: boolean;
-  originalSrc?: string;
   onRegenerate?: () => void;
 }
 
-export default function ImageResult({ variants, hasWatermark, originalSrc, onRegenerate }: Props) {
+export default function ImageResult({ variants, hasWatermark, onRegenerate }: Props) {
   const [selected, setSelected] = useState(0);
-  const [showSlider, setShowSlider] = useState(!!originalSrc);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -69,18 +66,6 @@ export default function ImageResult({ variants, hasWatermark, originalSrc, onReg
           )}
         </div>
         <div className="flex items-center gap-2">
-          {originalSrc && (
-            <motion.button
-              onClick={() => setShowSlider((v) => !v)}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="px-3 py-1.5 rounded-xl text-[11px] font-medium
-                         bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)]
-                         text-ink-secondary hover:text-ink transition-colors"
-            >
-              {showSlider ? '結果のみ' : 'Before / After'}
-            </motion.button>
-          )}
           {onRegenerate && (
             <motion.button
               onClick={onRegenerate}
@@ -94,45 +79,30 @@ export default function ImageResult({ variants, hasWatermark, originalSrc, onReg
         </div>
       </div>
 
-      {/* ── Main image area ── */}
-      <AnimatePresence mode="wait">
-        {showSlider && originalSrc ? (
-          <motion.div
-            key="slider"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <BeforeAfterSlider beforeSrc={originalSrc} afterSrc={currentUrl} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key={`result-${selected}`}
-            className="relative aspect-square rounded-3xl overflow-hidden
-                       bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]"
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <Image
-              src={currentUrl}
-              alt="Generated avatar"
-              fill
-              className="object-cover"
-              unoptimized
-            />
-            {hasWatermark && (
-              <div className="absolute top-4 right-4 px-2.5 py-1 rounded-xl
-                              bg-[rgba(0,0,0,0.6)] backdrop-blur-md
-                              text-xs text-ink-secondary border border-[rgba(255,255,255,0.08)]">
-                ウォーターマーク
-              </div>
-            )}
-          </motion.div>
+      {/* ── Main image ── */}
+      <motion.div
+        key={`result-${selected}`}
+        className="relative aspect-square rounded-3xl overflow-hidden
+                   bg-[rgba(0,0,0,0.25)] border border-[rgba(255,255,255,0.07)]"
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <Image
+          src={currentUrl}
+          alt="Generated avatar"
+          fill
+          className="object-contain"
+          unoptimized
+        />
+        {hasWatermark && (
+          <div className="absolute top-4 right-4 px-2.5 py-1 rounded-xl
+                          bg-[rgba(0,0,0,0.6)] backdrop-blur-md
+                          text-xs text-ink-secondary border border-[rgba(255,255,255,0.08)]">
+            ウォーターマーク
+          </div>
         )}
-      </AnimatePresence>
+      </motion.div>
 
       {/* ── Thumbnail strip ── */}
       {variants.length > 1 && (
@@ -150,7 +120,7 @@ export default function ImageResult({ variants, hasWatermark, originalSrc, onReg
                             : 'border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)]'
                           }`}
             >
-              <Image src={v.imageUrl} alt={`Variant ${i + 1}`} fill className="object-cover" unoptimized />
+              <Image src={v.imageUrl} alt={`Variant ${i + 1}`} fill className="object-contain bg-[rgba(0,0,0,0.25)]" unoptimized />
             </motion.button>
           ))}
         </div>

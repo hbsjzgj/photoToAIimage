@@ -8,7 +8,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import ImageResult from './ImageResult';
+import BeforeAfterSlider from './BeforeAfterSlider';
 import { analytics } from '@/lib/analytics';
+import { STYLE_DISPLAY_PROMPTS } from '@/lib/prompts';
 import type { StyleId, GenerationMode } from '@/types';
 
 interface CreditsState { credits: number; freeRemaining: number }
@@ -21,6 +23,30 @@ type ResultData = {
   providerUsed?: string;
   isDemo?: boolean;
 };
+
+async function applyCrop(src: string, aspectW: number, aspectH: number): Promise<string> {
+  return new Promise((resolve) => {
+    const img = document.createElement('img');
+    img.onload = () => {
+      const { naturalWidth: w, naturalHeight: h } = img;
+      const ratio = aspectW / aspectH;
+      let cropW = w, cropH = h, cropX = 0, cropY = 0;
+      if (w / h > ratio) {
+        cropW = h * ratio;
+        cropX = (w - cropW) / 2;
+      } else {
+        cropH = w / ratio;
+        cropY = (h - cropH) / 2;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(cropW);
+      canvas.height = Math.round(cropH);
+      canvas.getContext('2d')!.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = src;
+  });
+}
 
 export default function GenerateForm() {
   const t = useTranslations('generate');
@@ -42,19 +68,35 @@ export default function GenerateForm() {
   const [creditsState, setCreditsState] = useState<CreditsState>({ credits: 0, freeRemaining: 3 });
   const [dragging, setDragging] = useState(false);
   const [loadingSecs, setLoadingSecs] = useState(0);
+  const [originalImageBase64, setOriginalImageBase64] = useState('');
+  const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Elapsed-time counter while generating
   useEffect(() => {
     if (!loading) { setLoadingSecs(0); return; }
-    const t = setInterval(() => setLoadingSecs((s) => s + 1), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setLoadingSecs((s) => s + 1), 1000);
+    return () => clearInterval(timer);
   }, [loading]);
 
   function handleStyleSelect(s: StyleId | '') {
     setStyle(s);
     if (s) analytics.styleSelected(s);
+  }
+
+  async function handleCropChange(ratio: '1:1' | '4:5' | 'original') {
+    if (!originalImageBase64) return;
+    setCropAspect(ratio);
+    if (ratio === 'original') {
+      setImageBase64(originalImageBase64);
+      setPreview(originalImageBase64);
+      return;
+    }
+    const [w, h] = ratio === '1:1' ? [1, 1] : [4, 5];
+    const cropped = await applyCrop(originalImageBase64, w, h);
+    setImageBase64(cropped);
+    setPreview(cropped);
   }
 
   // Fetch free usage for all users (including anonymous)
@@ -71,29 +113,46 @@ export default function GenerateForm() {
   }, [session, result]);
 
   const handleFile = useCallback((file: File) => {
-    // Allowed types: JPEG, PNG, WebP — no SVG, no GIF
     const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
     if (!ALLOWED.includes(file.type)) {
+      setPreview('');
+      setImageBase64('');
+      setOriginalImageBase64('');
+      setCropAspect('1:1');
+      setResult(null);
       setError(t('errors.invalidFileType'));
       return;
     }
-    // Max 5 MB
     if (file.size > 5 * 1024 * 1024) {
+      setPreview('');
+      setImageBase64('');
+      setOriginalImageBase64('');
+      setCropAspect('1:1');
+      setResult(null);
       setError(t('errors.fileTooLarge'));
       return;
     }
 
     const objectUrl = URL.createObjectURL(file);
     const img = document.createElement('img');
-    img.onload = () => {
+    img.onload = async () => {
       const { naturalWidth: w0, naturalHeight: h0 } = img;
-      // Dimension guards
       if (w0 < 256 || h0 < 256) {
+        setPreview('');
+        setImageBase64('');
+        setOriginalImageBase64('');
+        setCropAspect('1:1');
+        setResult(null);
         setError(t('errors.imageTooSmall'));
         URL.revokeObjectURL(objectUrl);
         return;
       }
       if (w0 > 4096 || h0 > 4096) {
+        setPreview('');
+        setImageBase64('');
+        setOriginalImageBase64('');
+        setCropAspect('1:1');
+        setResult(null);
         setError(t('errors.imageTooLarge'));
         URL.revokeObjectURL(objectUrl);
         return;
@@ -110,8 +169,11 @@ export default function GenerateForm() {
       const b64 = canvas.toDataURL('image/jpeg', 0.8);
       URL.revokeObjectURL(objectUrl);
       analytics.uploadStarted();
-      setImageBase64(b64);
-      setPreview(b64);
+      setOriginalImageBase64(b64);
+      setCropAspect('1:1');
+      const cropped = await applyCrop(b64, 1, 1);
+      setImageBase64(cropped);
+      setPreview(cropped);
       setResult(null);
       setError('');
     };
@@ -159,6 +221,7 @@ export default function GenerateForm() {
       }
       analytics.generationSuccess({ style: style as string, provider: data.providerUsed ?? 'unknown', durationMs: Date.now() - startMs, mode });
       setResult(data);
+      window.dispatchEvent(new CustomEvent('credits:refresh'));
     } catch (err) {
       clearTimeout(timeoutId);
       if (err instanceof Error && err.name === 'AbortError') {
@@ -190,21 +253,49 @@ export default function GenerateForm() {
         onDrop={onDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
-        onClick={() => inputRef.current?.click()}
+        onClick={result && imageBase64 ? undefined : () => inputRef.current?.click()}
         whileHover={!preview ? { scale: 1.005 } : {}}
         transition={{ duration: 0.3 }}
       >
         <AnimatePresence mode="wait">
-          {preview ? (
+          {result && imageBase64 ? (
+            /* ── State 3: After generation — Before/After slider ── */
             <motion.div
-              key="preview"
-              className="relative w-full aspect-[4/3]"
+              key="slider"
+              className="relative w-full"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Image src={preview} alt="Preview" fill className="object-cover" />
+              <BeforeAfterSlider
+                beforeSrc={imageBase64}
+                afterSrc={result.variants[0]?.imageUrl ?? ''}
+              />
+              <div className="absolute top-3 right-3 z-20">
+                <motion.button
+                  onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+                  className="px-3 py-1.5 rounded-xl bg-[rgba(0,0,0,0.6)] backdrop-blur-md
+                             border border-[rgba(255,255,255,0.10)] text-xs text-ink
+                             hover:bg-[rgba(0,0,0,0.8)] transition-colors"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {t('upload.change')}
+                </motion.button>
+              </div>
+            </motion.div>
+          ) : preview ? (
+            /* ── State 2: Image uploaded — show preview ── */
+            <motion.div
+              key="preview"
+              className="relative w-full aspect-[4/3] bg-[rgba(0,0,0,0.25)]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Image src={preview} alt="Preview" fill className="object-contain" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
                 <span className="text-sm text-ink/80">{t('upload.label')}</span>
@@ -221,6 +312,7 @@ export default function GenerateForm() {
               </div>
             </motion.div>
           ) : (
+            /* ── State 1: Empty — drag zone ── */
             <motion.div
               key="empty"
               className="flex flex-col items-center justify-center py-20 gap-5"
@@ -255,6 +347,35 @@ export default function GenerateForm() {
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
       />
 
+      {/* ── Crop ratio buttons (visible after valid upload, hidden when result is shown) ── */}
+      <AnimatePresence>
+        {originalImageBase64 && !result && (
+          <motion.div
+            className="flex items-center gap-2 flex-wrap"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.3 }}
+          >
+            {(['1:1', '4:5', 'original'] as const).map((ratio) => (
+              <motion.button
+                key={ratio}
+                onClick={() => handleCropChange(ratio)}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200
+                  ${cropAspect === ratio
+                    ? 'bg-gold/15 text-gold border border-gold/40'
+                    : 'bg-[rgba(255,255,255,0.04)] text-ink-muted border border-[rgba(255,255,255,0.07)] hover:text-ink hover:border-[rgba(255,255,255,0.15)]'
+                  }`}
+              >
+                {ratio === 'original' ? t('crop.original') : ratio}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Mode Tabs (logged-in only) ── */}
       {session?.user && (
         <div className="flex rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.03)] p-1">
@@ -286,23 +407,50 @@ export default function GenerateForm() {
         <StyleSelector selected={style} onSelect={handleStyleSelect} mode={session?.user ? mode : 'free'} />
       </div>
 
-      {/* ── Custom Prompt ── */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ink-muted font-medium tracking-wider uppercase">{t('promptLabel')}</p>
+      {/* ── Style Prompt + Custom Supplement ── */}
+      <div className="space-y-3">
+        {/* Style prompt — read-only, shown when a style is selected */}
+        <AnimatePresence>
+          {style && (
+            <motion.div
+              key={style}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.3 }}
+            >
+              <p className="text-xs text-ink-muted font-medium tracking-wider uppercase mb-1.5">
+                {t('stylePromptLabel')}
+              </p>
+              <div className="w-full input-field text-sm text-ink-muted/70
+                              bg-[rgba(255,255,255,0.02)] cursor-default select-text
+                              leading-relaxed">
+                {STYLE_DISPLAY_PROMPTS[style] ?? style}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Custom supplement — always visible */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-xs text-ink-muted font-medium tracking-wider uppercase">
+              {t('promptLabel')}
+            </p>
+          </div>
+          <textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value.slice(0, 200))}
+            placeholder={t('promptPlaceholder')}
+            rows={2}
+            maxLength={200}
+            className="w-full input-field text-sm resize-none leading-relaxed"
+          />
+          <p className={`text-right text-[10px] mt-1 tabular-nums transition-colors
+                         ${customPrompt.length >= 190 ? 'text-gold/70' : 'text-ink-muted/40'}`}>
+            {customPrompt.length}/200
+          </p>
         </div>
-        <textarea
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value.slice(0, 200))}
-          placeholder={t('promptPlaceholder')}
-          rows={2}
-          maxLength={200}
-          className="w-full input-field text-sm resize-none leading-relaxed"
-        />
-        <p className={`text-right text-[10px] mt-1 tabular-nums transition-colors
-                       ${customPrompt.length >= 190 ? 'text-gold/70' : 'text-ink-muted/40'}`}>
-          {customPrompt.length}/200
-        </p>
       </div>
 
       {/* ── Paid options ── */}
@@ -449,7 +597,6 @@ export default function GenerateForm() {
             <ImageResult
               variants={result.variants}
               hasWatermark={result.hasWatermark}
-              originalSrc={imageBase64 || undefined}
               onRegenerate={!result.hasWatermark ? handleGenerate : undefined}
             />
           </motion.div>

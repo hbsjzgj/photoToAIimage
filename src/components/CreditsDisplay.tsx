@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
@@ -9,12 +9,21 @@ export default function CreditsDisplay() {
   const locale = useLocale();
   const [credits, setCredits] = useState<number | null>(null);
 
-  useEffect(() => {
+  const fetchCredits = useCallback(() => {
     if (!session?.user) return;
     fetch('/api/credits')
       .then((r) => r.json())
       .then((d) => setCredits(d.credits));
   }, [session]);
+
+  // Initial fetch + re-fetch on session change
+  useEffect(() => { fetchCredits(); }, [fetchCredits]);
+
+  // Re-fetch when GenerateForm dispatches credits:refresh
+  useEffect(() => {
+    window.addEventListener('credits:refresh', fetchCredits);
+    return () => window.removeEventListener('credits:refresh', fetchCredits);
+  }, [fetchCredits]);
 
   if (!session?.user || credits === null) return null;
 
