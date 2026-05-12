@@ -127,6 +127,11 @@
       "nsfwContent": "Could not generate due to safety restrictions",
       "rateLimited": "Too many requests. Please wait a moment and try again",
       "promptRejected": "Your prompt contains disallowed content"
+    },
+    "upgradeNudge": {
+      "title": "Get HD without watermark",
+      "desc": "All 14 styles · 1024×1024 · 4 images at once",
+      "cta": "Upgrade"
     }
   },
   "styles": {

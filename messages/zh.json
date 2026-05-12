@@ -127,6 +127,11 @@
       "nsfwContent": "因安全原因无法生成该图片",
       "rateLimited": "请求过于频繁，请稍后再试",
       "promptRejected": "提示词包含不允许的内容"
+    },
+    "upgradeNudge": {
+      "title": "获取高清无水印版本",
+      "desc": "全部14种风格 · 1024×1024 · 同时生成4张",
+      "cta": "立即升级"
     }
   },
   "styles": {

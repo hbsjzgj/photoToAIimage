@@ -455,6 +455,39 @@ export default function GenerateForm() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Upgrade nudge (free result only) ── */}
+      <AnimatePresence>
+        {result?.hasWatermark && (
+          <motion.div
+            className="glass-card p-5 flex items-center justify-between gap-4"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ delay: 0.4, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-gold" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4-2.9-2.8 4-.6z"
+                        stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-ink">{t('upgradeNudge.title')}</p>
+                <p className="text-xs text-ink-muted mt-0.5">{t('upgradeNudge.desc')}</p>
+              </div>
+            </div>
+            <Link
+              href={`/${locale}/pricing`}
+              className="btn-gold text-sm px-4 py-2 whitespace-nowrap flex-shrink-0"
+            >
+              {t('upgradeNudge.cta')}
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
