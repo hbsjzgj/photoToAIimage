@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { StyleId, FREE_STYLES, ALL_STYLES } from '@/types';
@@ -52,13 +52,21 @@ function StyleCard({
   const [imgSrc, setImgSrc] = useState(STYLE_IMAGE_URLS[style]);
   const [imgError, setImgError] = useState(false);
   const visual = STYLE_VISUALS[style];
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up stagger timer on unmount
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   function handleError() {
     const fallback = STYLE_FALLBACK_URLS[style];
     if (imgSrc !== fallback) {
-      setImgSrc(fallback);  // retry with Pollinations.ai
+      // Stagger Pollinations.ai requests by index (2s apart) to avoid 429
+      timerRef.current = setTimeout(() => {
+        setImgLoaded(false);
+        setImgSrc(fallback);
+      }, index * 2000);
     } else {
-      setImgError(true);    // both failed — show gradient only
+      setImgError(true);
     }
   }
 

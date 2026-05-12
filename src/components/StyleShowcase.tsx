@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ALL_STYLES, FREE_STYLES, STYLE_PROMPTS, StyleId } from '@/types';
@@ -22,14 +22,23 @@ const STYLE_LABELS: Record<StyleId, string> = {
   kawaii_icon: 'Kawaii'
 };
 
-function ShowcaseImage({ style }: { style: StyleId }) {
+function ShowcaseImage({ style, index }: { style: StyleId; index: number }) {
   const [src, setSrc] = useState(STYLE_IMAGE_URLS[style]);
   const [loaded, setLoaded] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
   function handleError() {
     const fallback = STYLE_FALLBACK_URLS[style];
-    if (src !== fallback) setSrc(fallback);
-    else setSrc('');
+    if (src !== fallback) {
+      timerRef.current = setTimeout(() => {
+        setLoaded(false);
+        setSrc(fallback);
+      }, index * 2000);
+    } else {
+      setSrc('');
+    }
   }
 
   if (!src) return null;
@@ -80,7 +89,7 @@ export default function StyleShowcase() {
               >
                 {/* Image area */}
                 <div className="aspect-square relative overflow-hidden bg-[rgba(255,255,255,0.03)]">
-                  <ShowcaseImage style={style} />
+                  <ShowcaseImage style={style} index={i} />
                   {/* Shimmer skeleton always behind the image */}
                   <div className="absolute inset-0 skeleton -z-10" />
 
