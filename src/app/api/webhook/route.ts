@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import Stripe from 'stripe';
+import { STRIPE_API_VERSION } from '@/lib/stripe';
 import { addCredits } from '@/lib/credits';
 import { prisma } from '@/lib/prisma';
-import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!stripeSecretKey || !webhookSecret) {
+    return NextResponse.json({ error: 'Stripe webhook is not configured' }, { status: 503 });
+  }
+
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: STRIPE_API_VERSION });
+
   const body = await req.text();
   const signature = req.headers.get('stripe-signature');
 
@@ -17,7 +25,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });

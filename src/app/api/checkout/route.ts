@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { stripe, PRICE_IDS } from '@/lib/stripe';
+import Stripe from 'stripe';
+import { PRICE_IDS, STRIPE_API_VERSION } from '@/lib/stripe';
 import { CREDIT_AMOUNTS, CreditPackage } from '@/types';
 
 export const runtime = 'nodejs';
@@ -15,10 +16,16 @@ export async function POST(req: NextRequest) {
   const userId = (session.user as { id: string }).id;
   const { packageId, locale = 'ja' } = await req.json();
 
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) {
+    return NextResponse.json({ error: 'Stripe is not configured' }, { status: 503 });
+  }
+
   if (!PRICE_IDS[packageId]) {
     return NextResponse.json({ error: 'Invalid package' }, { status: 400 });
   }
 
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: STRIPE_API_VERSION });
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
   const checkoutSession = await stripe.checkout.sessions.create({
