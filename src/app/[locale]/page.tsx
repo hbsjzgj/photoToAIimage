@@ -1,14 +1,22 @@
 import { getTranslations } from 'next-intl/server';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
 import StyleShowcase from '@/components/StyleShowcase';
+import { authOptions } from '@/lib/auth';
 
 interface Props { params: Promise<{ locale: string }> }
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
+
+  // Skip the landing page for logged-in users — go straight to the tool
+  const session = await getServerSession(authOptions);
+  if (session?.user) redirect(`/${locale}/generate`);
+
   const t = await getTranslations();
 
   const steps = [
