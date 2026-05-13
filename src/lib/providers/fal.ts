@@ -1,6 +1,6 @@
 import { fal } from '@fal-ai/client';
 import { AIProvider, GenerateParams } from './types';
-import { getPromptForStyle, MODEL_PARAMS } from '@/lib/prompts';
+import { getPromptForStyle, MODEL_PARAMS, STYLE_STRENGTH } from '@/lib/prompts';
 
 interface FluxImg2ImgOutput {
   images: Array<{ url: string; width: number; height: number; content_type: string }>;
@@ -135,7 +135,10 @@ export class FalProvider implements AIProvider {
     const finalPrompt = params.prompt || autoPrompt;
 
     const tier = params.mode === 'free' ? 'free' : 'paid';
-    const { strength, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
+    const { num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
+    // Per-style strength overrides tier default — dramatic styles need 0.82–0.90,
+    // realistic styles need 0.65–0.78 to preserve photo quality
+    const strength = STYLE_STRENGTH[params.style] ?? MODEL_PARAMS[tier].strength;
 
     const payload = {
       image_url: imageUrl,
