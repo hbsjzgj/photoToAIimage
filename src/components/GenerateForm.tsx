@@ -9,7 +9,7 @@ import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import BeforeAfterSlider from './BeforeAfterSlider';
 import { analytics } from '@/lib/analytics';
-import { getPromptForStyle } from '@/lib/prompts';
+import { getPromptForStyle } from '@/lib/prompts'; // used for actual generation only
 import type { StyleId, GenerationMode } from '@/types';
 
 interface CreditsState { credits: number; freeRemaining: number }
@@ -554,8 +554,8 @@ export default function GenerateForm() {
               </p>
               <div className="w-full input-field text-xs text-ink-muted/70
                               bg-[rgba(255,255,255,0.02)] cursor-default select-text
-                              leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap">
-                {getPromptForStyle(style as import('@/types').StyleId).prompt}
+                              leading-relaxed max-h-40 overflow-y-auto">
+                {(t as (k: string) => string)(`stylePrompts.${style}`)}
               </div>
             </motion.div>
           )}
