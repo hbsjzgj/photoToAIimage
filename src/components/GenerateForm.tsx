@@ -144,6 +144,17 @@ export default function GenerateForm() {
     fetch('/api/credits').then((r) => r.json()).then(setCreditsState);
   }, [session, result]);
 
+  // Auto-switch to paid mode on first load when free quota is exhausted but credits remain.
+  // Uses a ref so the user can manually switch back to free without being forced back.
+  const didAutoSwitch = useRef(false);
+  useEffect(() => {
+    if (didAutoSwitch.current) return;
+    if (mode === 'free' && creditsState.freeRemaining === 0 && creditsState.credits > 0 && session?.user) {
+      setMode('paid');
+      didAutoSwitch.current = true;
+    }
+  }, [creditsState, session, mode]);
+
   const handleFile = useCallback((file: File) => {
     const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
     if (!ALLOWED.includes(file.type)) {
