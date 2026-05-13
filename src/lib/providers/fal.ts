@@ -2,7 +2,7 @@ import { fal } from '@fal-ai/client';
 import { AIProvider, GenerateParams } from './types';
 import { getPromptForStyle, MODEL_PARAMS } from '@/lib/prompts';
 
-interface FluxPulidOutput {
+interface FluxImg2ImgOutput {
   images: Array<{ url: string; width: number; height: number; content_type: string }>;
   seed: number;
   prompt: string;
@@ -59,7 +59,9 @@ function serializeError(err: unknown): string {
   }
 }
 
-const MODEL_ID = 'fal-ai/flux-pulid';
+// FLUX dev img2img — preserves full scene composition (pose, background, lighting)
+// Works for both human portraits AND pets/objects, unlike PuLID which requires a human face
+const MODEL_ID = 'fal-ai/flux/dev/image-to-image';
 
 export class FalProvider implements AIProvider {
   readonly name = 'fal';
@@ -133,35 +135,32 @@ export class FalProvider implements AIProvider {
     const finalPrompt = params.prompt || autoPrompt;
 
     const tier = params.mode === 'free' ? 'free' : 'paid';
-    const { id_weight, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
+    const { strength, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
 
     const payload = {
-      reference_image_url: imageUrl,
+      image_url: imageUrl,
       prompt: finalPrompt,
       negative_prompt: negativePrompt,
-      id_weight,
+      strength,
       num_inference_steps,
       guidance_scale,
-      image_size: 'square_hd' as const,  // 1024×1024 — best quality for all tiers
-      max_sequence_length: '256' as const,  // ensures long prompts are fully processed
+      num_images: params.count,
+      image_size: 'square_hd' as const,   // always 1024×1024
+      output_format: 'jpeg' as const,
       enable_safety_checker: true,
     };
     debug.requestPayload = payload;
     debug.modelInvoked = true;
-    console.log(`[FAL] model invoke start — model=${MODEL_ID} count=${params.count}`);
+    console.log(`[FAL] model invoke start — model=${MODEL_ID}`);
     console.log(`[FAL] request payload: ${JSON.stringify(payload)}`);
 
-    // PuLID doesn't support num_images — run parallel calls for count > 1
-    const calls = Array.from({ length: params.count }, () =>
-      fal.subscribe(MODEL_ID, { input: payload, logs: false })
-    );
-
-    let rawResults: unknown[];
+    let rawResult: unknown;
     try {
+      const falRequest = fal.subscribe(MODEL_ID, { input: payload, logs: false });
       const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('FalProvider: timeout after 50s')), 50_000)
       );
-      rawResults = await Promise.race([Promise.all(calls), timeoutPromise]);
+      rawResult = await Promise.race([falRequest, timeoutPromise]);
     } catch (modelErr) {
       const errJson = serializeError(modelErr);
       debug.errorMessage = modelErr instanceof Error ? modelErr.message : String(modelErr);
@@ -171,27 +170,25 @@ export class FalProvider implements AIProvider {
       throw modelErr;
     }
 
-    debug.rawResponse = rawResults;
+    debug.rawResponse = rawResult;
+    console.log(`[FAL] raw response: ${JSON.stringify(rawResult)}`);
 
-    const allImages: FluxPulidOutput['images'] = [];
-    for (const raw of rawResults) {
-      const data = (raw as { data: FluxPulidOutput }).data;
-      if (!data?.images?.length) {
-        const msg = `FalProvider: no images in response — raw=${JSON.stringify(raw)}`;
-        debug.errorMessage = msg;
-        throw new Error(msg);
-      }
-      // NSFW safety check
-      if (data.has_nsfw_concepts?.some(Boolean)) {
-        debug.errorMessage = 'nsfwContent';
-        debug.errorJson = JSON.stringify({ nsfwDetected: true, has_nsfw_concepts: data.has_nsfw_concepts });
-        console.warn('[FAL] NSFW content detected — blocking result');
-        throw new Error('nsfwContent');
-      }
-      allImages.push(...data.images);
+    const data = (rawResult as { data: FluxImg2ImgOutput }).data;
+    if (!data?.images?.length) {
+      const msg = `FalProvider: no images in response — raw=${JSON.stringify(rawResult)}`;
+      debug.errorMessage = msg;
+      throw new Error(msg);
     }
 
-    const urls = allImages.map((img) => img.url);
+    // NSFW safety check
+    if (data.has_nsfw_concepts?.some(Boolean)) {
+      debug.errorMessage = 'nsfwContent';
+      debug.errorJson = JSON.stringify({ nsfwDetected: true, has_nsfw_concepts: data.has_nsfw_concepts });
+      console.warn('[FAL] NSFW content detected — blocking result');
+      throw new Error('nsfwContent');
+    }
+
+    const urls = data.images.map((img) => img.url);
     console.log(`[FAL] success — ${urls.length} image(s): ${urls.join(', ')}`);
     return urls;
   }

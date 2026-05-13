@@ -1,63 +1,61 @@
-// FLUX-PuLID prompts: natural language, cinematic specificity, luxury references
-// FLUX does NOT need keyword spam — detailed descriptive sentences work better
-
-const IDENTITY_PROMPT =
-  "The subject is the exact same person from the reference photo, preserving their unique facial bone structure, eye shape and color, nose, lips, and all distinctive personal characteristics.";
+// FLUX dev img2img prompts: describe the FULL SCENE transformation.
+// The model uses the input image for composition/pose/background — the prompt
+// drives the style. Describe subject + background treatment + lighting + materials.
 
 const QUALITY_SUFFIX =
-  'Stunning composition, breathtaking quality, ultra-detailed, professional artistry, premium flagship result.';
+  'Ultra-detailed, premium quality, professional artistic result, stunning visual impact.';
 
 export const NEGATIVE_PROMPT =
-  'ugly, disfigured, deformed face, distorted features, extra limbs, blurry face, low quality, watermark, text, oversaturated colors, flat boring lighting, cheap AI look, amateur composition';
+  'ugly, disfigured, deformed, blurry, low quality, out of focus, jpeg artifacts, watermark, text, logo, oversaturated, flat boring lighting, muddy colors, generic AI look, amateur result';
 
 const STYLE_CORE: Record<string, string> = {
   anime_basic:
-    'An exquisite anime-style portrait with crystalline luminous eyes featuring detailed iris gradients and bright catchlights, clean precise cel-shading, soft butterfly lighting, subtle cherry blossom bokeh, polished premium webtoon character art aesthetic',
+    'The entire scene transformed into premium anime illustration art. Subject rendered with smooth precise cel-shading, large expressive anime eyes with luminous deep irises and bright catchlights, fur and hair stylized into soft flowing individual strands in warm amber and cream tones, background elements faithfully preserved and converted into anime art style with warm cinematic lighting. Clean polished webtoon animation quality.',
 
   anime_pro:
-    'A breathtaking masterpiece-level Japanese anime illustration — razor-sharp linework with extraordinary detail, stunning luminous eyes with prismatic iris gradients and star catchlights, dramatic cinematic three-point rim lighting with ethereal atmospheric depth, silky smooth skin with subsurface glow, Studio Trigger meets modern premium anime aesthetic, pixiv trending quality',
+    'The entire scene elevated to breathtaking masterpiece-level Japanese anime art. Subject rendered with extraordinary precision — crystalline iris gradients with star catchlights, razor-clean cel-shading with subtle subsurface glow, fur and hair transformed into gloriously detailed individual strands flowing with warmth and life, dramatic cinematic three-point rim lighting casting ethereal depth. Background beautifully stylized into premium anime environment. Studio Trigger meets Ufotable production quality, pixiv masterpiece tier.',
 
   soft_cartoon:
-    'A charming premium soft cartoon portrait with velvety smooth shading, warm honey and ivory color palette, gentle cinematic wrap lighting creating soft shadows, lovable expressive character design, Cartoon Saloon meets Illumination Entertainment premium animation aesthetic, warm and inviting emotional atmosphere',
+    'The entire scene transformed into warm premium soft cartoon illustration. Subject rendered with velvety smooth rounded shading, lovable expressive eyes full of charm, soft fluffy forms with gentle contours. Background environment converted into a cozy inviting cartoon world with warm honey and ivory palette. Diffused soft-box lighting creating a welcoming atmosphere. Cartoon Saloon meets Illumination Entertainment animated quality.',
 
   cute_pet:
-    'An utterly adorable kawaii pet portrait with extraordinarily fluffy textured fur showing individual strand detail, sparkling doe eyes with bright starpoint catchlights, dreamy pastel color palette, ultra-detailed fur rendering, soft professional studio box lighting, premium Japanese character mascot illustration quality',
+    'The entire scene transformed into an utterly adorable premium kawaii illustration. Subject rendered as an irresistibly cute character — extraordinarily fluffy textured fur showing every individual strand in cream and golden tones, oversized sparkling anime eyes with starpoint and heart catchlights, tiny expressive nose and soft rounded features. Background preserved and converted into a dreamy pastel kawaii world. Warm pastel color palette. Premium Japanese mascot character illustration quality.',
 
   simple_icon:
-    'A sophisticated minimalist premium icon portrait, elegant geometric simplification of facial features into a clean graphic, crisp vector-quality linework, contemporary flat design with subtle gradient accents, Japanese minimalism meets modern brand identity design, premium iOS App Store app icon aesthetic',
+    'The entire scene transformed into a sophisticated minimalist premium icon. Subject simplified into clean geometric graphic shapes, elegant flat design with subtle gradient shading, crisp precise linework, facial features reduced to their most essential and iconic forms. Background neutralized to a clean gradient. Contemporary Japanese minimalism meets modern brand identity design. Premium iOS App Store app icon aesthetic, polished vector quality.',
 
   '3d_cartoon':
-    'A breathtaking premium 3D animated character portrait — physically-based subsurface skin scattering, Pixar-level cinematic global illumination, clean topology with perfect character proportions, volumetric rim lighting creating gorgeous depth, Disney-Pixar big-budget production quality render with warm inviting color palette',
+    'The entire scene rendered in breathtaking premium 3D animation style. Subject transformed into a charming 3D animated character with Pixar-level physically-based subsurface skin scattering, expressive animated eyes with volumetric depth, fur and hair simulated with thousands of individual dynamic strands, warm cinematic global illumination. Background converted into a beautiful animated movie environment. Disney-Pixar big-budget production quality render.',
 
   soft_storybook:
-    'An enchanting hand-painted watercolor illustration with visible paper texture and delicate brushstroke detail, warm golden lamplight atmosphere, emotional depth and narrative mood, Studio Ghibli magic meets Beatrix Potter delicacy, premium artisan childrens book illustration quality with timeless appeal',
+    'The entire scene transformed into an enchanting hand-painted watercolor storybook illustration. Subject rendered with delicate brushstroke texture on visible watercolor paper grain, warm golden lamplight atmosphere suffusing the scene, soft dreamy edges with organic flowing shapes. Background converted into a magical illustrated world. Studio Ghibli warmth meets Beatrix Potter delicacy, premium artisan childrens book illustration craft.',
 
   cyberpunk:
-    'An electrifying cinematic cyberpunk portrait — dramatic electric cyan and magenta neon rim lighting slicing through atmospheric volumetric fog, rain-slicked skin with micro-detail pores, holographic iris implants with circuitry glow, neural interface hardware, Blade Runner 2049 cinematography meets Ghost in the Shell artistry, ultra-detailed 8K cinematic quality',
+    'The entire scene transformed into a cinematic cyberpunk world. Subject rendered with electric cyan and magenta neon rim lighting slicing through atmospheric volumetric fog, rain-slicked textures with micro-detail, futuristic visual augmentations and implants integrated naturally. Background converted into a dark neon-drenched dystopian cityscape. Blade Runner 2049 cinematography meets Ghost in the Shell artistry. Ultra-detailed 8K cinematic quality.',
 
   comic_hero:
-    'An epic superhero portrait in the tradition of Alex Ross painted realism — dramatic chiaroscuro lighting with ink-black shadows and brilliant highlight accents, heroic composition radiating unstoppable power, dynamic energy effects crackling at edges, bold and fearless, premium Marvel Studios meets DC Comics painted illustration quality',
+    'The entire scene transformed into a premium superhero comic illustration. Subject rendered as a powerful heroic figure with dramatic chiaroscuro lighting — bold ink-black shadows and brilliant highlights creating epic three-dimensional form, dynamic energy and unstoppable power radiating from the composition. Background converted into a dramatic comic book environment. Alex Ross painted realism meets modern Marvel/DC premium art quality.',
 
   fashion_avatar:
-    'An ultra-luxury Vogue editorial fashion portrait — professional Rembrandt lighting setup with perfect key-fill-hair light triangle, luminous flawless complexion with natural skin texture, sophisticated desaturated cinematic color grading, luxurious shallow bokeh at 85mm f/1.4, Helmut Newton meets Annie Leibovitz editorial photography quality',
+    'The entire scene transformed into an ultra-luxury Vogue editorial fashion portrait. Subject rendered with professional Rembrandt studio lighting — perfect key-fill-hair triangle, luminous flawless skin with natural texture visible. Background converted to elegant shallow-bokeh studio environment. Sophisticated desaturated cinematic color grading. Helmut Newton meets Annie Leibovitz editorial photography quality.',
 
   business_profile:
-    'A premium executive portrait headshot — immaculate three-point studio lighting with perfectly placed catchlight, composed authoritative expression with natural depth, razor-sharp facial detail with professional skin refinement, subtle warm Kodak Portra film grain, Fortune 500 CEO board portrait quality, polished and trustworthy',
+    'The entire scene transformed into a premium executive professional portrait. Subject rendered with immaculate three-point studio lighting, composed and authoritative, razor-sharp detail with professional skin refinement. Background neutralized and softened to a clean professional dark gradient. Subtle warm Kodak Portra film grain. Fortune 500 CEO board portrait quality, polished and trustworthy.',
 
   pet_portrait_pro:
-    'A majestic fine-art animal portrait in the classical tradition — Baroque Rembrandt-style dramatic warm lighting with rich shadows, hyper-detailed individual fur texture with micro-strand rendering, soulful expressive eyes with extraordinary emotional depth, jewel-toned museum-quality background, Dutch Golden Age oil painting meets David Yarrow wildlife photography',
+    'The entire scene elevated to a majestic fine-art animal portrait. Subject rendered with Baroque Rembrandt-style dramatic warm lighting and rich deep shadows, hyper-detailed fur texture showing every individual strand with micro-level precision, soulful expressive eyes with extraordinary emotional depth and inner light. Background transformed into a rich jewel-toned painterly studio environment. Dutch Golden Age old-master oil painting meets David Yarrow wildlife photography luxury.',
 
   couple_avatar:
-    'A cinematic romantic portrait — bathed in warm golden-hour backlight creating a luminous halo, amber and rose cinematic color grading, emotionally resonant intimate composition, subtle film photography texture with beautiful lens flare bokeh, Wes Anderson symmetry meets Steven Spielberg emotional storytelling visual poetry',
+    'The entire scene transformed into a cinematic romantic portrait. Subjects bathed in warm golden-hour backlight creating a luminous halo, amber and rose cinematic color grading, intimate and emotionally resonant composition enhanced. Background converted into a beautiful bokeh-filled romantic environment. Subtle film photography texture with dreamy lens flare. Wes Anderson visual symmetry meets Terrence Malick golden-hour poetry.',
 
   kawaii_icon:
-    'A super-premium kawaii character icon — ultra-soft dreamy macaroon palette of lavender, mint and peach, luminous pearl-shimmer skin with rosy blush, eyes filled with starlight and sparkles, bouncy rounded modern design language, Sanrio aesthetic meets contemporary streetwear culture, professionally crafted premium LINE sticker character quality',
+    'The entire scene transformed into super-premium kawaii character art. Subject rendered as an irresistibly adorable kawaii character — luminous pearl-shimmer skin with rosy blushing cheeks, dreamy macaroon color palette of lavender, mint and peach, eyes overflowing with starlight sparkles and heart reflections, bouncy rounded design language throughout. Background converted into a pastel kawaii fantasy world. Sanrio meets modern streetwear culture. Professional premium LINE sticker character quality.',
 };
 
 export function getPromptForStyle(styleId: string): { prompt: string; negativePrompt: string } {
   const core = STYLE_CORE[styleId] ?? `${styleId} style portrait`;
   return {
-    prompt: `${IDENTITY_PROMPT} ${core}. ${QUALITY_SUFFIX}`,
+    prompt: `${core} ${QUALITY_SUFFIX}`,
     negativePrompt: NEGATIVE_PROMPT,
   };
 }
@@ -80,13 +78,17 @@ export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
 };
 
 export interface ModelParams {
-  id_weight: number;
+  strength: number;
   num_inference_steps: number;
   guidance_scale: number;
 }
 
+// Tuned for FLUX dev img2img:
+// - strength 0.70–0.76: preserves composition/background while applying strong style
+// - guidance_scale 3.0–3.5: FLUX uses distilled guidance (higher = more prompt-driven)
+// - steps 25–35: FLUX is efficient; 25 is good quality, 35 is premium
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
-  free:    { id_weight: 1.0, num_inference_steps: 20, guidance_scale: 4.0 },
-  paid:    { id_weight: 1.0, num_inference_steps: 28, guidance_scale: 5.0 },
-  premium: { id_weight: 0.9, num_inference_steps: 35, guidance_scale: 6.0 },
+  free:    { strength: 0.72, num_inference_steps: 25, guidance_scale: 3.0 },
+  paid:    { strength: 0.76, num_inference_steps: 35, guidance_scale: 3.5 },
+  premium: { strength: 0.80, num_inference_steps: 40, guidance_scale: 4.0 },
 };
