@@ -71,6 +71,7 @@ export default function GenerateForm() {
   const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +102,7 @@ export default function GenerateForm() {
   }
 
   async function download() {
-    const url = result?.variants[0]?.imageUrl;
+    const url = result?.variants[selectedVariantIdx]?.imageUrl;
     if (!url || downloading) return;
     setDownloading(true);
     try {
@@ -263,6 +264,7 @@ export default function GenerateForm() {
         return;
       }
       analytics.generationSuccess({ style: style as string, provider: data.providerUsed ?? 'unknown', durationMs: Date.now() - startMs, mode });
+      setSelectedVariantIdx(0);
       setResult(data);
       window.dispatchEvent(new CustomEvent('credits:refresh'));
     } catch (err) {
@@ -319,7 +321,7 @@ export default function GenerateForm() {
               >
                 <BeforeAfterSlider
                   beforeSrc={imageBase64}
-                  afterSrc={result!.variants[0]?.imageUrl ?? ''}
+                  afterSrc={result!.variants[selectedVariantIdx]?.imageUrl ?? ''}
                 />
                 <div className="absolute top-3 right-3 z-20">
                   <motion.button
@@ -477,6 +479,45 @@ export default function GenerateForm() {
         className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
       />
+
+      {/* ── Multi-variant thumbnail grid (visible when 4 images are generated) ── */}
+      <AnimatePresence>
+        {result && result.variants.length > 1 && (
+          <motion.div
+            className="grid grid-cols-4 gap-2"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {result.variants.map((v, i) => (
+              <motion.button
+                key={v.id}
+                onClick={() => setSelectedVariantIdx(i)}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-200
+                            ${selectedVariantIdx === i
+                              ? 'border-gold shadow-[0_0_0_1px_rgba(200,169,107,0.4)]'
+                              : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.20)]'
+                            }`}
+              >
+                <img src={v.imageUrl} alt={`Variant ${i + 1}`} className="w-full h-full object-cover" />
+                {selectedVariantIdx === i && (
+                  <div className="absolute bottom-1.5 right-1.5 w-5 h-5 rounded-full bg-gold flex items-center justify-center">
+                    <svg className="w-3 h-3 text-surface" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 6l3 3 5-5" />
+                    </svg>
+                  </div>
+                )}
+                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 text-[9px] text-white font-medium">
+                  {i + 1}
+                </div>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Crop ratio buttons (visible after valid upload, hidden when result is shown) ── */}
       <AnimatePresence>
