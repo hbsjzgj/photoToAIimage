@@ -7,30 +7,26 @@ export async function addWatermark(imageBuffer: Buffer): Promise<Buffer> {
 
   const cx = width / 2;
   const cy = height / 2;
-  const fontSize = Math.round(width * 0.10);
-  const letterSpacing = Math.round(width * 0.018);
+  const fontSize = Math.round(width * 0.15);
+  const shadow = Math.round(fontSize * 0.04);
 
-  // Diagonal centered watermark — shadow layer + white layer for visibility on any bg
-  const watermarkSvg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(${cx} ${cy}) rotate(-35)">
-        <text
-          text-anchor="middle" dominant-baseline="middle"
-          font-family="Arial, Helvetica, sans-serif"
-          font-size="${fontSize}" font-weight="700"
-          letter-spacing="${letterSpacing}"
-          fill="rgba(0,0,0,0.18)"
-          dx="2" dy="2"
-        >FORMA</text>
-        <text
-          text-anchor="middle" dominant-baseline="middle"
-          font-family="Arial, Helvetica, sans-serif"
-          font-size="${fontSize}" font-weight="700"
-          letter-spacing="${letterSpacing}"
-          fill="rgba(255,255,255,0.42)"
-        >FORMA</text>
-      </g>
-    </svg>`;
+  // Diagonal centered watermark — sans-serif avoids missing-font garbling on Linux
+  // No letter-spacing: attribute has inconsistent resvg support
+  const watermarkSvg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(${cx} ${cy}) rotate(-35)">
+      <text
+        text-anchor="middle" dominant-baseline="middle"
+        font-family="sans-serif" font-size="${fontSize}" font-weight="900"
+        fill="rgba(0,0,0,0.25)"
+        dx="${shadow}" dy="${shadow}"
+      >FORMA</text>
+      <text
+        text-anchor="middle" dominant-baseline="middle"
+        font-family="sans-serif" font-size="${fontSize}" font-weight="900"
+        fill="rgba(255,255,255,0.55)"
+      >FORMA</text>
+    </g>
+  </svg>`;
 
   return sharp(imageBuffer)
     .composite([{ input: Buffer.from(watermarkSvg), gravity: 'center' }])
