@@ -1,62 +1,108 @@
-// FLUX dev img2img prompts: describe the FULL SCENE transformation.
-// The model uses the input image for composition/pose/background — the prompt
-// drives the style. Describe subject + background treatment + lighting + materials.
+// Each style defines:
+//  1. STYLE_CORE  — positive prompt with explicit rendering type (2D / 3D / photo)
+//  2. STYLE_NEGATIVE — blocks conflicting rendering modes so output matches label
 
-const QUALITY_SUFFIX =
-  'Ultra-detailed, premium quality, professional artistic result, stunning visual impact.';
+const BASE_NEGATIVE =
+  'ugly, disfigured, deformed, blurry, low quality, jpeg artifacts, watermark, text, logo, oversaturated';
 
-export const NEGATIVE_PROMPT =
-  'ugly, disfigured, deformed, blurry, low quality, out of focus, jpeg artifacts, watermark, text, logo, oversaturated, flat boring lighting, muddy colors, generic AI look, amateur result';
-
-const STYLE_CORE: Record<string, string> = {
+// Per-style negative prompts — blocks whatever this style should NOT look like
+const STYLE_NEGATIVE: Record<string, string> = {
+  // 2D anime styles: block 3D and photorealism
   anime_basic:
-    'The entire scene transformed into premium anime illustration art. Subject rendered with smooth precise cel-shading, large expressive anime eyes with luminous deep irises and bright catchlights, fur and hair stylized into soft flowing individual strands in warm amber and cream tones, background elements faithfully preserved and converted into anime art style with warm cinematic lighting. Clean polished webtoon animation quality.',
-
+    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, hyper-realistic fur, realistic photography, volumetric rendering, subsurface scattering, depth of field bokeh`,
   anime_pro:
-    'The entire scene elevated to breathtaking masterpiece-level Japanese anime art. Subject rendered with extraordinary precision — crystalline iris gradients with star catchlights, razor-clean cel-shading with subtle subsurface glow, fur and hair transformed into gloriously detailed individual strands flowing with warmth and life, dramatic cinematic three-point rim lighting casting ethereal depth. Background beautifully stylized into premium anime environment. Studio Trigger meets Ufotable production quality, pixiv masterpiece tier.',
-
+    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, realistic photography, hyper-realistic texture`,
   soft_cartoon:
-    'The entire scene transformed into warm premium soft cartoon illustration. Subject rendered with velvety smooth rounded shading, lovable expressive eyes full of charm, soft fluffy forms with gentle contours. Background environment converted into a cozy inviting cartoon world with warm honey and ivory palette. Diffused soft-box lighting creating a welcoming atmosphere. Cartoon Saloon meets Illumination Entertainment animated quality.',
-
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, realistic fur, realistic skin texture`,
   cute_pet:
-    'The entire scene transformed into an utterly adorable premium kawaii illustration. Subject rendered as an irresistibly cute character — extraordinarily fluffy textured fur showing every individual strand in cream and golden tones, oversized sparkling anime eyes with starpoint and heart catchlights, tiny expressive nose and soft rounded features. Background preserved and converted into a dreamy pastel kawaii world. Warm pastel color palette. Premium Japanese mascot character illustration quality.',
-
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, realistic photography, volumetric rendering`,
   simple_icon:
-    'The entire scene transformed into a sophisticated minimalist premium icon. Subject simplified into clean geometric graphic shapes, elegant flat design with subtle gradient shading, crisp precise linework, facial features reduced to their most essential and iconic forms. Background neutralized to a clean gradient. Contemporary Japanese minimalism meets modern brand identity design. Premium iOS App Store app icon aesthetic, polished vector quality.',
-
-  '3d_cartoon':
-    'The entire scene rendered in breathtaking premium 3D animation style. Subject transformed into a charming 3D animated character with Pixar-level physically-based subsurface skin scattering, expressive animated eyes with volumetric depth, fur and hair simulated with thousands of individual dynamic strands, warm cinematic global illumination. Background converted into a beautiful animated movie environment. Disney-Pixar big-budget production quality render.',
-
-  soft_storybook:
-    'The entire scene transformed into an enchanting hand-painted watercolor storybook illustration. Subject rendered with delicate brushstroke texture on visible watercolor paper grain, warm golden lamplight atmosphere suffusing the scene, soft dreamy edges with organic flowing shapes. Background converted into a magical illustrated world. Studio Ghibli warmth meets Beatrix Potter delicacy, premium artisan childrens book illustration craft.',
-
-  cyberpunk:
-    'The entire scene transformed into a cinematic cyberpunk world. Subject rendered with electric cyan and magenta neon rim lighting slicing through atmospheric volumetric fog, rain-slicked textures with micro-detail, futuristic visual augmentations and implants integrated naturally. Background converted into a dark neon-drenched dystopian cityscape. Blade Runner 2049 cinematography meets Ghost in the Shell artistry. Ultra-detailed 8K cinematic quality.',
-
-  comic_hero:
-    'The entire scene transformed into a premium superhero comic illustration. Subject rendered as a powerful heroic figure with dramatic chiaroscuro lighting — bold ink-black shadows and brilliant highlights creating epic three-dimensional form, dynamic energy and unstoppable power radiating from the composition. Background converted into a dramatic comic book environment. Alex Ross painted realism meets modern Marvel/DC premium art quality.',
-
-  fashion_avatar:
-    'The entire scene transformed into an ultra-luxury Vogue editorial fashion portrait. Subject rendered with professional Rembrandt studio lighting — perfect key-fill-hair triangle, luminous flawless skin with natural texture visible. Background converted to elegant shallow-bokeh studio environment. Sophisticated desaturated cinematic color grading. Helmut Newton meets Annie Leibovitz editorial photography quality.',
-
-  business_profile:
-    'The entire scene transformed into a premium executive professional portrait. Subject rendered with immaculate three-point studio lighting, composed and authoritative, razor-sharp detail with professional skin refinement. Background neutralized and softened to a clean professional dark gradient. Subtle warm Kodak Portra film grain. Fortune 500 CEO board portrait quality, polished and trustworthy.',
-
-  pet_portrait_pro:
-    'The entire scene elevated to a majestic fine-art animal portrait. Subject rendered with Baroque Rembrandt-style dramatic warm lighting and rich deep shadows, hyper-detailed fur texture showing every individual strand with micro-level precision, soulful expressive eyes with extraordinary emotional depth and inner light. Background transformed into a rich jewel-toned painterly studio environment. Dutch Golden Age old-master oil painting meets David Yarrow wildlife photography luxury.',
-
-  couple_avatar:
-    'The entire scene transformed into a cinematic romantic portrait. Subjects bathed in warm golden-hour backlight creating a luminous halo, amber and rose cinematic color grading, intimate and emotionally resonant composition enhanced. Background converted into a beautiful bokeh-filled romantic environment. Subtle film photography texture with dreamy lens flare. Wes Anderson visual symmetry meets Terrence Malick golden-hour poetry.',
-
+    `${BASE_NEGATIVE}, 3D, photorealistic, complex background, realistic, shadows, gradients, detailed texture`,
   kawaii_icon:
-    'The entire scene transformed into super-premium kawaii character art. Subject rendered as an irresistibly adorable kawaii character — luminous pearl-shimmer skin with rosy blushing cheeks, dreamy macaroon color palette of lavender, mint and peach, eyes overflowing with starlight sparkles and heart reflections, bouncy rounded design language throughout. Background converted into a pastel kawaii fantasy world. Sanrio meets modern streetwear culture. Professional premium LINE sticker character quality.',
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, realistic fur, realistic skin, dark colors`,
+  soft_storybook:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, sharp digital art, neon colors, dark atmosphere`,
+  comic_hero:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, anime style, soft colors, watercolor`,
+
+  // 3D styles: block flat/2D
+  '3d_cartoon':
+    `${BASE_NEGATIVE}, flat design, 2D illustration, anime linework, manga, hand-drawn, watercolor`,
+
+  // Photorealistic styles: block illustration/cartoon
+  fashion_avatar:
+    `${BASE_NEGATIVE}, cartoon, anime, illustrated, painted, 2D, flat design, sketch`,
+  business_profile:
+    `${BASE_NEGATIVE}, cartoon, anime, illustrated, painted, artistic filter, 2D, overly stylized`,
+  pet_portrait_pro:
+    `${BASE_NEGATIVE}, cartoon, flat design, anime, simple illustration, childish style`,
+  couple_avatar:
+    `${BASE_NEGATIVE}, cartoon, anime style, flat illustration, overly stylized`,
+  cyberpunk:
+    `${BASE_NEGATIVE}, cute, pastel colors, soft lighting, cartoon, watercolor`,
 };
 
+const STYLE_CORE: Record<string, string> = {
+  // ─── 2D FLAT ANIME ────────────────────────────────────────────────────────
+
+  anime_basic:
+    'Transform the entire scene into a 2D flat Japanese anime illustration. Render the subject with clean cel-shading using solid color fills, precise black outlines, and large expressive anime eyes with deep luminous irises and bright catchlights. Stylize fur and hair into smooth 2D flowing strands in warm amber and cream tones. Convert background into clean 2D anime environment with simplified shapes. Pure 2D anime illustration art, webtoon quality, warm cinematic color palette.',
+
+  anime_pro:
+    'Transform the entire scene into a breathtaking masterpiece-level 2D Japanese anime illustration. Extraordinary cel-shading with beautiful gradient fills and razor-clean black outlines. Crystalline iris gradients with prismatic star catchlights. Fur and hair rendered as magnificent 2D layered strands with warm glow. Background elevated into a premium 2D anime environment with dramatic three-point lighting expressed through 2D shading. Studio Trigger meets Ufotable production quality. Pure 2D illustration, pixiv masterpiece tier.',
+
+  soft_cartoon:
+    'Transform the entire scene into a warm premium 2D soft cartoon illustration. Render the subject with rounded smooth shapes, velvety shading with gentle gradient fills, and lovable expressive cartoon eyes. Background converted into a cozy inviting 2D cartoon world. Warm honey and ivory color palette with gentle diffused lighting. Clean 2D cartoon art style. Cartoon Saloon meets Illumination Entertainment 2D animation quality.',
+
+  cute_pet:
+    'Transform the entire scene into an utterly adorable 2D kawaii illustration. Render the subject as an irresistibly cute 2D kawaii character — fluffy fur stylized into soft overlapping 2D strokes in cream and golden tones, oversized sparkling 2D anime eyes with starpoint and heart-shaped catchlights, tiny button nose. Background converted into a dreamy 2D pastel kawaii world. Clean 2D illustration art, warm pastel color palette. Premium Japanese kawaii mascot character quality.',
+
+  simple_icon:
+    'Transform the subject into a sophisticated flat 2D minimalist icon. Simplify facial and body features into clean geometric graphic shapes. Pure flat design with solid color fills, subtle soft gradient accents, no shadows, no 3D depth. Crisp precise vector-quality linework. Background neutralized to a clean gradient. 2D flat design only. Japanese minimalism meets modern brand identity, premium iOS app icon quality.',
+
+  soft_storybook:
+    'Transform the entire scene into an enchanting 2D hand-painted watercolor storybook illustration. Render with visible brushstroke texture on warm paper grain, soft dreamy edges, organic flowing shapes. Warm golden lamplight atmosphere suffusing every element. Background converted into a magical 2D illustrated world with soft washes of color. 2D watercolor painting art. Studio Ghibli warmth meets Beatrix Potter delicacy.',
+
+  comic_hero:
+    'Transform the entire scene into a premium 2D superhero comic book illustration. Subject rendered as a powerful heroic figure with bold ink outlines, dramatic chiaroscuro ink shadows and brilliant highlight accents, dynamic energy effects at edges. Background converted into a dramatic 2D comic environment. Halftone texture in shadows. 2D comic illustration art, Alex Ross painted realism meets modern Marvel/DC premium quality.',
+
+  kawaii_icon:
+    'Transform the subject into a super-premium flat 2D kawaii character icon. Ultra-soft dreamy macaroon color palette of lavender, mint and peach. Luminous flat skin with round rosy blush marks, eyes overflowing with 2D starlight sparkles and heart reflections. Bouncy perfectly rounded shapes throughout, clean simple outlines. Background converted to a flat pastel pattern or solid. Pure 2D flat illustration. Sanrio professional character design quality.',
+
+  // ─── 3D CGI ───────────────────────────────────────────────────────────────
+
+  '3d_cartoon':
+    'Transform the entire scene into a breathtaking 3D CGI animated character render. Subject transformed into a charming 3D animated character with Pixar-level physically-based subsurface skin scattering, volumetric rim lighting, three-dimensional fur/hair with thousands of individual dynamic strands simulated by 3D software. Expressive 3D animated eyes with volumetric depth. Background converted into a beautiful 3D animated movie environment with cinematic global illumination. Disney-Pixar big-budget production quality 3D render.',
+
+  // ─── HYPER-DETAILED ILLUSTRATION ──────────────────────────────────────────
+
+  pet_portrait_pro:
+    'Transform the entire scene into a majestic fine-art animal portrait. Subject rendered with extraordinary hyper-detailed realism: Baroque Rembrandt-style dramatic warm lighting with rich deep shadows, individual fur strands rendered at micro-detail level showing texture and sheen, soulful eyes with extraordinary emotional depth and inner light. Background transformed into a rich jewel-toned painterly studio environment. Dutch Golden Age old-master oil painting quality meets David Yarrow luxury wildlife photography.',
+
+  // ─── CINEMATIC PHOTOREALISTIC ─────────────────────────────────────────────
+
+  fashion_avatar:
+    'Transform the entire scene into an ultra-luxury Vogue editorial fashion portrait. Subject rendered with professional studio Rembrandt lighting — perfect key-fill-hair light triangle, luminous flawless skin with natural pore texture visible. Background converted to elegant shallow-bokeh studio environment with seamless gradient. Sophisticated desaturated cinematic color grading. Photorealistic editorial photography quality. Helmut Newton meets Annie Leibovitz.',
+
+  business_profile:
+    'Transform the entire scene into a premium professional executive portrait. Subject rendered with immaculate three-point studio lighting, composed and authoritative, razor-sharp detail with professional skin refinement. Background neutralized and softened to a clean professional dark gradient. Subtle warm Kodak Portra film grain. Photorealistic studio photography quality. Fortune 500 CEO board portrait.',
+
+  cyberpunk:
+    'Transform the entire scene into a cinematic cyberpunk world. Subject rendered with dramatic electric cyan and magenta neon rim lighting slicing through atmospheric volumetric fog. Rain-slicked textures with micro-detail. Background converted into a dark neon-drenched dystopian cityscape with holographic signage. Cinematic color grade with deep blacks. Blade Runner 2049 cinematography meets Ghost in the Shell. Photorealistic cinematic quality.',
+
+  couple_avatar:
+    'Transform the entire scene into a cinematic romantic portrait. Subjects bathed in warm golden-hour backlight creating luminous rim lighting. Amber and rose cinematic color grading, intimate emotionally resonant composition. Background converted into a beautiful bokeh-filled golden-hour environment. Subtle film photography texture with dreamy lens flare. Photorealistic cinematic quality. Wes Anderson visual symmetry meets Terrence Malick golden-hour poetry.',
+};
+
+const QUALITY_SUFFIX =
+  'Ultra-detailed, premium quality, stunning visual impact, professional result.';
+
 export function getPromptForStyle(styleId: string): { prompt: string; negativePrompt: string } {
-  const core = STYLE_CORE[styleId] ?? `${styleId} style portrait`;
+  const core = STYLE_CORE[styleId] ?? `${styleId} style portrait transformation`;
+  const neg = STYLE_NEGATIVE[styleId] ?? BASE_NEGATIVE;
   return {
     prompt: `${core} ${QUALITY_SUFFIX}`,
-    negativePrompt: NEGATIVE_PROMPT,
+    negativePrompt: neg,
   };
 }
 
@@ -83,10 +129,6 @@ export interface ModelParams {
   guidance_scale: number;
 }
 
-// Tuned for FLUX dev img2img:
-// - strength 0.70–0.76: preserves composition/background while applying strong style
-// - guidance_scale 3.0–3.5: FLUX uses distilled guidance (higher = more prompt-driven)
-// - steps 25–35: FLUX is efficient; 25 is good quality, 35 is premium
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
   free:    { strength: 0.72, num_inference_steps: 25, guidance_scale: 3.0 },
   paid:    { strength: 0.76, num_inference_steps: 35, guidance_scale: 3.5 },
