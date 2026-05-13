@@ -2,7 +2,7 @@ import { fal } from '@fal-ai/client';
 import { AIProvider, GenerateParams } from './types';
 import { getPromptForStyle, MODEL_PARAMS } from '@/lib/prompts';
 
-interface FluxImg2ImgOutput {
+interface FluxPulidOutput {
   images: Array<{ url: string; width: number; height: number; content_type: string }>;
   seed: number;
   prompt: string;
@@ -36,7 +36,6 @@ export function resetFalDebug(): void {
   _lastDebug = null;
 }
 
-// Serialize any thrown value into a JSON-safe string, capturing all properties
 function serializeError(err: unknown): string {
   if (err instanceof Error) {
     const obj: Record<string, unknown> = {
@@ -44,7 +43,6 @@ function serializeError(err: unknown): string {
       message: err.message,
       stack: err.stack,
     };
-    // fal SDK errors carry status/body/etc. as enumerable own properties
     for (const key of Object.keys(err)) {
       obj[key] = (err as unknown as Record<string, unknown>)[key];
     }
@@ -61,7 +59,7 @@ function serializeError(err: unknown): string {
   }
 }
 
-const MODEL_ID = 'fal-ai/flux/dev/image-to-image';
+const MODEL_ID = 'fal-ai/flux-pulid';
 
 export class FalProvider implements AIProvider {
   readonly name = 'fal';
@@ -135,31 +133,35 @@ export class FalProvider implements AIProvider {
     const finalPrompt = params.prompt || autoPrompt;
 
     const tier = params.mode === 'free' ? 'free' : 'paid';
-    const { strength, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
+    const { id_weight, num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
 
     const payload = {
-      image_url: imageUrl,
+      reference_image_url: imageUrl,
       prompt: finalPrompt,
       negative_prompt: negativePrompt,
-      strength,
+      id_weight,
       num_inference_steps,
       guidance_scale,
-      num_images: params.count,
-      output_format: 'jpeg' as 'jpeg' | 'png',
+      image_size: 'square_hd' as const,  // 1024×1024 — best quality for all tiers
+      max_sequence_length: '256' as const,  // ensures long prompts are fully processed
       enable_safety_checker: true,
     };
     debug.requestPayload = payload;
     debug.modelInvoked = true;
-    console.log(`[FAL] model invoke start — model=${MODEL_ID}`);
+    console.log(`[FAL] model invoke start — model=${MODEL_ID} count=${params.count}`);
     console.log(`[FAL] request payload: ${JSON.stringify(payload)}`);
 
-    let rawResult: unknown;
+    // PuLID doesn't support num_images — run parallel calls for count > 1
+    const calls = Array.from({ length: params.count }, () =>
+      fal.subscribe(MODEL_ID, { input: payload, logs: false })
+    );
+
+    let rawResults: unknown[];
     try {
-      const falRequest = fal.subscribe(MODEL_ID, { input: payload, logs: false });
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('FalProvider: timeout after 45s')), 45_000)
+        setTimeout(() => reject(new Error('FalProvider: timeout after 50s')), 50_000)
       );
-      rawResult = await Promise.race([falRequest, timeoutPromise]);
+      rawResults = await Promise.race([Promise.all(calls), timeoutPromise]);
     } catch (modelErr) {
       const errJson = serializeError(modelErr);
       debug.errorMessage = modelErr instanceof Error ? modelErr.message : String(modelErr);
@@ -169,26 +171,28 @@ export class FalProvider implements AIProvider {
       throw modelErr;
     }
 
-    debug.rawResponse = rawResult;
-    console.log(`[FAL] raw response: ${JSON.stringify(rawResult)}`);
+    debug.rawResponse = rawResults;
 
-    const data = (rawResult as { data: FluxImg2ImgOutput }).data;
-    if (!data?.images?.length) {
-      const msg = `FalProvider: no images in response — raw=${JSON.stringify(rawResult)}`;
-      debug.errorMessage = msg;
-      throw new Error(msg);
+    const allImages: FluxPulidOutput['images'] = [];
+    for (const raw of rawResults) {
+      const data = (raw as { data: FluxPulidOutput }).data;
+      if (!data?.images?.length) {
+        const msg = `FalProvider: no images in response — raw=${JSON.stringify(raw)}`;
+        debug.errorMessage = msg;
+        throw new Error(msg);
+      }
+      // NSFW safety check
+      if (data.has_nsfw_concepts?.some(Boolean)) {
+        debug.errorMessage = 'nsfwContent';
+        debug.errorJson = JSON.stringify({ nsfwDetected: true, has_nsfw_concepts: data.has_nsfw_concepts });
+        console.warn('[FAL] NSFW content detected — blocking result');
+        throw new Error('nsfwContent');
+      }
+      allImages.push(...data.images);
     }
 
-    // NSFW safety check — fal.ai safety checker flag
-    if (data.has_nsfw_concepts?.some(Boolean)) {
-      const msg = 'nsfwContent';
-      debug.errorMessage = msg;
-      debug.errorJson = JSON.stringify({ nsfwDetected: true, has_nsfw_concepts: data.has_nsfw_concepts });
-      console.warn('[FAL] NSFW content detected — blocking result');
-      throw new Error(msg);
-    }
-
-    console.log(`[FAL] success — ${data.images.length} image(s): ${data.images.map(i => i.url).join(', ')}`);
-    return data.images.map((img) => img.url);
+    const urls = allImages.map((img) => img.url);
+    console.log(`[FAL] success — ${urls.length} image(s): ${urls.join(', ')}`);
+    return urls;
   }
 }

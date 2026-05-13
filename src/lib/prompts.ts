@@ -1,60 +1,63 @@
+// FLUX-PuLID prompts: natural language, cinematic specificity, luxury references
+// FLUX does NOT need keyword spam — detailed descriptive sentences work better
+
 const IDENTITY_PROMPT =
-  "Preserve the original person's identity, facial structure, hairstyle, eye direction, and overall composition.";
+  "The subject is the exact same person from the reference photo, preserving their unique facial bone structure, eye shape and color, nose, lips, and all distinctive personal characteristics.";
 
 const QUALITY_SUFFIX =
-  'high quality, masterpiece, premium sns avatar, aesthetically pleasing, professional composition';
+  'Stunning composition, breathtaking quality, ultra-detailed, professional artistry, premium flagship result.';
 
 export const NEGATIVE_PROMPT =
-  'low quality, blurry, distorted face, bad anatomy, deformed eyes, extra fingers, ugly teeth, duplicated face, oversaturated, cheap ai art, cartoonish, low detail, messy background, unrealistic skin, unnatural lighting, text, watermark, logo, jpeg artifacts';
+  'ugly, disfigured, deformed face, distorted features, extra limbs, blurry face, low quality, watermark, text, oversaturated colors, flat boring lighting, cheap AI look, amateur composition';
 
 const STYLE_CORE: Record<string, string> = {
+  anime_basic:
+    'An exquisite anime-style portrait with crystalline luminous eyes featuring detailed iris gradients and bright catchlights, clean precise cel-shading, soft butterfly lighting, subtle cherry blossom bokeh, polished premium webtoon character art aesthetic',
+
   anime_pro:
-    'masterpiece, premium japanese anime portrait, highly detailed face, cinematic rim lighting, soft shadows, detailed iris, clean facial composition, subtle pastel color palette, modern anime illustration, high-end character design, studio-quality rendering, smooth skin texture, expressive eyes, elegant atmosphere, ultra refined anime avatar, professional artstation quality, identity preserving portrait, centered composition, shallow depth of field',
-
-  soft_storybook:
-    'dreamy storybook illustration, soft watercolor lighting, warm pastel tones, cozy atmosphere, delicate facial details, gentle smile, hand-painted texture, whimsical cinematic portrait, soft depth of field, premium illustration style, elegant composition, refined anime-inspired storybook art, emotional lighting, peaceful mood',
-
-  cute_pet:
-    'adorable premium pet portrait, kawaii japanese illustration style, fluffy fur details, expressive eyes, soft cinematic lighting, clean pastel background, charming animal avatar, high-end pet illustration, ultra cute composition, warm and friendly atmosphere, professional sns pet icon, highly detailed fur texture',
-
-  fashion_avatar:
-    'luxury fashion portrait, high-end editorial photography style, cinematic beauty lighting, elegant facial features, luxury magazine aesthetic, premium instagram avatar, stylish composition, subtle glow, soft skin detail, rich color grading, sophisticated atmosphere, modern fashion campaign quality, centered portrait, identity preserving',
-
-  business_profile:
-    'professional executive portrait, modern corporate photography, clean luxury lighting, premium linkedin style profile photo, sharp facial detail, subtle cinematic contrast, elegant business atmosphere, realistic skin texture, confident expression, studio portrait quality, high-end branding portrait, professional sns avatar',
-
-  cyberpunk:
-    'premium cyberpunk portrait, cinematic neon rim lighting, futuristic atmosphere, high-detail facial rendering, moody sci-fi lighting, sharp eyes, advanced holographic glow, luxury cyber aesthetic, high-end game cinematic quality, dark futuristic city ambiance, identity preserving portrait, ultra detailed composition',
-
-  kawaii_icon:
-    'super cute japanese kawaii icon, clean minimal illustration, soft pastel palette, adorable facial expression, highly polished anime icon style, premium social avatar, charming composition, soft glow lighting, rounded design language, modern japanese sns aesthetic, ultra cute portrait',
-
-  comic_hero:
-    'cinematic superhero portrait, premium comic illustration, dramatic lighting, sharp jawline, intense eyes, dynamic atmosphere, marvel-inspired composition, high-detail rendering, epic hero aesthetic, bold cinematic shadows, powerful expression, modern graphic novel quality',
+    'A breathtaking masterpiece-level Japanese anime illustration — razor-sharp linework with extraordinary detail, stunning luminous eyes with prismatic iris gradients and star catchlights, dramatic cinematic three-point rim lighting with ethereal atmospheric depth, silky smooth skin with subsurface glow, Studio Trigger meets modern premium anime aesthetic, pixiv trending quality',
 
   soft_cartoon:
-    'soft premium cartoon portrait, smooth clean shading, elegant cartoon rendering, warm cinematic lighting, expressive eyes, high-end animation style, polished character design, cozy atmosphere, premium family-friendly avatar aesthetic, subtle gradients, centered portrait',
+    'A charming premium soft cartoon portrait with velvety smooth shading, warm honey and ivory color palette, gentle cinematic wrap lighting creating soft shadows, lovable expressive character design, Cartoon Saloon meets Illumination Entertainment premium animation aesthetic, warm and inviting emotional atmosphere',
 
-  '3d_cartoon':
-    'premium 3d animated portrait, pixar-inspired lighting, cinematic rendering, ultra clean 3d character design, realistic facial proportions, soft global illumination, high-end animated movie quality, charming expression, luxury avatar style, smooth skin rendering, detailed eyes',
+  cute_pet:
+    'An utterly adorable kawaii pet portrait with extraordinarily fluffy textured fur showing individual strand detail, sparkling doe eyes with bright starpoint catchlights, dreamy pastel color palette, ultra-detailed fur rendering, soft professional studio box lighting, premium Japanese character mascot illustration quality',
 
   simple_icon:
-    'minimal premium avatar icon, clean flat illustration, elegant japanese minimalism, smooth linework, centered composition, subtle pastel colors, soft gradients, modern app icon aesthetic, highly polished vector-inspired portrait, professional social avatar design',
+    'A sophisticated minimalist premium icon portrait, elegant geometric simplification of facial features into a clean graphic, crisp vector-quality linework, contemporary flat design with subtle gradient accents, Japanese minimalism meets modern brand identity design, premium iOS App Store app icon aesthetic',
+
+  '3d_cartoon':
+    'A breathtaking premium 3D animated character portrait — physically-based subsurface skin scattering, Pixar-level cinematic global illumination, clean topology with perfect character proportions, volumetric rim lighting creating gorgeous depth, Disney-Pixar big-budget production quality render with warm inviting color palette',
+
+  soft_storybook:
+    'An enchanting hand-painted watercolor illustration with visible paper texture and delicate brushstroke detail, warm golden lamplight atmosphere, emotional depth and narrative mood, Studio Ghibli magic meets Beatrix Potter delicacy, premium artisan childrens book illustration quality with timeless appeal',
+
+  cyberpunk:
+    'An electrifying cinematic cyberpunk portrait — dramatic electric cyan and magenta neon rim lighting slicing through atmospheric volumetric fog, rain-slicked skin with micro-detail pores, holographic iris implants with circuitry glow, neural interface hardware, Blade Runner 2049 cinematography meets Ghost in the Shell artistry, ultra-detailed 8K cinematic quality',
+
+  comic_hero:
+    'An epic superhero portrait in the tradition of Alex Ross painted realism — dramatic chiaroscuro lighting with ink-black shadows and brilliant highlight accents, heroic composition radiating unstoppable power, dynamic energy effects crackling at edges, bold and fearless, premium Marvel Studios meets DC Comics painted illustration quality',
+
+  fashion_avatar:
+    'An ultra-luxury Vogue editorial fashion portrait — professional Rembrandt lighting setup with perfect key-fill-hair light triangle, luminous flawless complexion with natural skin texture, sophisticated desaturated cinematic color grading, luxurious shallow bokeh at 85mm f/1.4, Helmut Newton meets Annie Leibovitz editorial photography quality',
+
+  business_profile:
+    'A premium executive portrait headshot — immaculate three-point studio lighting with perfectly placed catchlight, composed authoritative expression with natural depth, razor-sharp facial detail with professional skin refinement, subtle warm Kodak Portra film grain, Fortune 500 CEO board portrait quality, polished and trustworthy',
 
   pet_portrait_pro:
-    'luxury pet portrait photography illustration, highly detailed fur texture, cinematic studio lighting, elegant animal composition, rich warm tones, premium instagram pet aesthetic, ultra refined rendering, expressive animal eyes, professional commercial pet portrait style',
+    'A majestic fine-art animal portrait in the classical tradition — Baroque Rembrandt-style dramatic warm lighting with rich shadows, hyper-detailed individual fur texture with micro-strand rendering, soulful expressive eyes with extraordinary emotional depth, jewel-toned museum-quality background, Dutch Golden Age oil painting meets David Yarrow wildlife photography',
 
   couple_avatar:
-    'romantic couple portrait, cinematic emotional lighting, elegant anime-inspired composition, soft pastel atmosphere, premium relationship avatar aesthetic, warm facial expressions, highly detailed illustration, luxury sns couple icon, emotional storytelling mood, harmonious composition',
+    'A cinematic romantic portrait — bathed in warm golden-hour backlight creating a luminous halo, amber and rose cinematic color grading, emotionally resonant intimate composition, subtle film photography texture with beautiful lens flare bokeh, Wes Anderson symmetry meets Steven Spielberg emotional storytelling visual poetry',
 
-  anime_basic:
-    'clean anime portrait, modern japanese illustration, soft lighting, expressive eyes, polished character rendering, centered avatar composition, smooth anime shading, attractive face detail, pleasant color palette, sns-ready anime profile picture',
+  kawaii_icon:
+    'A super-premium kawaii character icon — ultra-soft dreamy macaroon palette of lavender, mint and peach, luminous pearl-shimmer skin with rosy blush, eyes filled with starlight and sparkles, bouncy rounded modern design language, Sanrio aesthetic meets contemporary streetwear culture, professionally crafted premium LINE sticker character quality',
 };
 
 export function getPromptForStyle(styleId: string): { prompt: string; negativePrompt: string } {
   const core = STYLE_CORE[styleId] ?? `${styleId} style portrait`;
   return {
-    prompt: `${IDENTITY_PROMPT} ${core}, ${QUALITY_SUFFIX}`,
+    prompt: `${IDENTITY_PROMPT} ${core}. ${QUALITY_SUFFIX}`,
     negativePrompt: NEGATIVE_PROMPT,
   };
 }
@@ -77,13 +80,13 @@ export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
 };
 
 export interface ModelParams {
-  strength: number;
+  id_weight: number;
   num_inference_steps: number;
   guidance_scale: number;
 }
 
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
-  free:    { strength: 0.72, num_inference_steps: 18, guidance_scale: 2.8 },
-  paid:    { strength: 0.78, num_inference_steps: 28, guidance_scale: 3.5 },
-  premium: { strength: 0.82, num_inference_steps: 35, guidance_scale: 4.0 },
+  free:    { id_weight: 1.0, num_inference_steps: 20, guidance_scale: 4.0 },
+  paid:    { id_weight: 1.0, num_inference_steps: 28, guidance_scale: 5.0 },
+  premium: { id_weight: 0.9, num_inference_steps: 35, guidance_scale: 6.0 },
 };
