@@ -68,7 +68,7 @@ export const CREDIT_AMOUNTS: Record<CreditPackage, number> = {
 };
 
 export const FREE_DAILY_LIMIT = 3;        // logged-in users
-export const FREE_DAILY_LIMIT_ANON = 1;   // anonymous (IP-based)
+export const FREE_DAILY_LIMIT_ANON = 3;   // anonymous (IP-based)
 export const FREE_OUTPUT_SIZE = '512x512';
 export const PAID_OUTPUT_SIZES = ['1024x1024', '1536x1536'] as const;
 
