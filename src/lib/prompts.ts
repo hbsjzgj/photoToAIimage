@@ -133,23 +133,33 @@ export function getPromptForStyle(styleId: string): { prompt: string; negativePr
   };
 }
 
-// Per-style strength values — crucial for distinct outputs:
-// Dramatic style transforms need 0.82–0.90; realistic refinement needs 0.65–0.75
+// Per-style strength values.
+//
+// FLUX dev img2img critical thresholds:
+//   ≤ 0.78 → input image still significantly influences output (subject preserved)
+//   0.80–0.85 → heavy transformation, input barely preserved
+//   ≥ 0.85 → essentially text-to-image; input photo is ignored entirely
+//
+// Style differentiation comes from the PROMPT + NEGATIVE PROMPT, not strength.
+// Keep all values ≤ 0.78 to guarantee the subject stays in the output.
 export const STYLE_STRENGTH: Record<string, number> = {
-  anime_basic:      0.82,
-  anime_pro:        0.87,
-  soft_cartoon:     0.82,
-  cute_pet:         0.90,  // most extreme: animal character transformation
-  simple_icon:      0.90,  // most extreme: must become near-abstract flat graphic
-  '3d_cartoon':     0.83,
-  soft_storybook:   0.83,
-  cyberpunk:        0.82,
-  comic_hero:       0.86,
-  fashion_avatar:   0.72,  // photorealistic: preserve face, just enhance
-  business_profile: 0.65,  // most subtle: professional photo refinement only
-  pet_portrait_pro: 0.78,
-  couple_avatar:    0.82,
-  kawaii_icon:      0.90,  // extreme: must become chibi character
+  // Artistic / illustration styles — strong enough to transform, low enough to keep subject
+  anime_basic:      0.75,
+  anime_pro:        0.77,
+  soft_cartoon:     0.74,
+  cute_pet:         0.76,
+  simple_icon:      0.76,
+  '3d_cartoon':     0.76,
+  soft_storybook:   0.74,
+  cyberpunk:        0.77,
+  comic_hero:       0.77,
+  kawaii_icon:      0.76,
+  couple_avatar:    0.74,
+
+  // Realistic / photo styles — lower to preserve natural quality
+  fashion_avatar:   0.68,
+  business_profile: 0.60,
+  pet_portrait_pro: 0.72,
 };
 
 export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
@@ -176,7 +186,7 @@ export interface ModelParams {
 }
 
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
-  free:    { strength: 0.82, num_inference_steps: 28, guidance_scale: 3.2 },
-  paid:    { strength: 0.82, num_inference_steps: 35, guidance_scale: 3.5 },
-  premium: { strength: 0.85, num_inference_steps: 40, guidance_scale: 4.0 },
+  free:    { strength: 0.75, num_inference_steps: 28, guidance_scale: 3.8 },
+  paid:    { strength: 0.75, num_inference_steps: 35, guidance_scale: 4.0 },
+  premium: { strength: 0.78, num_inference_steps: 40, guidance_scale: 4.5 },
 };
