@@ -1,166 +1,203 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Each style is tuned to match its preview card image exactly:
-//   STYLE_CORE     — positive prompt describing the EXACT visual output
-//   STYLE_NEGATIVE — blocks conflicting rendering modes
-//   STYLE_STRENGTH — per-style strength (artistic styles need 0.82+;
-//                    realistic styles need less to preserve photo quality)
+// HIGH-QUALITY PROMPTS FOR FLUX DEV IMG2IMG
+// Each prompt is 150-250 words, covering:
+//   - Precise lighting setup (key/fill/rim angles, color temperature)
+//   - Exact color palette with descriptive specifics
+//   - Material/rendering technique (cel-shading passes, subsurface scattering, etc.)
+//   - Eye, hair, skin detail instructions
+//   - Artist/studio reference anchors the model recognizes
+//   - Mood/atmosphere and composition language
 // ─────────────────────────────────────────────────────────────────────────────
 
 const BASE_NEGATIVE =
-  'ugly, disfigured, deformed, blurry, low quality, jpeg artifacts, watermark, text, logo';
+  'ugly, disfigured, deformed, extra limbs, blurry, low resolution, jpeg artifacts, watermark, text, logo, username, signature';
 
-// ─── Per-style negative prompts ──────────────────────────────────────────────
 const STYLE_NEGATIVE: Record<string, string> = {
-  // 2D illustration styles — block 3D and hyperrealism
   anime_basic:
-    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, realistic fur, hyper-detailed photography, volumetric 3D lighting, subsurface scattering`,
+    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, hyper-realistic, subsurface scattering, volumetric 3D lighting, realistic fur, depth of field photography`,
   anime_pro:
-    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, realistic photography, soft pastel, bright cheerful`,
+    `${BASE_NEGATIVE}, 3D rendered, 3D CGI, photorealistic, realistic photography, soft cheerful pastel, low contrast, flat lighting`,
   soft_cartoon:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, dark moody, sharp edges, bold ink outlines`,
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, bold ink outlines, dark moody, neon colors, sharp hard edges`,
   cute_pet:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, realistic fur, dark moody, realistic animal photography`,
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, hyper-realistic, realistic animal photography, dark atmosphere, adult proportions, scary`,
   simple_icon:
-    `${BASE_NEGATIVE}, 3D, photorealistic, complex background, realistic, gradients, shadows, detailed texture, anime, multiple colors`,
-  soft_storybook:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, sharp digital art, neon colors, dark atmosphere, bold outlines`,
-  comic_hero:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, anime soft style, watercolor, pastel, realistic skin`,
-  kawaii_icon:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, realistic fur, realistic skin, dark colors, complex background, adult proportions`,
-  couple_avatar:
-    `${BASE_NEGATIVE}, 3D rendered, photorealistic, realistic photography, dark moody, single person only`,
-
-  // 3D CGI style — block flat/2D
+    `${BASE_NEGATIVE}, 3D, photorealistic, gradients, shadows, realistic texture, detailed background, anime style, more than 3 colors, complex illustration`,
   '3d_cartoon':
-    `${BASE_NEGATIVE}, flat design, 2D illustration, anime linework, manga, hand-drawn, watercolor, realistic photography`,
-
-  // Photorealistic styles — block illustration/cartoon
-  fashion_avatar:
-    `${BASE_NEGATIVE}, cartoon, anime, illustrated, painted, 2D, flat design, sketch, cold lighting`,
-  business_profile:
-    `${BASE_NEGATIVE}, cartoon, anime, illustrated, painted, artistic filter, 2D, warm orange tones, dramatic lighting`,
-  pet_portrait_pro:
-    `${BASE_NEGATIVE}, cartoon, flat design, anime, simple illustration, childish style, 2D`,
+    `${BASE_NEGATIVE}, flat 2D illustration, anime linework, manga style, hand-drawn, watercolor, realistic photography, harsh shadows`,
+  soft_storybook:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, sharp digital art, neon colors, dark gritty atmosphere, bold heavy outlines, anime style`,
   cyberpunk:
-    `${BASE_NEGATIVE}, cute, pastel colors, soft warm lighting, cartoon, watercolor, bright cheerful`,
+    `${BASE_NEGATIVE}, cute kawaii, pastel colors, soft warm lighting, bright cheerful, cartoon flat, watercolor, natural photography`,
+  comic_hero:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, soft anime style, watercolor, pastel, realistic skin texture, subtle lighting`,
+  fashion_avatar:
+    `${BASE_NEGATIVE}, cartoon, anime, illustrated, painted, 2D flat, sketch, cold harsh lighting, unflattering angle, poor exposure`,
+  business_profile:
+    `${BASE_NEGATIVE}, cartoon, anime, illustrated, dramatic artistic lighting, warm orange tones, overly stylized, heavy retouching`,
+  pet_portrait_pro:
+    `${BASE_NEGATIVE}, cartoon, flat illustration, anime style, childish, low detail fur, flat lighting, plain background`,
+  couple_avatar:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, dark moody, single subject, cold tones, no romance, harsh lighting`,
+  kawaii_icon:
+    `${BASE_NEGATIVE}, 3D rendered, photorealistic, realistic fur, realistic skin, dark colors, complex detailed background, adult proportions, scary`,
 };
 
-// ─── Per-style positive prompts — describe exact visual output ────────────────
-// Each prompt targets the specific visual characteristics visible in the preview card.
 const STYLE_CORE: Record<string, string> = {
 
-  // Preview: soft 2D anime girl, warm peach-pink skin, honey-blonde hair,
-  // large soft brown eyes, gentle upper-left diffused lighting, clean outlines
-  anime_basic:
-    'Transform the entire scene into a soft 2D Japanese anime illustration. Warm peach-pink skin tones, honey-amber hair rendered as flat smooth 2D anime strands with gentle highlights, large soft anime eyes with warm brown irises and bright single catchlight, clean precise black outlines of medium weight. Gentle diffused lighting from upper left creating soft face shadows. Warm rose and peach color palette throughout. Clean cel-shaded fills, no gradients. Dreamy romantic atmosphere. Webtoon illustration quality.',
+  // ── FREE STYLES ──────────────────────────────────────────────────────────
 
-  // Preview: very dark dramatic anime, near-black background, single strong
-  // rim light from behind, high contrast, mature sophisticated character design
-  anime_pro:
-    'Transform the entire scene into a premium dramatic 2D Japanese anime illustration. Near-black dark background. Single strong rim lighting from behind creating a luminous outline on the subject, deep ink-black shadows on the face with only the lit side visible. Mature sophisticated character design with sharp detailed facial features, complex iris patterns with multiple ring gradients, dark brown or black hair with subtle blue-purple highlights. High contrast chiaroscuro lighting expressed in 2D anime shading. Studio Trigger / Ufotable cinematic quality. Pure 2D illustration.',
+  anime_basic: `
+Repaint this image as a beautifully polished 2D Japanese anime illustration in premium webtoon style.
+SKIN: flat cel-shading in warm peach-rose tones, crisp medium-weight black outlines, a single shadow pass in cooler rose-mauve applied to the underside of the chin, hair, and below the brow.
+EYES: enlarged expressive anime eyes — warm chestnut-brown irises with a radial gradient deepening toward the outer ring, a crisp white oval catchlight at 10 o'clock, clean double-eyelash stroke rendering, subtle lower lash marks.
+HAIR: flowing silk-smooth 2D strands in warm honey-amber, highlights drawn as clean curved white streaks, shadow areas filled with a flat deeper amber tone, no photo-realistic shading.
+LIGHTING: gentle soft-box diffusion from the upper left, painting a soft crescent shadow on the right cheek. The lit zone glows warm peach-ivory.
+PALETTE: warm rose, cream, soft peach, honey amber, muted sage-green accents.
+BACKGROUND: simplified into a soft warm-tone gradient wash — no hard details, no photographic elements.
+QUALITY: premium Korean webtoon / Japanese light-novel cover illustration standard. Clean, romantic, beautifully crafted. Pure 2D. No 3D rendering.`,
 
-  // Preview: extremely soft colored-pencil and watercolor hybrid, almost sketch-like,
-  // very light delicate lines, airy color washes, gentle feminine fashion illustration
-  soft_cartoon:
-    'Transform the entire scene into a delicate soft illustration using light colored-pencil sketch lines and gentle watercolor washes. Very fine delicate linework, almost invisible in places. Airy translucent skin tones with subtle rose blush. Light pastel color palette. Soft unfocused background. The style resembles a premium fashion illustration or beauty sketch — delicate, feminine, gentle. No bold outlines. No 3D depth. Pure gentle 2D illustration.',
+  cute_pet: `
+Transform the subject into an irresistibly adorable Japanese kawaii anime animal character.
+FACE: rounded and softened into chibi-kawaii proportions — cheeks plumped and widened; nose reduced to a tiny triangle button; eyes dramatically enlarged to 35–40% of the face, filled with enormous sparkling irises featuring star-burst catchlights, heart-shaped reflection highlights at 11 o'clock, deep luminous pupils ringed with soft iris gradients in warm amber-honey.
+EARS: two large soft rounded animal ears emerging from the top of the head in layered fluffy cream-white fur with pale-rose inner ear coloring. Fine fur direction marks suggest the texture.
+CHEEKS: soft circular pink blush marks gradient-faded toward the edges.
+PALETTE: warm cream-white, soft peach-pink, honey gold, pastel sky-blue accents. Fully saturated, warm, joyful.
+LIGHTING: warm soft-box diffusion from directly above with a secondary rim light creating an angelic glow on ear edges. No harsh shadows.
+BACKGROUND: dreamy kawaii world — soft pastel gradient (lavender-to-peach) with tiny floating stars, hearts, and sparkle particle effects. Out-of-focus.
+QUALITY: Sanrio studio + premium anime character design. Pure 2D illustration.`,
 
-  // Preview: kawaii animal character with oversized anime eyes, animal ears,
-  // very saturated warm pink-peach tones, fluffy fur, tiny cute face features
-  cute_pet:
-    'Transform the subject into an adorably cute kawaii anime animal character. Give the subject large rounded animal ears on top of the head, oversized sparkling anime eyes taking up 40% of the face area with multiple heart-shaped and star-shaped catchlights, a tiny cute button nose, soft round cheeks with pink blush marks, fluffy cream-white fur replacing or overlaying hair. Vibrant saturated warm pink, peach and cream color palette. Background transformed into a soft pastel kawaii world. Premium Japanese kawaii mascot character illustration quality. Pure 2D illustration.',
+  soft_cartoon: `
+Transform this image into an exquisitely delicate 2D illustration blending colored pencil with translucent watercolor — the visual language of luxury beauty editorial illustration seen in Vogue Japan or Shiseido campaign art.
+LINES: extremely fine, feather-light pencil strokes with variable pressure — confident clean edges, interior details barely visible, some lines fading to nothing. No bold outlines.
+COLOR: thin transparent washes layered gradually over an off-white base — pale ivory-cream first, then soft rose on lips and cheeks, cool mauve for eye shadow, warm honey in hair warmth zones, sky blue for irises. Multiple overlapping washes create unexpected chromatic depth at the eyes and hair.
+TEXTURE: the faint grain of cold-press watercolor paper visible through all layers. Organic, handmade quality.
+LIGHTING: extremely soft and directionless — like overcast daylight filtered through translucent paper. No hard shadows.
+HAIR: suggested with loose gestural strokes rather than individual strands.
+BACKGROUND: dissolves into pale washes of the dominant color, utterly undefined.
+PALETTE: ivory-cream, soft rose, cool mauve, warm honey, sky blue. Airy and elegant.
+QUALITY: the emotional tone is delicate, sophisticated, and effortlessly beautiful. Pure 2D.`,
 
-  // Preview: ultra-flat graphic design, only 2-3 solid colors, strong contrast,
-  // Saul Bass / mid-century modern silhouette aesthetic, orange-brown background
-  simple_icon:
-    'Transform the subject into an ultra-flat minimal graphic design icon. Reduce the entire image to only 2-3 solid flat colors — a warm terracotta or orange-brown background, dark near-black silhouette, and a single accent color. Zero gradients, zero shadows, zero texture, zero depth. Pure flat solid color fills only. The subject becomes a clean graphic silhouette. Saul Bass mid-century modern poster design aesthetic. Extremely bold and simple.',
+  simple_icon: `
+Transform this image into an ultra-minimal flat graphic design icon in the tradition of Saul Bass, Paul Rand, and mid-century modern poster design.
+COLORS: exactly three flat solid colors, zero gradients: (1) warm terracotta-orange or burnt sienna background (#C4622D), (2) near-black dark brown silhouette (#1a0f0a), (3) a single pale cream or off-white accent (#F5EDD8). Nothing else.
+FORM: the subject becomes a clean bold graphic silhouette — all photographic detail completely stripped away. Clean vector-like edge curves and flat fills only. Interior features suggested through negative-space cuts: eyes as two simple white oval openings in the silhouette, the shoulder line as one clean flowing curve.
+RULES: no gradients, no shadows, no drop shadows, no outlines between flat color zones, no textures, no gradients. Colors meet as hard direct edges.
+COMPOSITION: bold, graphic, iconic. The abstraction level of a road sign or brand logomark. Equally legible at 16px or 3 meters. Subject centered with generous negative space.
+QUALITY: the design standard of a professionally commissioned brand identity logomark or classic mid-century film poster. Absolutely nothing photorealistic.`,
 
-  // Preview: Pixar/Dreamworks 3D CGI, warm amber-orange studio lighting,
-  // clearly 3D rendered, rounded friendly 3D character with expressive eyes
-  '3d_cartoon':
-    'Transform the entire scene into a premium 3D CGI animated character render. Warm amber and orange studio three-point lighting with a key light from upper right. Physically-based subsurface scattering on skin or fur. Three-dimensional hair/fur with individual strand simulation. Expressive 3D animated eyes with volumetric depth and glossy cornea. Smooth rounded 3D character proportions. Background rendered as a warm-lit 3D animated environment. Disney/Pixar/Illumination big-budget 3D animation quality.',
+  // ── PRO STYLES ───────────────────────────────────────────────────────────
 
-  // Preview: loose hand-painted watercolor, warm paper texture visible,
-  // soft color bleeding at edges, pastel tones, painted brushstroke marks
-  soft_storybook:
-    'Transform the entire scene into a hand-painted watercolor illustration. Loose wet-on-wet watercolor brushwork with visible color bleeding and soft edges. Warm ivory and cream watercolor paper texture visible throughout. Warm golden-amber lamplight color palette with soft peach and rose tones. Soft undefined blurred edges around the subject. Background becomes a loose painted wash of color. The style resembles a premium illustrated storybook or children\'s book painting. Visible individual brushstrokes. 2D watercolor painting art.',
+  anime_pro: `
+Transform this image into a breathtaking masterpiece-quality 2D Japanese anime illustration — the visual standard of key visuals for Demon Slayer, Jujutsu Kaisen, or Violet Evergarden.
+BACKGROUND: deep near-black (#08080f) gradient with barely-visible dark indigo depth. Atmosphere of focused dramatic intensity.
+LIGHTING: a single powerful rim light source positioned directly behind and slightly above, creating a razor-thin luminous outline tracing the entire silhouette in electric blue-white. The face falls into dramatic three-quarter shadow — only the lit cheekbone, brow ridge, and nose tip catch the light. Secondary cold-blue fill prevents complete blackout without reducing drama.
+EYES: extraordinary complexity — multiple concentric gradient rings in the iris (deep violet to gold to amber), luminous cat-slit pupils with inner glow, teardrop shine marks at 11 o'clock and 5 o'clock, three layers of lash work including under-lash detail, glassy depth suggesting emotion and intelligence.
+HAIR: complex layered 2D strands with both highlight pass (near-white streaks catching the rim light) and shadow pass (cool blue-black depths). Hair appears to move with dramatic implied motion.
+SKIN: sophisticated 2D cel technique — base tone, cool blue-purple shadow layer, near-white specular on the lit planes. No gradients; all shading is flat passes.
+QUALITY: premium anime series key visual / artstation masterpiece tier. Pure 2D. No 3D.`,
 
-  // Preview: extremely dark purple-blue atmosphere, strong neon purple/magenta
-  // rim lighting, volumetric fog, futuristic, near-black background
-  cyberpunk:
-    'Transform the entire scene into a cinematic cyberpunk portrait. Near-black background. Strong neon purple and magenta rim lighting outlining the subject from behind, creating a glowing edge. Blue-purple atmospheric volumetric fog fills the space. Subject has a futuristic look with subtle cybernetic augmentation details integrated naturally. Deep shadows with only neon-lit portions visible. Cinematic dark color grade. Blade Runner 2049 / Ghost in the Shell visual aesthetic.',
+  '3d_cartoon': `
+Transform this image into a stunningly detailed 3D CGI animated character render at Pixar or Illumination Entertainment feature-film quality.
+SKIN/FUR: multi-layer subsurface scattering — warm amber undertones glow through thinner areas (earlobes, nose tip); the surface shows fine pore detail and micro-texture that catches the key light.
+LIGHTING: warm amber key light at 45° upper-right casting soft directional shadows that reveal three-dimensional sculptural form; cool blue-tinted fill at 1.5 stops under from the opposite side; warm orange rim light from behind separating the character from the background and edging the hair/fur with a warm halo.
+HAIR/FUR: geometry-simulated strand clusters with anisotropic shading — shimmering along the length when catching the key light, falling into warm shadow on the opposite side.
+EYES: rounded 3D cornea geometry with a physically correct catchlight reflection of the studio light array; iris texture with visible layered depth; sclera slightly wet with micro vascular detail; enormous emotional expressiveness.
+PROPORTIONS: character proportions softened with the classic animation-studio adjustment — larger eyes, rounder forehead, softer jaw structure, charming and approachable.
+BACKGROUND: warm-lit 3D animated environment with smooth depth-of-field bokeh in amber, gold, and cream.
+QUALITY: final frame from a Pixar or Illumination feature release. Cinematic 3D render.`,
 
-  // Preview: American superhero comic, bold black ink outlines, bright primary
-  // colors (yellow/red/blue), dynamic action, halftone dot texture in shadows
-  comic_hero:
-    'Transform the entire scene into an American superhero comic book illustration. Bold heavy black ink outlines defining every shape. Bright saturated primary colors — yellow, red, blue, with strong contrast. Halftone dot pattern visible in shadow areas. Dynamic dramatic composition. Subject appears heroic and powerful. Background has comic-style speed lines or bold graphic elements. Flat comic coloring with no photo-realistic shading. Classic Marvel/DC printed comic book quality. 2D comic illustration.',
+  soft_storybook: `
+Transform this image into an enchanting hand-painted watercolor illustration evoking Studio Ghibli background painting warmth combined with the intimate delicacy of Arthur Rackham or Beatrix Potter's watercolor tradition.
+TECHNIQUE: wet-on-wet watercolor on cold-press 300gsm paper. First a warm ivory base wash over the full composition; while still damp, drop in zones of soft rose, warm ochre, and cobalt blue-violet that bleed organically, creating luminous soft-edge transitions. Multiple transparent glazes layered for depth at eyes and hair.
+PAPER: cold-press grain clearly visible through paint in lighter areas — this texture is part of the artwork, tangible proof of a handmade process.
+SUBJECT: rendered with confident gestural looseness — eyes and lips suggested with three to five key strokes, skin as layered color washes, hair as broad loose marks, detail dissolving at edges into soft pale washes.
+BACKGROUND: atmospheric washes of soft color suggesting environment without hard definition — translucent glazes of sage green, warm amber, violet-blue suggesting trees or light-filled interior space.
+PALETTE: warm ivory, peach-rose, golden amber, muted sage green, soft violet-blue. No black. Shadows mixed from the palette colors, never from black pigment.
+LIGHTING: expressed through wash density — thin transparent layers where light falls, richer pigment saturation in shadow areas.
+QUALITY: master-level traditional watercolor illustration. Warm, magical, deeply nostalgic.`,
 
-  // Preview: warm golden amber skin, soft warm side-lighting from the right,
-  // luxurious feel, slightly desaturated cinematic grade, photorealistic
-  fashion_avatar:
-    'Transform the entire scene into a luxury fashion editorial photograph. Warm golden amber side-lighting from the right side of the face creating a glamorous Rembrandt-style shadow. Luminous warm skin tones with healthy glow. Slightly desaturated cinematic color grade with lifted blacks. Soft shallow bokeh background. The subject looks like a high-fashion model in a Vogue editorial shoot. Photorealistic photography quality.',
+  cyberpunk: `
+Transform this image into a visually stunning cinematic cyberpunk portrait combining Blade Runner 2049's atmospheric depth with Ghost in the Shell's technical aesthetics.
+BACKGROUND: near-black deep navy (#05060f) dissolving into atmospheric haze. Suggestions of neon-lit signage and motion-blurred distant light sources in electric blue and hot magenta, all deeply out of focus.
+LIGHTING: primary rim light in saturated electric magenta (#FF00AA) wrapping around the subject from behind-right, creating a hard glowing edge that bleeds into atmospheric haze; secondary cyan rim (#00E5FF) from behind-left adding complementary cool edge; weak cold blue fill reveals minimal facial detail. Together they produce a narrow lit band across the face against near-total darkness.
+SKIN: appears damp, micro rain-droplets visible catching and refracting the neon rim lights as small bright flares.
+CYBERNETICS: subtle integrated augmentations — faint circuit-trace pattern in bioluminescent blue pulsing beneath temple skin; thin neural interface port at the neck base; iris overlay showing a faint digital data HUD with minimal readout lines.
+ATMOSPHERE: volumetric fog in the mid-ground scattering neon frequencies into the air.
+COLOR GRADE: desaturated film-noir base; only the neon wavelengths (magenta, cyan, electric blue) retain full saturation. Maximum contrast between near-black shadows and electric rim lights.
+QUALITY: cinematic VFX render. Dangerous, beautiful, utterly futuristic.`,
 
-  // Preview: clean neutral studio lighting, professional, sharp, cool-toned,
-  // light gray or white background, polished corporate headshot quality
-  business_profile:
-    'Transform the entire scene into a premium professional corporate headshot photograph. Clean neutral three-point studio lighting — soft white key light, gentle fill, subtle rim. Cool-toned neutral color grade. Background softened to a clean neutral gray or white gradient. Subject appears composed, confident and professional. Razor-sharp facial detail with natural skin texture. Photorealistic studio photography. LinkedIn / executive portrait quality.',
+  comic_hero: `
+Transform this image into a premium American superhero comic illustration — the artistic standard of an Alex Ross painted key cover combined with the dynamic graphic energy of Jack Kirby.
+LINEWORK: bold confident black ink outlines with deliberate weight variation — thick strokes (3–4pt) at silhouette edges and deep shadow areas, medium strokes (1.5–2pt) for form definition, fine strokes (0.5pt) for interior detail and facial features. Lines drawn with a professional comic inker's authority — no hesitation, no scratching.
+COLOR: fully saturated flat comic coloring. Hero elements in rich primary colors — cape in deep crimson (#CC0000), costume elements in cobalt blue (#0033AA), warm flat skin tones in the tradition of classic Marvel coloring. Shadows are flat darker-value versions of each hue, not black.
+HALFTONE: in the deepest shadow areas, classic printed-comics halftone dot pattern — circular dots at 30% coverage in a precise 45-degree grid, the authentic texture of a Silver Age Marvel or DC printed page.
+HIGHLIGHTS: pure white without gradation.
+BACKGROUND: bold complementary deep yellow-orange (#F5A623) with dramatic speed-line radiating composition, or bold graphic elements framing the heroic figure.
+SUBJECT: idealized, powerful, larger than life. Expression projects unwavering heroic purpose.
+QUALITY: publishable Marvel/DC cover standard. Timeless, iconic, powerful. 2D comic illustration.`,
 
-  // Preview: hyper-realistic animal portrait, macro-level individual fur detail,
-  // warm dramatic studio lighting, like a professional wildlife photographer
-  pet_portrait_pro:
-    'Transform the entire scene into a hyper-realistic fine-art animal portrait. Individual fur strands rendered at micro-detail level showing texture, direction and sheen. Warm dramatic Rembrandt studio lighting from upper-left creating rich deep shadows and bright highlights. Soulful eyes with extraordinary reflective depth. Background softened to a warm dark jewel-toned bokeh. Professional wildlife and pet portrait photography quality. Every fur strand visible.',
+  fashion_avatar: `
+Transform this image into an ultra-luxury editorial fashion portrait at the technical and artistic standard of a Vogue or System Magazine cover shoot — the visual language of photographers Mert & Marcus, Steven Meisel, or Harley Weir.
+LIGHTING: warm golden key light at 45° upper-right illuminating 60% of the face, creating a classic Rembrandt triangle of reflected light on the shadowed cheek; a gentle reflector fill from the lower left at 2 stops under preserving shadow depth; a warm hair backlight from directly behind adding luminous rim to the crown. Catchlight in the eyes: a clean soft-box oval at 11 o'clock.
+SKIN: warm golden-amber tones, luminous and flawless with visible natural texture preserved — fine pore detail, subtle skin variation, the translucency of the lips and ears. No plastic over-retouching.
+COLOR GRADE: warm golden highlights, slightly desaturated mid-tones with a faded-film quality (lifted blacks with a warm amber tone), deep warm shadows. Kodak Portra 400 aesthetic.
+DEPTH OF FIELD: sharp focus on the near eye and cheekbone, gentle falloff to the ear, background dissolving to warm golden bokeh spheres.
+STYLING: hair and clothing shown with impeccable detail — fabric texture rendered with tactile precision.
+QUALITY: medium format editorial photography — extraordinary tonal range, exquisite skin rendition, effortless luxury. Shot on Phase One at 85mm.`,
 
-  // Preview: two anime characters close together, warm rose-gold palette,
-  // soft romantic 2D anime style, gentle warm lighting, emotional and intimate
-  couple_avatar:
-    'Transform the scene into a romantic 2D anime couple illustration featuring two subjects together in close intimate composition. Soft warm rose-gold and amber color palette. Gentle warm back-lighting creating a romantic glow around both subjects. Soft smooth cel-shading with clean 2D anime outlines. Both subjects rendered with expressive anime eyes and soft facial features. Background becomes a soft blurred warm bokeh of golden and rose light. Emotional romantic atmosphere. Premium 2D anime illustration.',
+  business_profile: `
+Transform this image into a premium professional corporate headshot at the quality standard of Fortune 500 executive team photography — the precise technical excellence of portrait photographers Peter Hurley or Lindsay Adler.
+LIGHTING: impeccable three-point studio setup. Key light: large octabox at 45° upper-right, beautifully soft with a clean oval catchlight visible in both eyes at the 11 o'clock position. Fill: white reflector panel at 1.5 stops under eliminating unflattering shadows without flattening. Rim: subtle strip box from behind adding clean shoulder separation from the background. No color casts — pure neutral light temperature throughout.
+SKIN: natural, healthy, and polished. Professional-level retouching that removes blemishes while preserving authentic skin texture, visible pores, and the natural life in the face. No airbrushed plastic effect.
+EXPRESSION: composed, confident, approachable — projecting competence and trustworthiness simultaneously.
+BACKGROUND: seamless paper in professional light neutral gray, evenly lit with gentle vignette to draw focus to the subject. Clean, undistracting.
+COLOR GRADE: clean neutral-to-slightly-cool toning, accurate skin tones with no stylized color shift, clean whites and preserved highlight detail.
+SHARPNESS: razor-sharp focus throughout the full face. Technical excellence in every measurable parameter.
+QUALITY: this is the photograph on a company website, executive biography, speaking engagement program, or board of directors page. Authoritative, polished, completely professional.`,
 
-  // Preview: super-cute chibi anime character, huge blue-purple sparkling eyes,
-  // blue and pink pastel hair, exaggerated chibi proportions (big head/small body)
-  kawaii_icon:
-    'Transform the subject into an ultra-cute chibi anime icon character. Exaggerated chibi proportions — head and eyes are oversized relative to the small body. Enormous sparkling blue-purple eyes filled with multiple star-shaped and sparkle catchlights. Blue and pink pastel hair with soft shine. Rosy blush marks on cheeks. Soft pastel color palette of lavender, baby blue and light pink. Background becomes a simple soft pastel color or minimal kawaii pattern. Pure flat 2D chibi illustration. Sanrio / premium kawaii character quality.',
+  pet_portrait_pro: `
+Transform this image into a breathtaking hyper-realistic fine-art animal portrait at the world-class level of wildlife photographer David Yarrow combined with the intimacy of classical animal portrait painting.
+FUR DETAIL: each individual guard hair rendered at micro precision — direction of growth following natural flow patterns mapped across the face and body, fine whiskers traced with single-strand fidelity, layered undercoat visible where guard hairs part, the translucent warmth of fur edges where backlight passes through. This is the most important element. Every strand matters.
+LIGHTING: dramatic Rembrandt portrait lighting — large warm key light at 45° upper-left casting deep directional shadows that reveal the three-dimensional sculptural form of the face; a subtle cooler fill from the right preserving shadow detail; a warm backlight rim that makes the fur perimeter glow with translucent warmth.
+EYES: the soul of the portrait — rendered with absolute photorealistic precision: complex iris cellular texture, light rays through the pupil, a perfect wet-cornea specular highlight from the key light, visible depth and emotional presence that stops the viewer.
+BACKGROUND: deep rich jewel-toned bokeh — dark forest greens, burgundy, and antique gold, completely de-focused to push the subject powerfully forward. Shot at f/1.4.
+COLOR GRADE: rich warm tones in the fur, deep contrast in the shadows, the full dynamic range of a Phase One 150MP capture.
+QUALITY: gallery-worthy fine-art animal portraiture.`,
+
+  couple_avatar: `
+Transform this image into a beautifully crafted romantic 2D anime couple portrait — the visual quality and emotional depth of a premium visual novel key visual or an anniversary commission from a top-tier Pixiv illustrator.
+COMPOSITION: both subjects rendered together in an intimate close composition, faces 30–40% overlapping or nearly touching, creating a sense of private romantic world between them.
+CHARACTERS: expressive anime eyes for both — warm amber and rose iris gradients, long delicate lashes, double-lid shading, emotional softness in the gaze. Hair rendered in flowing smooth 2D strands with careful highlight streaks (near-white curves catching the backlight) and shadow passes (deeper amber and chocolate tones in the depths).
+LIGHTING: warm golden back-lighting from directly behind both subjects, creating a luminous romantic halo effect — the backlight scatters through hair creating individual gleaming strand highlights; a soft warm ambient front fill completes the scene without introducing harsh shadows. The entire image glows warm.
+PALETTE: rose-gold, warm amber, soft peach, ivory, pale champagne — entirely warm, entirely romantic. Not a single cool tone. The color palette itself should communicate warmth and tenderness.
+CEL-SHADING: sophisticated multi-layer technique — base tone, warm shadow pass, and an airbrush-smooth specular layer for dimension without photorealism.
+BACKGROUND: dissolves into warm abstract bokeh — soft golden circles and rose-light glow, completely undefined.
+QUALITY: professional visual novel cover art standard. Emotionally resonant, tender, and beautiful.`,
+
+  kawaii_icon: `
+Transform this image into an exceptionally polished super-cute chibi anime icon character at the professional quality standard of Sanrio's character design studio or a top-tier Japanese mobile game art department.
+PROPORTIONS: extreme chibi ratio — head nearly as large as the entire body; face occupies 65% of head height; body compact, soft, and rounded. This exaggeration is essential.
+EYES: the most critical element — enormous, taking up 45–50% of the face area. Iris in deep royal purple-blue with lighter concentric rings toward the center. Three distinct highlight types: a large oval catch-light at top-left, scattered star-burst sparkles throughout the iris, small heart-shaped reflection highlights. Pupils deep glassy black. Whites pure and large. The eyes must suggest crystalline infinite depth.
+CHEEKS: soft circular blush marks gradient-faded from rose-pink to nothing at the edges. Positioned just below the outer edge of each eye.
+HAIR: pastel pale lavender-pink or baby blue, styled in smooth rounded simplified shapes — no stray strands, just clean soft volumes. A large decorative bow or hair ornament in matching or complementary color.
+LINEWORK: clean, confident outlines with subtle weight variation — heavier at silhouette, lighter for interior detail.
+PALETTE: baby blue, pale lavender, rose pink, pearl white, minimal dark accents. Soft, sweet, luminous.
+BACKGROUND: soft pastel gradient or simple repeating pattern of tiny hearts and stars.
+QUALITY: professionally designed character IP. Overwhelmingly cute, immediately loveable.`,
 };
 
 const QUALITY_SUFFIX =
-  'Highest quality, ultra-detailed, premium professional result, stunning visual impact.';
+  'Masterpiece quality. Ultra-detailed. Stunning visual impact. Best possible result.';
 
 export function getPromptForStyle(styleId: string): { prompt: string; negativePrompt: string } {
-  const core = STYLE_CORE[styleId] ?? `${styleId} style transformation`;
+  const core = (STYLE_CORE[styleId] ?? `${styleId} style transformation`).trim();
   const neg = STYLE_NEGATIVE[styleId] ?? BASE_NEGATIVE;
   return {
-    prompt: `${core} ${QUALITY_SUFFIX}`,
+    prompt: `${core}\n${QUALITY_SUFFIX}`,
     negativePrompt: neg,
   };
 }
-
-// Per-style strength values.
-//
-// FLUX dev img2img critical thresholds:
-//   ≤ 0.78 → input image still significantly influences output (subject preserved)
-//   0.80–0.85 → heavy transformation, input barely preserved
-//   ≥ 0.85 → essentially text-to-image; input photo is ignored entirely
-//
-// Style differentiation comes from the PROMPT + NEGATIVE PROMPT, not strength.
-// Keep all values ≤ 0.78 to guarantee the subject stays in the output.
-export const STYLE_STRENGTH: Record<string, number> = {
-  // Artistic / illustration styles — strong enough to transform, low enough to keep subject
-  anime_basic:      0.75,
-  anime_pro:        0.77,
-  soft_cartoon:     0.74,
-  cute_pet:         0.76,
-  simple_icon:      0.76,
-  '3d_cartoon':     0.76,
-  soft_storybook:   0.74,
-  cyberpunk:        0.77,
-  comic_hero:       0.77,
-  kawaii_icon:      0.76,
-  couple_avatar:    0.74,
-
-  // Realistic / photo styles — lower to preserve natural quality
-  fashion_avatar:   0.68,
-  business_profile: 0.60,
-  pet_portrait_pro: 0.72,
-};
 
 export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
   anime_basic:      'Clean anime portrait · soft lighting · expressive eyes',
@@ -180,10 +217,29 @@ export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
 };
 
 export interface ModelParams {
-  strength: number;        // base strength — overridden per-style by STYLE_STRENGTH
+  strength: number;
   num_inference_steps: number;
   guidance_scale: number;
 }
+
+// FLUX dev img2img safe range: strength ≤ 0.78 preserves the input subject.
+// Style fidelity comes from prompt quality, not from high strength.
+export const STYLE_STRENGTH: Record<string, number> = {
+  anime_basic:      0.75,
+  anime_pro:        0.77,
+  soft_cartoon:     0.74,
+  cute_pet:         0.76,
+  simple_icon:      0.76,
+  '3d_cartoon':     0.76,
+  soft_storybook:   0.74,
+  cyberpunk:        0.77,
+  comic_hero:       0.77,
+  kawaii_icon:      0.76,
+  couple_avatar:    0.74,
+  fashion_avatar:   0.68,
+  business_profile: 0.60,
+  pet_portrait_pro: 0.72,
+};
 
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
   free:    { strength: 0.75, num_inference_steps: 28, guidance_scale: 3.8 },
