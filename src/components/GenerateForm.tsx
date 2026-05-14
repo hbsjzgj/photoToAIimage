@@ -615,7 +615,10 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                     style={{
                       background: PROVIDER_DISPLAY[result.providerUsed]?.gradient ?? 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)',
                       WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
+                      color: 'transparent',
+                      display: 'inline-block',
                     }}
                   >
                     {PROVIDER_DISPLAY[result.providerUsed]?.label ?? result.providerUsed}
@@ -866,7 +869,10 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                   ? (PROVIDER_DISPLAY[result.providerUsed]?.gradient ?? 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)')
                   : 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)',
                 WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+                display: 'inline-block',
               }}
             >
               {result?.providerUsed

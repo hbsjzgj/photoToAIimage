@@ -189,7 +189,7 @@ export default async function HomePage({ params }: Props) {
                   </p>
                   <p
                     className="text-sm font-semibold leading-none"
-                    style={{ background: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                    style={{ background: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent' }}
                   >
                     Google Gemini 2.0 Flash
                   </p>
@@ -260,7 +260,7 @@ export default async function HomePage({ params }: Props) {
                 </div>
                 <span
                   className="text-sm font-semibold"
-                  style={{ background: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                  style={{ background: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent', display: 'inline-block' }}
                 >
                   Google Gemini 2.0 Flash
                 </span>
