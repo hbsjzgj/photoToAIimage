@@ -129,10 +129,10 @@ export default function StyleCaseGrid() {
           </p>
           <h2 className="text-3xl lg:text-4xl font-light text-ink">
             {locale === 'ja'
-              ? '14 種類のプレミアムスタイル'
+              ? '34 種類のプレミアムスタイル'
               : locale === 'zh'
-              ? '14 种专属 AI 风格'
-              : '14 Premium AI Styles'}
+              ? '34 种专属 AI 风格'
+              : '34 Premium AI Styles'}
           </h2>
           <p className="mt-3 text-ink-secondary text-sm font-light max-w-xs mx-auto">
             {locale === 'ja'

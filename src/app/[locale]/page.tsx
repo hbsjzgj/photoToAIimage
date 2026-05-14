@@ -69,20 +69,20 @@ export default async function HomePage({ params }: Props) {
   /* ── Capabilities bar ── */
   const caps = locale === 'zh'
     ? [
-        { label: '14 种独家风格', sub: '动漫 / 商务 / 杂志 / 情侣' },
+        { label: '34 种独家风格', sub: '动漫 / 商务 / 杂志 / 情侣' },
         { label: '一键同款生成', sub: '选案例，上传照片，直接出图' },
         { label: '自然语言精修', sub: '用中文告诉 AI 怎么改' },
         { label: '可商用版权', sub: '生成结果归您所有' },
       ]
     : locale === 'ja'
     ? [
-        { label: '14 種類のスタイル', sub: 'アニメ / ビジネス / ファッション' },
+        { label: '34 種類のスタイル', sub: 'アニメ / ビジネス / ファッション' },
         { label: 'ワンクリック生成', sub: 'スタイルを選んで写真をアップ' },
         { label: '日本語で調整', sub: 'AIに自然言語で指示' },
         { label: '商用利用可能', sub: '生成画像はあなたのもの' },
       ]
     : [
-        { label: '14 AI Styles', sub: 'Anime · Business · Fashion · Couple' },
+        { label: '34 AI Styles', sub: 'Anime · Business · Fashion · Couple' },
         { label: 'One-click generation', sub: 'Pick a style, upload, done' },
         { label: 'Natural language refine', sub: 'Just describe what to change' },
         { label: 'Commercial rights', sub: 'All generated images are yours' },

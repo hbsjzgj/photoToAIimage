@@ -395,10 +395,10 @@ export default function DashboardPage() {
                         </h3>
                         <p className="text-ink-muted text-sm font-light mb-6 max-w-sm">
                           {locale === 'zh'
-                            ? '上传一张照片，选择 14 种专属风格之一，AI 帮你生成可商用的形象素材。'
+                            ? '上传一张照片，选择 34 种专属风格之一，AI 帮你生成可商用的形象素材。'
                             : locale === 'ja'
-                            ? '写真1枚アップロードして、14種類のスタイルからAIアバターを生成しましょう。'
-                            : 'Upload a photo, pick from 14 styles, and get commercial-ready portrait assets in seconds.'}
+                            ? '写真1枚アップロードして、34種類のスタイルからAIアバターを生成しましょう。'
+                            : 'Upload a photo, pick from 34 styles, and get commercial-ready portrait assets in seconds.'}
                         </p>
                         <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
                           <Link href={`/${locale}/generate`}
