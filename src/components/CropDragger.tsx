@@ -6,7 +6,7 @@ interface Props {
   src: string;          // originalImageBase64 (data URL)
   imageW: number;       // compressed image width (px)
   imageH: number;       // compressed image height (px)
-  aspect: '1:1' | '4:5' | 'original';
+  aspect: '1:1' | '3:4' | '4:5' | '9:16' | 'original';
   onChange: (cropped: string) => void;
   onChangeSrc: () => void;
   changeLabel: string;
@@ -32,7 +32,12 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
     return () => ro.disconnect();
   }, []);
 
-  const cropAspectNum = aspect === '1:1' ? 1 : aspect === '4:5' ? 4 / 5 : imageW / imageH;
+  const cropAspectNum =
+    aspect === '1:1' ? 1 :
+    aspect === '3:4' ? 3 / 4 :
+    aspect === '4:5' ? 4 / 5 :
+    aspect === '9:16' ? 9 / 16 :
+    imageW / imageH;
   const containerH = containerW > 0 ? containerW / cropAspectNum : 0;
   const scale = containerW > 0 ? Math.max(containerW / imageW, containerH / imageH) : 1;
   const imgDispW = imageW * scale;

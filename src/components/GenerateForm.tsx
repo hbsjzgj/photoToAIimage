@@ -16,6 +16,19 @@ import { USE_CASES, QUICK_REFINEMENTS } from '@/lib/styleMeta';
 
 interface CreditsState { credits: number; freeRemaining: number }
 
+type CropAspect = '1:1' | '3:4' | '4:5' | '9:16' | 'original';
+
+const OUTPUT_SIZES: { id: string; w: number; h: number; ratio: CropAspect; label: string; platform: string }[] = [
+  { id: '1024x1024',  w: 1024, h: 1024, ratio: '1:1',  label: '1024 × 1024', platform: 'Standard'                  },
+  { id: '1080x1080',  w: 1080, h: 1080, ratio: '1:1',  label: '1080 × 1080', platform: 'Instagram · 小红书 · X · LINE' },
+  { id: '1080x1350',  w: 1080, h: 1350, ratio: '4:5',  label: '1080 × 1350', platform: 'Instagram'                 },
+  { id: '1080x1440',  w: 1080, h: 1440, ratio: '3:4',  label: '1080 × 1440', platform: '小红书'                    },
+  { id: '1080x1920',  w: 1080, h: 1920, ratio: '9:16', label: '1080 × 1920', platform: 'TikTok · Story · LINE'     },
+  { id: '1536x1536',  w: 1536, h: 1536, ratio: '1:1',  label: '1536 × 1536', platform: 'HD'                        },
+  { id: '2048x2048',  w: 2048, h: 2048, ratio: '1:1',  label: '2048 × 2048', platform: '2K'                        },
+  { id: '4096x4096',  w: 4096, h: 4096, ratio: '1:1',  label: '4096 × 4096', platform: '4K'                        },
+];
+
 type ResultData = {
   projectId: string | null;
   variants: { id: string; imageUrl: string }[];
@@ -55,7 +68,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [originalImageBase64, setOriginalImageBase64] = useState('');
   const [naturalW, setNaturalW] = useState(1);
   const [naturalH, setNaturalH] = useState(1);
-  const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
+  const [cropAspect, setCropAspect] = useState<CropAspect>('1:1');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
@@ -89,8 +102,14 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     }
   }
 
-  function handleCropChange(ratio: '1:1' | '4:5' | 'original') {
+  function handleCropChange(ratio: CropAspect) {
     setCropAspect(ratio);
+  }
+
+  function handleSizeSelect(sizeId: string) {
+    setOutputSize(sizeId);
+    const sz = OUTPUT_SIZES.find((s) => s.id === sizeId);
+    if (sz) setCropAspect(sz.ratio);
   }
 
   async function download() {
@@ -330,7 +349,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25 }}
             >
-              {(['1:1', '4:5', 'original'] as const).map((ratio) => (
+              {(['1:1', '4:5', '9:16', 'original'] as const).map((ratio) => (
                 <motion.button
                   key={ratio}
                   onClick={() => handleCropChange(ratio)}
@@ -727,21 +746,35 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
               <p className="text-[10px] text-ink-muted font-medium tracking-widest uppercase mb-2.5">
                 {t('sizeLabel')}
               </p>
-              <div className="flex gap-2">
-                {['1024x1024', '1536x1536'].map((s) => (
-                  <motion.button
-                    key={s}
-                    onClick={() => setOutputSize(s)}
-                    whileTap={{ scale: 0.94 }}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-mono font-medium transition-all
-                      ${outputSize === s
-                        ? 'bg-gold/15 text-gold border border-gold/40'
-                        : 'bg-[rgba(255,255,255,0.04)] text-ink-muted border border-[rgba(255,255,255,0.07)] hover:text-ink'
-                      }`}
-                  >
-                    {s}
-                  </motion.button>
-                ))}
+              <div className="grid grid-cols-2 gap-1.5">
+                {OUTPUT_SIZES.map((sz) => {
+                  const active = outputSize === sz.id;
+                  return (
+                    <motion.button
+                      key={sz.id}
+                      onClick={() => handleSizeSelect(sz.id)}
+                      whileTap={{ scale: 0.97 }}
+                      className={`p-2 rounded-xl text-left transition-all duration-200
+                        ${active
+                          ? 'bg-gold/15 border border-gold/40'
+                          : 'bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.07)]'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span className={`font-mono text-[9px] font-semibold leading-none ${active ? 'text-gold' : 'text-ink-secondary'}`}>
+                          {sz.label}
+                        </span>
+                        <span className={`text-[8px] px-1 py-0.5 rounded flex-shrink-0
+                          ${active ? 'bg-gold/20 text-gold' : 'bg-[rgba(255,255,255,0.08)] text-ink-muted'}`}>
+                          {sz.ratio}
+                        </span>
+                      </div>
+                      <p className={`text-[9px] truncate leading-none ${active ? 'text-gold/70' : 'text-ink-muted/60'}`}>
+                        {sz.platform}
+                      </p>
+                    </motion.button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
