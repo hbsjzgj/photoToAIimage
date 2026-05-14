@@ -3,7 +3,7 @@ import { AIProvider, GenerateParams, NonRetriableError } from './types';
 import { getGeminiPrompt } from '@/lib/prompts';
 import { getStorageProvider } from '@/lib/storage';
 
-const MODEL_ID = 'gemini-2.5-flash-preview-05-20';
+const MODEL_ID = 'gemini-2.0-flash-preview-image-generation';
 
 export interface GeminiDebugState {
   keyPresent: boolean;
