@@ -19,7 +19,7 @@ interface CreditsState { credits: number; freeRemaining: number }
 type CropAspect = '1:1' | '3:4' | '4:5' | '9:16' | 'original';
 
 const PROVIDER_DISPLAY: Record<string, { label: string; gradient: string }> = {
-  gemini:      { label: 'Google Gemini 2.0 Flash', gradient: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)' },
+  gemini:      { label: 'Google Gemini 2.5 Flash Image', gradient: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)' },
   fal:         { label: 'FLUX.1 Dev · fal.ai',     gradient: 'linear-gradient(90deg,#9B5DE5,#F15BB5)' },
   replicate:   { label: 'PhotoMaker · Replicate',  gradient: 'linear-gradient(90deg,#FF6B6B,#FFE66D)' },
   huggingface: { label: 'InstructPix2Pix · HF',    gradient: 'linear-gradient(90deg,#FF9D00,#FFD166)' },
@@ -877,7 +877,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
             >
               {result?.providerUsed
                 ? (PROVIDER_DISPLAY[result.providerUsed]?.label ?? result.providerUsed)
-                : 'Google Gemini 2.0 Flash'}
+                : 'Google Gemini 2.5 Flash Image'}
             </span>
           </div>
 
