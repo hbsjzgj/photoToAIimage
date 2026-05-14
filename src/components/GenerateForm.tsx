@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import StyleSelector from './StyleSelector';
 import BeforeAfterSlider from './BeforeAfterSlider';
+import CropDragger from './CropDragger';
 import { analytics } from '@/lib/analytics';
 import { getPromptForStyle } from '@/lib/prompts';
 import type { StyleId, GenerationMode } from '@/types';
@@ -25,24 +25,6 @@ type ResultData = {
   isDemo?: boolean;
 };
 
-async function applyCrop(src: string, aspectW: number, aspectH: number): Promise<string> {
-  return new Promise((resolve) => {
-    const img = document.createElement('img');
-    img.onload = () => {
-      const { naturalWidth: w, naturalHeight: h } = img;
-      const ratio = aspectW / aspectH;
-      let cropW = w, cropH = h, cropX = 0, cropY = 0;
-      if (w / h > ratio) { cropW = h * ratio; cropX = (w - cropW) / 2; }
-      else { cropH = w / ratio; cropY = (h - cropH) / 2; }
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(cropW);
-      canvas.height = Math.round(cropH);
-      canvas.getContext('2d')!.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.85));
-    };
-    img.src = src;
-  });
-}
 
 export default function GenerateForm({ initialStyle }: { initialStyle?: string }) {
   const t = useTranslations('generate');
@@ -71,7 +53,8 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [loadingSecs, setLoadingSecs] = useState(0);
   const [loadingStage, setLoadingStage] = useState(0);
   const [originalImageBase64, setOriginalImageBase64] = useState('');
-  const [originalAspectRatio, setOriginalAspectRatio] = useState<number>(1);
+  const [naturalW, setNaturalW] = useState(1);
+  const [naturalH, setNaturalH] = useState(1);
   const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -106,14 +89,8 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     }
   }
 
-  async function handleCropChange(ratio: '1:1' | '4:5' | 'original') {
-    if (!originalImageBase64) return;
+  function handleCropChange(ratio: '1:1' | '4:5' | 'original') {
     setCropAspect(ratio);
-    if (ratio === 'original') { setImageBase64(originalImageBase64); setPreview(originalImageBase64); return; }
-    const [w, h] = ratio === '1:1' ? [1, 1] : [4, 5];
-    const cropped = await applyCrop(originalImageBase64, w, h);
-    setImageBase64(cropped);
-    setPreview(cropped);
   }
 
   async function download() {
@@ -197,16 +174,15 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
       const MAX = 768;
       const scale = Math.min(1, MAX / Math.max(w0, h0));
       const w = Math.round(w0 * scale); const h = Math.round(h0 * scale);
-      setOriginalAspectRatio(w / h);
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
       const b64 = canvas.toDataURL('image/jpeg', 0.8);
       URL.revokeObjectURL(objectUrl);
       analytics.uploadStarted();
+      setNaturalW(w); setNaturalH(h);
       setOriginalImageBase64(b64); setCropAspect('1:1');
-      const cropped = await applyCrop(b64, 1, 1);
-      setImageBase64(cropped); setPreview(cropped); setResult(null); setError('');
+      setImageBase64(b64); setPreview(b64); setResult(null); setError('');
     };
     img.onerror = () => URL.revokeObjectURL(objectUrl);
     img.src = objectUrl;
@@ -289,45 +265,38 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
           <p className="text-[10px] text-ink-muted font-medium tracking-widest uppercase mb-2.5">
             {lz('上传照片', 'Upload Photo', '写真をアップ')}
           </p>
-          <motion.div
-            className={`relative rounded-2xl overflow-hidden border transition-all duration-300
-                        ${dragging ? 'border-gold/50 bg-gold/5' : 'border-[rgba(255,255,255,0.08)]'}
-                        ${!preview ? 'cursor-pointer hover:border-[rgba(255,255,255,0.16)] hover:bg-[rgba(255,255,255,0.04)]' : ''}
-                      `}
-            onDrop={onDrop}
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onClick={!preview ? () => inputRef.current?.click() : undefined}
-            whileHover={!preview ? { scale: 1.01 } : {}}
-            transition={{ duration: 0.2 }}
-          >
-            <AnimatePresence mode="wait">
-              {preview ? (
-                <motion.div
-                  key="preview"
-                  className="relative w-full bg-[rgba(0,0,0,0.25)]"
-                  style={{ aspectRatio: cropAspect === '1:1' ? '1/1' : cropAspect === '4:5' ? '4/5' : `${originalAspectRatio}` }}
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <Image src={preview} alt="Preview" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <motion.button
-                    onClick={() => inputRef.current?.click()}
-                    className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl
-                               bg-black/60 backdrop-blur-md border border-[rgba(255,255,255,0.12)]
-                               text-[11px] text-ink hover:bg-black/80 transition-colors"
-                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                  >
-                    {t('upload.change')}
-                  </motion.button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="empty"
-                  className="flex flex-col items-center justify-center py-10 gap-3"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                >
+          <AnimatePresence mode="wait">
+            {originalImageBase64 ? (
+              <motion.div
+                key="preview"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+              >
+                <CropDragger
+                  src={originalImageBase64}
+                  imageW={naturalW}
+                  imageH={naturalH}
+                  aspect={cropAspect}
+                  onChange={(cropped) => { setImageBase64(cropped); setPreview(cropped); }}
+                  onChangeSrc={() => inputRef.current?.click()}
+                  changeLabel={t('upload.change')}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                className={`relative rounded-2xl overflow-hidden border transition-all duration-300
+                            cursor-pointer
+                            ${dragging ? 'border-gold/50 bg-gold/5' : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.16)] hover:bg-[rgba(255,255,255,0.04)]'}`}
+                onClick={() => inputRef.current?.click()}
+                onDrop={onDrop}
+                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center justify-center py-10 gap-3">
                   <motion.div
                     className="w-12 h-12 rounded-xl border border-[rgba(255,255,255,0.10)]
                                bg-[rgba(255,255,255,0.04)] flex items-center justify-center"
@@ -342,10 +311,10 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                     <p className="text-ink-secondary text-xs">{t('upload.drag')}</p>
                     <p className="text-ink-muted text-[10px] mt-0.5">{t('upload.hint')}</p>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <input
