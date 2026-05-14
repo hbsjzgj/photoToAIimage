@@ -1,7 +1,8 @@
-import { AIProvider, GenerateParams, ProviderResult } from './types';
+import { AIProvider, GenerateParams, ProviderResult, NonRetriableError } from './types';
 import { FalProvider } from './fal';
 import { HuggingFaceProvider } from './huggingface';
 import { MockProvider } from './mock';
+import { GeminiImageProvider } from './gemini-image';
 
 function getProviderChain(): AIProvider[] {
   const forced = process.env.AI_PROVIDER;
@@ -9,6 +10,11 @@ function getProviderChain(): AIProvider[] {
   if (forced === 'mock') {
     console.log('[AI] Using MockProvider (AI_PROVIDER=mock)');
     return [new MockProvider()];
+  }
+
+  if (forced === 'gemini') {
+    console.log('[AI] Using GeminiImageProvider (AI_PROVIDER=gemini)');
+    return [new GeminiImageProvider(), new FalProvider(), new MockProvider()];
   }
 
   if (forced === 'fal') {
@@ -21,7 +27,12 @@ function getProviderChain(): AIProvider[] {
     return [new HuggingFaceProvider(), new MockProvider()];
   }
 
-  // Default: prefer Fal if key is set, else HuggingFace if token set, else Mock
+  // Default: prefer Gemini if key set, then Fal, then HuggingFace, then Mock
+  if (process.env.GEMINI_API_KEY) {
+    console.log('[AI] Using GeminiImageProvider → Fal → Mock chain (GEMINI_API_KEY set)');
+    return [new GeminiImageProvider(), new FalProvider(), new MockProvider()];
+  }
+
   if (process.env.FAL_KEY) {
     console.log('[AI] Using FalProvider → Mock chain (FAL_KEY set)');
     return [new FalProvider(), new MockProvider()];
@@ -32,7 +43,7 @@ function getProviderChain(): AIProvider[] {
     return [new HuggingFaceProvider(), new MockProvider()];
   }
 
-  console.log('[AI] Using MockProvider (no FAL_KEY, no HUGGINGFACE_API_TOKEN)');
+  console.log('[AI] Using MockProvider (no keys set)');
   return [new MockProvider()];
 }
 
@@ -62,9 +73,12 @@ export async function generateWithFallback(params: GenerateParams): Promise<Prov
       console.log(`[AI] ${provider.name} succeeded in ${durationMs}ms, urls: ${urls.join(', ')}`);
       return { urls, provider: provider.name, fallbackUsed: !firstProvider, durationMs, isTextToImage: provider.isTextToImage };
     } catch (err) {
+      // Non-retriable errors (e.g. safety blocks) must not fall through to the next provider
+      if (err instanceof NonRetriableError) throw err;
       // Log the full error before falling back — message alone hides SDK response bodies
       const errJson = serializeError(err);
       console.error(`[AI] ${provider.name} FAILED — fallback reason:\n${errJson}`);
+      if (provider.name === 'gemini') console.log('[AI] Gemini failed, falling back to FalProvider');
       firstProvider = false;
     }
   }

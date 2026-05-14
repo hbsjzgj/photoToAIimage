@@ -22,7 +22,8 @@ export async function generateAvatar(
   count: 1 | 4,
   outputSize: string,
   customPrompt?: string,
-  mode: 'free' | 'paid' = 'paid'
+  mode: 'free' | 'paid' = 'paid',
+  functionMode?: string,
 ): Promise<ProviderResult> {
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
     await new Promise((r) => setTimeout(r, 1500));
@@ -60,6 +61,6 @@ export async function generateAvatar(
     };
   }
 
-  // Default: provider chain (Fal → Mock), passes imageBase64 for img2img
-  return generateWithFallback({ style, prompt: customPrompt || '', count, outputSize, imageBase64, mode });
+  // Default: provider chain (Gemini → Fal → Mock), passes imageBase64 for img2img
+  return generateWithFallback({ style, prompt: customPrompt || '', count, outputSize, imageBase64, mode, functionMode });
 }

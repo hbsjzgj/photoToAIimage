@@ -5,6 +5,15 @@ export interface GenerateParams {
   outputSize: string;
   imageBase64?: string;
   mode?: 'free' | 'paid';
+  functionMode?: string;
+}
+
+/** Thrown by providers for errors that must not be retried with the next provider. */
+export class NonRetriableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NonRetriableError';
+  }
 }
 
 export interface ProviderResult {

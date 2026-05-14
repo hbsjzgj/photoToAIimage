@@ -17,6 +17,16 @@ interface FalDebugState {
   errorJson: string | null;
 }
 
+interface GeminiDebugState {
+  keyPresent: boolean;
+  modelId: string;
+  requestStarted: boolean;
+  responseReceived: boolean;
+  imageReturned: boolean;
+  errorMessage: string | null;
+  errorJson: string | null;
+}
+
 interface DebugResult {
   ok: boolean;
   provider: string | null;
@@ -28,6 +38,7 @@ interface DebugResult {
   storageStatus: string;
   imageUrl: string | null;
   falDebug?: FalDebugState | null;
+  geminiDebug?: GeminiDebugState | null;
   logs: string[];
   error: string | null;
 }
@@ -178,6 +189,33 @@ export default function GenerateDebugPage() {
               </pre>
             </div>
           </div>
+
+          {/* Gemini Debug */}
+          {result.geminiDebug && (
+            <div style={{ marginTop: '20px' }}>
+              <p style={{ fontSize: '11px', color: '#888', marginBottom: '8px' }}>GeminiImageProvider Diagnostics</p>
+              <div style={{ background: '#0d1117', borderRadius: '8px', padding: '14px', border: '1px solid #222', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px' }}>
+                {([
+                  ['keyPresent', result.geminiDebug.keyPresent ? 'yes' : 'NO ← check GEMINI_API_KEY'],
+                  ['modelId', result.geminiDebug.modelId],
+                  ['requestStarted', result.geminiDebug.requestStarted ? 'yes' : 'no'],
+                  ['responseReceived', result.geminiDebug.responseReceived ? 'yes' : 'no'],
+                  ['imageReturned', result.geminiDebug.imageReturned ? 'yes' : 'NO ← no image in response'],
+                  ['errorMessage', result.geminiDebug.errorMessage ?? '(none)'],
+                ] as [string, string][]).map(([k, v]) => (
+                  <div key={k} style={{ fontSize: '11px', lineHeight: '1.8' }}>
+                    <span style={{ color: '#666' }}>{k}: </span>
+                    <span style={{ color: v.startsWith('NO') ? '#f87' : v === 'yes' ? '#6b9' : v === '(none)' ? '#555' : '#ccc' }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+              {result.geminiDebug.errorJson && (
+                <pre style={{ marginTop: '8px', background: '#1a0a0a', padding: '10px', borderRadius: '6px', fontSize: '10px', overflow: 'auto', maxHeight: '300px', border: '1px solid #a33', color: '#f87', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  error: {result.geminiDebug.errorJson}
+                </pre>
+              )}
+            </div>
+          )}
 
           {/* Fal Debug */}
           {result.falDebug && (

@@ -5,6 +5,7 @@ import { generateAvatar } from '@/lib/generate';
 import { addWatermark, fetchImageBuffer } from '@/lib/watermark';
 import { getStorageProvider, getStorageProviderName } from '@/lib/storage';
 import { getFalLastDebug, resetFalDebug } from '@/lib/providers/fal';
+import { getGeminiLastDebug, resetGeminiDebug } from '@/lib/providers/gemini-image';
 import type { StyleId } from '@/types';
 
 export const runtime = 'nodejs';
@@ -20,6 +21,7 @@ export async function GET() {
     note: 'Omit imageBase64 to auto-use demo-1.jpg.',
     env: {
       AI_PROVIDER: process.env.AI_PROVIDER ?? '(not set)',
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 'set' : 'not set',
       FAL_KEY: process.env.FAL_KEY ? 'set' : 'not set',
       HUGGINGFACE_API_TOKEN: process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set',
       storageProvider: getStorageProviderName(),
@@ -54,6 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Env state
     log(`AI_PROVIDER: ${process.env.AI_PROVIDER ?? '(not set)'}`);
+    log(`GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? 'set' : 'not set'}`);
     log(`FAL_KEY: ${process.env.FAL_KEY ? 'set' : 'not set'}`);
     log(`HUGGINGFACE_API_TOKEN: ${process.env.HUGGINGFACE_API_TOKEN ? 'set' : 'not set'}`);
     log(`storageProvider: ${getStorageProviderName()}`);
@@ -61,11 +64,13 @@ export async function POST(req: NextRequest) {
 
     // ── Generate ──
     resetFalDebug();
+    resetGeminiDebug();
     log('Calling generateAvatar...');
     const genStart = Date.now();
     const genResult = await generateAvatar(imageBase64, style, 1, '768x768');
     const durationMs = Date.now() - genStart;
     const falDebug = getFalLastDebug();
+    const geminiDebug = getGeminiLastDebug();
     log(`generateAvatar OK — provider=${genResult.provider} duration=${durationMs}ms urls=[${genResult.urls.join(', ')}]`);
 
     let finalUrl = genResult.urls[0];
@@ -123,6 +128,7 @@ export async function POST(req: NextRequest) {
       storageStatus,
       imageUrl: finalUrl,
       falDebug,
+      geminiDebug,
       logs,
       error: null,
     });
@@ -142,6 +148,7 @@ export async function POST(req: NextRequest) {
       storageStatus: 'unknown',
       imageUrl: null,
       falDebug: getFalLastDebug(),
+      geminiDebug: getGeminiLastDebug(),
       logs,
       error: msg,
     }, { status: 500 });

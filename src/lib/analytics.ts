@@ -29,7 +29,7 @@ export const analytics = {
     track('style_selected', { style }),
 
   /** Generate button pressed */
-  generationStarted: (props: { style: string; mode: 'free' | 'paid' }) =>
+  generationStarted: (props: { style: string; mode: 'free' | 'paid'; count?: number; functionMode?: string }) =>
     track('generation_started', props),
 
   /** API returned a successful result */
@@ -38,16 +38,20 @@ export const analytics = {
     provider: string;
     durationMs?: number;
     mode: 'free' | 'paid';
+    count?: number;
+    functionMode?: string;
   }) =>
     track('generation_success', {
       style: props.style,
       provider: props.provider,
       duration_ms: props.durationMs,
       mode: props.mode,
+      count: props.count,
+      function_mode: props.functionMode,
     }),
 
   /** API returned an error or request was aborted */
-  generationFailed: (props: { style: string; mode: 'free' | 'paid'; error: string }) =>
+  generationFailed: (props: { style: string; mode: 'free' | 'paid'; error: string; count?: number; functionMode?: string }) =>
     track('generation_failed', props),
 
   /** /pricing page rendered */

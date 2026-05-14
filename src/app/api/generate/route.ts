@@ -64,8 +64,19 @@ export async function POST(req: NextRequest) {
     const userId = (session?.user as { id?: string } | undefined)?.id;
 
     currentStage = 'parse';
-    const body: GenerateRequest & { customPrompt?: string } = await req.json();
-    const { imageBase64, style, mode, count, outputSize } = body;
+    const body: GenerateRequest & { customPrompt?: string; functionMode?: string } = await req.json();
+    const { imageBase64, style, count, outputSize } = body;
+
+    // Functional mode: avatar / anime / pet / fashion / business / background / outfit / hair / enhance
+    const FUNCTIONAL_MODES = new Set(['avatar', 'anime', 'pet', 'fashion', 'business', 'background', 'outfit', 'hair', 'enhance']);
+    const functionMode: string | undefined = FUNCTIONAL_MODES.has(body.mode as string)
+      ? (body.mode as string)
+      : (body.functionMode && FUNCTIONAL_MODES.has(body.functionMode) ? body.functionMode : undefined);
+
+    // Billing mode: 'free' | 'paid' — from client if it's the legacy value, else derive from session
+    const mode: 'free' | 'paid' = (body.mode === 'free' || body.mode === 'paid')
+      ? body.mode
+      : (userId ? 'paid' : 'free');
 
     // Sanitize custom prompt (throws promptRejected if blocked)
     // Then translate to English so non-English input works reliably with the AI
@@ -76,7 +87,7 @@ export async function POST(req: NextRequest) {
       customPrompt = translated;
     }
 
-    log(`request received — style=${style} mode=${mode} imageBase64Length=${imageBase64?.length ?? 0}`);
+    log(`request received — style=${style} mode=${mode} functionMode=${functionMode ?? 'none'} count=${count} imageBase64Length=${imageBase64?.length ?? 0}`);
     // Always log env state to server console (never in response body)
     console.log(`[generate] env: AI_PROVIDER=${process.env.AI_PROVIDER ?? '(not set)'} FAL_KEY=${process.env.FAL_KEY ? `set(${process.env.FAL_KEY.substring(0, 8)}...)` : 'NOT SET'} VERCEL=${process.env.VERCEL ? 'yes' : 'no'} storage=${getStorageProviderName()}`);
 
@@ -109,7 +120,7 @@ export async function POST(req: NextRequest) {
 
       currentStage = 'generate';
       log('calling generateAvatar...');
-      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt, 'free');
+      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt, 'free', functionMode);
       const { urls, provider: providerUsed, isTextToImage } = genResult;
       log(`generation SUCCESS — provider=${providerUsed} urls=[${urls.join(', ')}]`);
 
@@ -223,7 +234,7 @@ export async function POST(req: NextRequest) {
 
     currentStage = 'generate';
     log('calling generateAvatar (paid)...');
-    const result = await generateAvatar(imageBase64, style, count, size, customPrompt, 'paid');
+    const result = await generateAvatar(imageBase64, style, count, size, customPrompt, 'paid', functionMode);
     const { urls, provider: providerUsed, isTextToImage } = result;
     log(`generation SUCCESS — provider=${providerUsed} urlCount=${urls.length}`);
 
@@ -255,6 +266,8 @@ export async function POST(req: NextRequest) {
     const knownErrors: Record<string, number> = {
       nsfwContent: 400,
       promptRejected: 400,
+      safetyBlocked: 400,
+      geminiFailed: 500,
     };
     if (msg in knownErrors) {
       return fail(knownErrors[msg], msg);

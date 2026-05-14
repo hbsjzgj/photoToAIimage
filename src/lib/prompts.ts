@@ -236,3 +236,88 @@ export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
   paid:    { strength: 0.75, num_inference_steps: 35, guidance_scale: 4.0 },
   premium: { strength: 0.78, num_inference_steps: 40, guidance_scale: 4.5 },
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GEMINI IMAGE PROMPTS
+// These are instruction-style prompts sent to Gemini 2.5 Flash Image for
+// image-to-image transformation. Unlike FLUX prompts, Gemini understands
+// natural language instructions well so we lead with the action verb.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const GEMINI_IDENTITY =
+  'Preserve the original person\'s identity, facial structure, hairstyle, expression, skin tone, and natural proportions.';
+
+const GEMINI_QUALITY =
+  'Create a premium SNS avatar suitable for TikTok, Instagram, Xiaohongshu, YouTube, and profile use. Use clean composition, cinematic lighting, natural facial details, high-end visual quality, and polished professional rendering.';
+
+const GEMINI_NEGATIVE =
+  'Avoid distorted facial features, changed identity, over-smoothed plastic skin, unnatural eyes, bad anatomy, extra fingers, messy background, text, watermark, logo, low quality, cheap AI artifacts.';
+
+const GEMINI_FUNCTION_PROMPTS: Record<string, string> = {
+  avatar:
+    'Transform the uploaded photo into a premium AI avatar while preserving the person\'s identity, facial structure, hairstyle, expression, and natural proportions. Create a refined high-end portrait with cinematic lighting, clean background, detailed eyes, natural skin texture, soft shadows, and an elegant SNS-ready composition.',
+  anime:
+    'Transform the uploaded photo into a premium Japanese anime avatar while preserving the person\'s recognizable identity, hairstyle, face shape, eye direction, and expression. Use refined anime linework, detailed iris rendering, soft cinematic shadows, subtle pastel tones, clean composition, and high-end character design quality. Avoid exaggerated cartoon distortion.',
+  pet:
+    'Transform the uploaded pet photo into a premium illustrated pet avatar while preserving the pet\'s breed, fur color, eye shape, ears, facial expression, and unique features. Use soft Japanese kawaii illustration quality, detailed fur texture, clean background, warm lighting, and an adorable SNS-ready composition.',
+  fashion:
+    'Transform the uploaded photo into a luxury fashion portrait while preserving the person\'s identity and natural facial features. Use editorial magazine lighting, refined color grading, stylish composition, elegant expression, natural skin texture, high-end beauty photography mood, and premium Instagram profile quality.',
+  business:
+    'Transform the uploaded photo into a professional business profile portrait while preserving the person\'s identity, facial features, and natural expression. Use clean studio lighting, confident posture, polished corporate style, refined background, realistic skin texture, sharp facial detail, and premium LinkedIn-style composition.',
+  background:
+    'Keep the original person unchanged and replace only the background. Preserve the person\'s face, body, clothing, hairstyle, and proportions. Create a clean premium background matching the selected style, with natural lighting integration, realistic shadows, and professional composition.',
+  outfit:
+    'Keep the original person\'s face, identity, hairstyle, expression, and body proportions unchanged. Change only the outfit according to the selected style. Ensure the clothing looks natural, well-fitted, premium, and consistent with the lighting and pose. Do not alter the face.',
+  hair:
+    'Keep the original person\'s identity, face, skin tone, expression, and pose unchanged. Modify only the hairstyle according to the selected style. Ensure the new hairstyle looks natural, realistic, flattering, and consistent with the lighting and face shape. Do not change the facial structure.',
+  enhance:
+    'Enhance the uploaded photo without changing the person\'s identity, face, hairstyle, outfit, or pose. Improve lighting, skin tone, clarity, background cleanliness, color balance, and overall premium SNS profile quality. Keep the result natural, realistic, and polished.',
+};
+
+// Style-specific Gemini prompts that layer on top of the function prompt
+const GEMINI_STYLE_CONTEXT: Partial<Record<string, string>> = {
+  anime_basic:      'Render in clean 2D Japanese anime illustration style with warm cel-shading, expressive eyes, and soft lighting.',
+  anime_pro:        'Render in premium high-contrast Japanese anime style — Demon Slayer / Jujutsu Kaisen quality, dramatic rim lighting.',
+  soft_cartoon:     'Render as a delicate watercolor and colored-pencil illustration with feather-light strokes and transparent washes.',
+  cute_pet:         'Render as an adorable Sanrio-quality 2D kawaii illustration with oversized eyes and soft pastel tones.',
+  simple_icon:      'Render as an ultra-minimal flat graphic icon in exactly three solid colors, mid-century modern style.',
+  '3d_cartoon':     'Render as a Pixar-quality 3D CGI animated character with subsurface scattering and cinematic depth of field.',
+  soft_storybook:   'Render as a hand-painted Studio Ghibli-style watercolor illustration on cold-press paper texture.',
+  cyberpunk:        'Render in Blade Runner 2049 cinematic cyberpunk style with neon magenta and cyan rim lighting.',
+  comic_hero:       'Render as an American superhero comic book illustration with bold ink outlines and flat saturated colors.',
+  fashion_avatar:   'Render as an ultra-luxury editorial fashion portrait — Vogue cover shoot quality, Rembrandt lighting.',
+  business_profile: 'Render as a premium corporate headshot with neutral studio lighting and clean professional background.',
+  pet_portrait_pro: 'Render as hyperrealistic fine-art animal portrait photography with dramatic Rembrandt lighting.',
+  couple_avatar:    'Render as a romantic 2D anime couple portrait with warm golden back-lighting and rose-gold palette.',
+  kawaii_icon:      'Render as a super-cute chibi anime icon with extreme head-to-body ratio and enormous glassy eyes.',
+};
+
+export function getGeminiPrompt({
+  functionMode,
+  styleId,
+  customPrompt,
+}: {
+  functionMode?: string;
+  styleId?: string;
+  customPrompt?: string;
+}): string {
+  const functionPart = functionMode
+    ? (GEMINI_FUNCTION_PROMPTS[functionMode] ?? GEMINI_FUNCTION_PROMPTS.avatar)
+    : GEMINI_FUNCTION_PROMPTS.avatar;
+
+  const stylePart = styleId ? (GEMINI_STYLE_CONTEXT[styleId] ?? '') : '';
+
+  // customPrompt is additive only — it cannot override system constraints
+  const customPart = customPrompt ? `Additional detail: ${customPrompt}` : '';
+
+  const parts = [
+    GEMINI_IDENTITY,
+    functionPart,
+    stylePart,
+    customPart,
+    GEMINI_QUALITY,
+    GEMINI_NEGATIVE,
+  ].filter(Boolean);
+
+  return parts.join('\n\n');
+}

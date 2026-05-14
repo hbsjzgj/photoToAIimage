@@ -127,7 +127,9 @@
       "imageTooLarge": "Image must be 4096×4096 px or smaller",
       "nsfwContent": "Could not generate due to safety restrictions",
       "rateLimited": "Too many requests. Please wait a moment and try again",
-      "promptRejected": "Your prompt contains disallowed content"
+      "promptRejected": "Your prompt contains disallowed content",
+      "geminiFailed": "Image generation failed. Please try again later.",
+      "safetyBlocked": "Generation was blocked for safety reasons."
     },
     "crop": {
       "original": "Original"
@@ -138,20 +140,20 @@
       "cta": "Upgrade"
     },
     "stylePrompts": {
-      "anime_basic":      "Premium 2D Japanese anime illustration in Korean webtoon style. Flat cel-shading in warm peach tones with crisp black outlines; enlarged brown eyes with star catchlights; honey-amber hair with white highlight streaks; soft warm gradient background. Pure 2D, no 3D rendering.",
-      "soft_cartoon":     "Luxury 2D editorial illustration — Vogue Japan beauty campaign aesthetic. Feather-light pencil lines with layered ivory, rose, and mauve watercolor washes; cold-press paper grain visible throughout; loose gestural hair strokes. Airy, elegant, handcrafted 2D art.",
-      "cute_pet":         "Super-adorable 2D kawaii anime animal character in Sanrio studio quality. Huge sparkling eyes with heart-shaped highlights, fluffy rounded ears, rosy circular cheek blush, floating stars and sparkles background. Pure 2D illustration.",
-      "simple_icon":      "Ultra-minimal flat graphic design icon, Saul Bass mid-century modern style. Exactly 3 solid colors (terracotta background + dark silhouette + cream accent), zero gradients, clean vector silhouette. Brand logomark quality. Pure 2D flat design.",
-      "3d_cartoon":       "Pixar / Illumination feature-film quality 3D CGI animated character render. Multi-layer subsurface scattering skin, volumetric 3-point studio lighting (warm amber key + cool blue fill + warm orange rim), rounded 3D cornea eyes with perfect catchlights. Full 3D cinematic render.",
-      "anime_pro":        "Masterpiece-quality 2D anime illustration — Demon Slayer / Jujutsu Kaisen visual standard. Deep navy background with electric blue rim light; complex iris gradients with glass teardrop highlights; dramatic 3-quarter shadow; high-contrast cel-shading. Pure 2D, no 3D.",
-      "soft_storybook":   "Enchanting hand-painted watercolor illustration — Studio Ghibli warmth combined with Beatrix Potter delicacy. Wet-on-wet 300gsm paper technique, warm golden palette, visible cold-press paper grain, loose gestural brushwork, no black shadows. Pure 2D watercolor.",
-      "cyberpunk":        "Cinematic cyberpunk portrait — Blade Runner 2049 × Ghost in the Shell aesthetic. Electric magenta and cyan rim lights, rain-damp skin with neon flare reflections, bioluminescent circuit traces at the temple, only neon wavelengths retain full saturation against near-black shadows.",
-      "comic_hero":       "Premium American superhero comic book illustration — Alex Ross painted quality with Jack Kirby dynamism. Variable-weight ink lines (3–4pt outlines), fully saturated flat primary colors, halftone dot shadows, pure white highlights, bold speed-line background. 2D comic illustration.",
-      "fashion_avatar":   "Ultra-luxury editorial fashion portrait photography — Vogue / System Magazine cover standard. Warm golden Rembrandt key light (45° upper-right), Kodak Portra 400 film color grade, soft-box catchlight at 11 o'clock, impeccable golden-amber skin rendition.",
+      "anime_basic": "Premium 2D Japanese anime illustration in Korean webtoon style. Flat cel-shading in warm peach tones with crisp black outlines; enlarged brown eyes with star catchlights; honey-amber hair with white highlight streaks; soft warm gradient background. Pure 2D, no 3D rendering.",
+      "soft_cartoon": "Luxury 2D editorial illustration — Vogue Japan beauty campaign aesthetic. Feather-light pencil lines with layered ivory, rose, and mauve watercolor washes; cold-press paper grain visible throughout; loose gestural hair strokes. Airy, elegant, handcrafted 2D art.",
+      "cute_pet": "Super-adorable 2D kawaii anime animal character in Sanrio studio quality. Huge sparkling eyes with heart-shaped highlights, fluffy rounded ears, rosy circular cheek blush, floating stars and sparkles background. Pure 2D illustration.",
+      "simple_icon": "Ultra-minimal flat graphic design icon, Saul Bass mid-century modern style. Exactly 3 solid colors (terracotta background + dark silhouette + cream accent), zero gradients, clean vector silhouette. Brand logomark quality. Pure 2D flat design.",
+      "3d_cartoon": "Pixar / Illumination feature-film quality 3D CGI animated character render. Multi-layer subsurface scattering skin, volumetric 3-point studio lighting (warm amber key + cool blue fill + warm orange rim), rounded 3D cornea eyes with perfect catchlights. Full 3D cinematic render.",
+      "anime_pro": "Masterpiece-quality 2D anime illustration — Demon Slayer / Jujutsu Kaisen visual standard. Deep navy background with electric blue rim light; complex iris gradients with glass teardrop highlights; dramatic 3-quarter shadow; high-contrast cel-shading. Pure 2D, no 3D.",
+      "soft_storybook": "Enchanting hand-painted watercolor illustration — Studio Ghibli warmth combined with Beatrix Potter delicacy. Wet-on-wet 300gsm paper technique, warm golden palette, visible cold-press paper grain, loose gestural brushwork, no black shadows. Pure 2D watercolor.",
+      "cyberpunk": "Cinematic cyberpunk portrait — Blade Runner 2049 × Ghost in the Shell aesthetic. Electric magenta and cyan rim lights, rain-damp skin with neon flare reflections, bioluminescent circuit traces at the temple, only neon wavelengths retain full saturation against near-black shadows.",
+      "comic_hero": "Premium American superhero comic book illustration — Alex Ross painted quality with Jack Kirby dynamism. Variable-weight ink lines (3–4pt outlines), fully saturated flat primary colors, halftone dot shadows, pure white highlights, bold speed-line background. 2D comic illustration.",
+      "fashion_avatar": "Ultra-luxury editorial fashion portrait photography — Vogue / System Magazine cover standard. Warm golden Rembrandt key light (45° upper-right), Kodak Portra 400 film color grade, soft-box catchlight at 11 o'clock, impeccable golden-amber skin rendition.",
       "business_profile": "Premium professional corporate headshot — Fortune 500 executive photography standard. Three-point studio lighting (octabox key + reflector fill + rim strip box), neutral gray background, natural skin retouching with real pore texture, composed confident expression.",
       "pet_portrait_pro": "World-class hyperrealistic fine-art animal portrait — David Yarrow level. Individual fur strand micro-precision, dramatic Rembrandt key light with translucent rim glow on fur edges, complex iris cellular detail, perfect wet-cornea catchlight, jewel-toned bokeh background.",
-      "couple_avatar":    "Romantic 2D anime couple portrait — premium visual novel key visual quality. Intimate overlapping composition, warm amber and rose anime eyes for both, golden backlight halo, all-warm rose-gold and peach color palette. Pure 2D, no 3D.",
-      "kawaii_icon":      "Professional super-cute chibi anime icon — Sanrio character design studio quality. Extreme chibi proportions, enormous eyes (45–50% of face) with multi-layer iris gradients, oval catchlight, star-burst sparkles, and heart highlights; round cheek blush; pastel hair with decorative bow. Pure 2D."
+      "couple_avatar": "Romantic 2D anime couple portrait — premium visual novel key visual quality. Intimate overlapping composition, warm amber and rose anime eyes for both, golden backlight halo, all-warm rose-gold and peach color palette. Pure 2D, no 3D.",
+      "kawaii_icon": "Professional super-cute chibi anime icon — Sanrio character design studio quality. Extreme chibi proportions, enormous eyes (45–50% of face) with multi-layer iris gradients, oval catchlight, star-burst sparkles, and heart highlights; round cheek blush; pastel hair with decorative bow. Pure 2D."
     }
   },
   "styles": {
