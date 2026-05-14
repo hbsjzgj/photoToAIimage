@@ -11,7 +11,7 @@ import BeforeAfterSlider from './BeforeAfterSlider';
 import { analytics } from '@/lib/analytics';
 import { getPromptForStyle } from '@/lib/prompts';
 import type { StyleId, GenerationMode } from '@/types';
-import { ALL_STYLES } from '@/types';
+import { ALL_STYLES, FREE_STYLES } from '@/types';
 import { USE_CASES, QUICK_REFINEMENTS } from '@/lib/styleMeta';
 
 interface CreditsState { credits: number; freeRemaining: number }
@@ -96,7 +96,13 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
 
   function handleStyleSelect(s: StyleId | '') {
     setStyle(s);
-    if (s) analytics.styleSelected(s);
+    if (s) {
+      analytics.styleSelected(s);
+      // Auto-switch to paid mode when logged-in user picks a PRO style
+      if (session?.user && !FREE_STYLES.includes(s)) {
+        setMode('paid');
+      }
+    }
   }
 
   async function handleCropChange(ratio: '1:1' | '4:5' | 'original') {
@@ -658,7 +664,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
               <StyleSelector
                 selected={style}
                 onSelect={handleStyleSelect}
-                mode={session?.user ? mode : 'free'}
+                mode={session?.user ? 'paid' : 'free'}
                 gridClassName="grid grid-cols-3 sm:grid-cols-4 gap-3"
               />
 
