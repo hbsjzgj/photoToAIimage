@@ -71,6 +71,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [loadingSecs, setLoadingSecs] = useState(0);
   const [loadingStage, setLoadingStage] = useState(0);
   const [originalImageBase64, setOriginalImageBase64] = useState('');
+  const [originalAspectRatio, setOriginalAspectRatio] = useState<number>(1);
   const [cropAspect, setCropAspect] = useState<'1:1' | '4:5' | 'original'>('1:1');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -165,11 +166,11 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const didAutoSwitch = useRef(false);
   useEffect(() => {
     if (didAutoSwitch.current) return;
-    if (mode === 'free' && creditsState.freeRemaining === 0 && creditsState.credits > 0 && session?.user) {
+    if (session?.user && creditsState.credits > 0) {
       setMode('paid');
       didAutoSwitch.current = true;
     }
-  }, [creditsState, session, mode]);
+  }, [creditsState, session]);
 
   const handleFile = useCallback((file: File) => {
     const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
@@ -196,6 +197,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
       const MAX = 768;
       const scale = Math.min(1, MAX / Math.max(w0, h0));
       const w = Math.round(w0 * scale); const h = Math.round(h0 * scale);
+      setOriginalAspectRatio(w / h);
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
@@ -303,7 +305,8 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
               {preview ? (
                 <motion.div
                   key="preview"
-                  className="relative w-full aspect-square bg-[rgba(0,0,0,0.25)]"
+                  className="relative w-full bg-[rgba(0,0,0,0.25)]"
+                  style={{ aspectRatio: cropAspect === '1:1' ? '1/1' : cropAspect === '4:5' ? '4/5' : `${originalAspectRatio}` }}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   transition={{ duration: 0.4 }}
                 >
