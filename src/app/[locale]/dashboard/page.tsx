@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ALL_STYLES } from '@/types';
 
 interface ProjectVariant { id: string; imageUrl: string }
 interface Project {
@@ -20,15 +21,166 @@ interface DashboardData {
   projects: Project[]; transactions: Transaction[];
 }
 
+function ProjectCard({ project, locale, tStyles }: {
+  project: Project;
+  locale: string;
+  tStyles: ReturnType<typeof useTranslations>;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [activeVariant, setActiveVariant] = useState(0);
+  const isExpired = new Date(project.expiresAt) < new Date();
+  const imageUrl = project.variants[activeVariant]?.imageUrl;
+  const hasMultiple = project.variants.length > 1;
+
+  const styleLabel = (() => {
+    try { return tStyles(project.style); } catch { return project.style.replace(/_/g, ' '); }
+  })();
+
+  function handleDownload() {
+    if (!imageUrl || isExpired) return;
+    const a = document.createElement('a');
+    a.href = imageUrl;
+    a.download = `${project.style}-${project.id}.jpg`;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  return (
+    <motion.div
+      className="group rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.07)]
+                 bg-[rgba(255,255,255,0.02)] flex flex-col"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Main image */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-[rgba(255,255,255,0.03)]">
+        {imageUrl && !isExpired ? (
+          <img
+            src={imageUrl}
+            alt={styleLabel}
+            className="w-full h-full object-cover object-top
+                       group-hover:scale-105 transition-transform duration-700"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-3
+                         bg-[rgba(255,255,255,0.02)]">
+            <div className="w-12 h-12 rounded-xl border border-dashed border-[rgba(255,255,255,0.12)]
+                            flex items-center justify-center">
+              <svg className="w-5 h-5 text-ink-muted/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+            {isExpired && (
+              <span className="text-[10px] text-ink-muted/50 px-2 py-0.5 rounded-full
+                               bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)]">
+                {locale === 'zh' ? '已过期' : locale === 'ja' ? '期限切れ' : 'Expired'}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Persistent gradient at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+
+        {/* FREE/PRO badge */}
+        {!isExpired && (
+          <span className={`absolute top-2.5 left-2.5 text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full
+            ${project.hasWatermark
+              ? 'bg-emerald-500/20 border border-emerald-500/25 text-emerald-400'
+              : 'bg-gold/15 border border-gold/20 text-gold'}`}>
+            {project.hasWatermark ? 'FREE' : 'PRO'}
+          </span>
+        )}
+
+        {/* Hover action strip — bottom only, non-obstructive */}
+        <AnimatePresence>
+          {hovered && !isExpired && imageUrl && (
+            <motion.div
+              className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 px-2 pb-2 pt-8
+                         bg-gradient-to-t from-black/75 to-transparent"
+              initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.15 }}
+            >
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg
+                           bg-[rgba(255,255,255,0.15)] backdrop-blur-sm text-white text-[10px] font-medium
+                           hover:bg-[rgba(255,255,255,0.25)] transition-colors"
+              >
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 2v8m0 0L5 7m3 3l3-3M2 13h12"/>
+                </svg>
+                {locale === 'zh' ? '下载' : locale === 'ja' ? '保存' : 'Save'}
+              </button>
+              <Link
+                href={`/${locale}/generate?style=${project.style}`}
+                className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg
+                           bg-gold text-surface text-[10px] font-medium
+                           hover:bg-gold/80 transition-colors"
+              >
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5.5A4.5 4.5 0 118 10H3m0 0l2-2m-2 2l2 2"/>
+                </svg>
+                {locale === 'zh' ? '再生成' : locale === 'ja' ? '再生成' : 'Redo'}
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Variant thumbnails */}
+      {hasMultiple && !isExpired && (
+        <div className="flex gap-1 px-2 pt-2">
+          {project.variants.slice(0, 4).map((v, i) => (
+            <button
+              key={v.id}
+              onClick={() => setActiveVariant(i)}
+              className={`flex-1 aspect-square rounded overflow-hidden border transition-all duration-150
+                ${activeVariant === i
+                  ? 'border-gold/60 shadow-[0_0_6px_rgba(200,169,107,0.3)]'
+                  : 'border-[rgba(255,255,255,0.08)] opacity-50 hover:opacity-80'}`}
+            >
+              <img src={v.imageUrl} alt="" className="w-full h-full object-cover object-top" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Info footer */}
+      <div className="px-3 py-2.5 flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-ink truncate">{styleLabel}</p>
+          <p className="text-[10px] text-ink-muted">{new Date(project.createdAt).toLocaleDateString()}</p>
+        </div>
+        {isExpired && (
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[rgba(255,255,255,0.05)] text-ink-muted flex-shrink-0">
+            已过期
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('dashboard');
+  const tStyles = useTranslations('styles');
 
   const [data, setData] = useState<DashboardData | null>(null);
   const [banner, setBanner] = useState<'success' | 'canceled' | null>(null);
+  const [activeTab, setActiveTab] = useState<'gallery' | 'credits'>('gallery');
+  const [styleFilter, setStyleFilter] = useState<string>('all');
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push(`/${locale}/auth`);
@@ -46,6 +198,18 @@ export default function DashboardPage() {
     fetch('/api/dashboard').then((r) => r.json()).then(setData);
   }, [status]);
 
+  const filteredProjects = useMemo(() => {
+    if (!data) return [];
+    if (styleFilter === 'all') return data.projects;
+    return data.projects.filter((p) => p.style === styleFilter);
+  }, [data, styleFilter]);
+
+  const usedStyles = useMemo(() => {
+    if (!data) return [];
+    const set = new Set(data.projects.map((p) => p.style));
+    return ALL_STYLES.filter((s) => set.has(s));
+  }, [data]);
+
   if (status === 'loading' || !data) {
     return (
       <div className="min-h-screen flex flex-col bg-surface">
@@ -57,6 +221,13 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  const tabs = [
+    { id: 'gallery' as const, zh: '生成结果', en: 'My Images', ja: '生成履歴' },
+    { id: 'credits' as const, zh: '积分记录', en: 'Credits', ja: 'クレジット' },
+  ];
+  const tabLabel = (tab: typeof tabs[0]) =>
+    locale === 'zh' ? tab.zh : locale === 'ja' ? tab.ja : tab.en;
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
@@ -70,7 +241,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-light text-ink">{t('title')}</h1>
           </div>
 
-          {/* Success / Canceled banners */}
+          {/* Banners */}
           <AnimatePresence>
             {banner === 'success' && (
               <motion.div
@@ -115,7 +286,15 @@ export default function DashboardPage() {
           {/* Stats */}
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { value: data.credits, label: t('credits.title'), action: <Link href={`/${locale}/pricing`} className="text-gold text-xs hover:text-gold-light transition-colors mt-1 inline-block">{t('credits.buy')}</Link> },
+              {
+                value: data.credits,
+                label: t('credits.title'),
+                action: (
+                  <Link href={`/${locale}/pricing`} className="text-gold text-xs hover:text-gold-light transition-colors mt-1 inline-block">
+                    {t('credits.buy')}
+                  </Link>
+                )
+              },
               { value: data.freeRemaining, label: t('stats.freeRemaining') },
               { value: data.projects.length, label: t('stats.totalGenerated') }
             ].map(({ value, label, action }, i) => (
@@ -133,77 +312,185 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Generation history */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-light text-ink mb-5">{t('history.title')}</h2>
-            {data.projects.length === 0 ? (
-              <div className="py-12 text-center">
-                <p className="text-ink-muted text-sm">{t('history.empty')}</p>
-                <Link href={`/${locale}/generate`} className="btn-gold inline-flex mt-4 text-sm px-5 py-2.5">
-                  Generate Now
-                </Link>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
-                {data.projects.map((p, i) => {
-                  const isExpired = new Date(p.expiresAt) < new Date();
-                  const imageUrl = p.variants[0]?.imageUrl;
-                  return (
-                    <motion.div
-                      key={p.id}
-                      className="rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.03)]"
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.04 }}
-                    >
-                      <div className="aspect-square bg-[rgba(255,255,255,0.03)] relative">
-                        {imageUrl && !isExpired ? (
-                          <img src={imageUrl} alt={p.style} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-ink-muted text-3xl">
-                            {isExpired ? '⏰' : '🖼'}
-                          </div>
-                        )}
-                        {p.hasWatermark && !isExpired && (
-                          <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] bg-black/50 text-white/60">
-                            FREE
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-2.5 space-y-1">
-                        <p className="text-xs font-medium text-ink-secondary truncate">{p.style.replace(/_/g, ' ')}</p>
-                        <p className="text-[10px] text-ink-muted">{new Date(p.createdAt).toLocaleDateString()}</p>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                          isExpired ? 'bg-[rgba(255,255,255,0.05)] text-ink-muted' :
-                          p.generationMode === 'paid' ? 'bg-gold/10 text-gold' : 'bg-emerald-500/10 text-emerald-400'
-                        }`}>
-                          {isExpired ? t('history.expired') : p.generationMode}
-                        </span>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
+          {/* Tabs */}
+          <div className="flex gap-1 p-1 bg-[rgba(255,255,255,0.04)] rounded-xl w-fit">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                  ${activeTab === tab.id
+                    ? 'bg-[rgba(255,255,255,0.08)] text-ink shadow-sm'
+                    : 'text-ink-muted hover:text-ink'}`}
+              >
+                {tabLabel(tab)}
+                {tab.id === 'gallery' && data.projects.length > 0 && (
+                  <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gold/15 text-gold">
+                    {data.projects.length}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Transaction history */}
-          {data.transactions.length > 0 && (
-            <div className="glass-card p-6">
-              <h2 className="text-lg font-light text-ink mb-5">{t('credits.history')}</h2>
-              <div className="space-y-1">
-                {data.transactions.map((tx) => (
-                  <div key={tx.id} className="flex justify-between items-center py-3 border-b border-[rgba(255,255,255,0.05)] last:border-0">
-                    <div>
-                      <p className="text-sm text-ink-secondary">{tx.description}</p>
-                      <p className="text-xs text-ink-muted mt-0.5">{new Date(tx.createdAt).toLocaleDateString()}</p>
+          {/* Gallery tab */}
+          {activeTab === 'gallery' && (
+            <div className="space-y-6">
+              {/* Style filter */}
+              {usedStyles.length > 1 && (
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setStyleFilter('all')}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200
+                      ${styleFilter === 'all'
+                        ? 'bg-gold text-surface'
+                        : 'bg-[rgba(255,255,255,0.05)] text-ink-muted border border-[rgba(255,255,255,0.07)] hover:text-ink'}`}
+                  >
+                    {locale === 'zh' ? '全部' : locale === 'ja' ? '全て' : 'All'}
+                  </button>
+                  {usedStyles.map((s) => {
+                    let label: string;
+                    try { label = tStyles(s); } catch { label = s.replace(/_/g, ' '); }
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setStyleFilter(s)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200
+                          ${styleFilter === s
+                            ? 'bg-gold text-surface'
+                            : 'bg-[rgba(255,255,255,0.05)] text-ink-muted border border-[rgba(255,255,255,0.07)] hover:text-ink'}`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Project grid */}
+              {filteredProjects.length === 0 ? (
+                data.projects.length === 0 ? (
+                  /* First-time user guidance card */
+                  <motion.div
+                    className="glass-card p-10 relative overflow-hidden"
+                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-gold/4 to-transparent pointer-events-none" />
+                    <div className="relative flex flex-col sm:flex-row items-center gap-8">
+                      {/* Placeholder portraits */}
+                      <div className="flex -space-x-3 flex-shrink-0">
+                        {['from-rose-600/40', 'from-purple-600/40', 'from-amber-500/40'].map((g, i) => (
+                          <div key={i}
+                            className={`w-16 h-20 rounded-xl border-2 border-surface bg-gradient-to-b ${g} to-surface/80
+                                        flex items-end justify-center pb-2`}
+                            style={{ zIndex: 3 - i, transform: `rotate(${(i - 1) * 4}deg)` }}
+                          >
+                            <div className="w-6 h-6 rounded-full bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-center sm:text-left flex-1">
+                        <h3 className="text-xl font-light text-ink mb-2">
+                          {locale === 'zh' ? '生成你的第一套 AI 头像' : locale === 'ja' ? '最初のAIアバターを生成しよう' : 'Create your first AI avatar set'}
+                        </h3>
+                        <p className="text-ink-muted text-sm font-light mb-6 max-w-sm">
+                          {locale === 'zh'
+                            ? '上传一张照片，选择 14 种专属风格之一，AI 帮你生成可商用的形象素材。'
+                            : locale === 'ja'
+                            ? '写真1枚アップロードして、14種類のスタイルからAIアバターを生成しましょう。'
+                            : 'Upload a photo, pick from 14 styles, and get commercial-ready portrait assets in seconds.'}
+                        </p>
+                        <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                          <Link href={`/${locale}/generate`}
+                            className="btn-gold px-6 py-2.5 text-sm">
+                            {locale === 'zh' ? '开始生成 →' : locale === 'ja' ? '今すぐ生成 →' : 'Start generating →'}
+                          </Link>
+                          <Link href={`/${locale}#styles`}
+                            className="btn-ghost px-5 py-2.5 text-sm">
+                            {locale === 'zh' ? '查看风格案例' : locale === 'ja' ? 'スタイルを見る' : 'Browse styles'}
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`text-sm font-medium tabular-nums ${tx.amount > 0 ? 'text-emerald-400' : 'text-ink-muted'}`}>
-                      {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
-                    </span>
+                  </motion.div>
+                ) : (
+                  /* Style-filtered empty state */
+                  <div className="glass-card py-14 text-center">
+                    <p className="text-ink-muted text-sm mb-4">
+                      {locale === 'zh' ? '该风格暂无记录' : locale === 'ja' ? 'このスタイルの履歴がありません' : 'No images for this style'}
+                    </p>
+                    <button
+                      onClick={() => setStyleFilter('all')}
+                      className="text-xs text-gold hover:text-gold-light transition-colors"
+                    >
+                      {locale === 'zh' ? '查看全部' : locale === 'ja' ? '全て表示' : 'Show all'}
+                    </button>
                   </div>
-                ))}
-              </div>
+                )
+              ) : (
+                <motion.div
+                  key={styleFilter}
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {filteredProjects.map((p, i) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(i * 0.04, 0.3) }}
+                    >
+                      <ProjectCard project={p} locale={locale} tStyles={tStyles} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {/* Credits tab */}
+          {activeTab === 'credits' && (
+            <div className="space-y-4">
+              {data.transactions.length === 0 ? (
+                <div className="glass-card py-16 text-center space-y-4">
+                  <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/15
+                                  flex items-center justify-center mx-auto">
+                    <svg className="w-4 h-4 text-gold/50" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M8 5.5v3M8 10v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <p className="text-ink-muted text-sm">
+                    {locale === 'zh' ? '暂无积分记录' : locale === 'ja' ? '取引履歴なし' : 'No credit history yet'}
+                  </p>
+                  <Link href={`/${locale}/pricing`}
+                    className="text-xs text-gold hover:text-gold-light transition-colors inline-block">
+                    {locale === 'zh' ? '购买积分 →' : locale === 'ja' ? '購入する →' : 'Buy credits →'}
+                  </Link>
+                </div>
+              ) : (
+                <div className="glass-card divide-y divide-[rgba(255,255,255,0.05)]">
+                  {data.transactions.map((tx, i) => (
+                    <motion.div
+                      key={tx.id}
+                      className="flex justify-between items-center px-6 py-4"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                    >
+                      <div>
+                        <p className="text-sm text-ink-secondary">{tx.description}</p>
+                        <p className="text-xs text-ink-muted mt-0.5">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <span className={`text-sm font-medium tabular-nums ${tx.amount > 0 ? 'text-emerald-400' : 'text-ink-muted'}`}>
+                        {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

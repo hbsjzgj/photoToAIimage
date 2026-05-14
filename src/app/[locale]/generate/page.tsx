@@ -3,14 +3,20 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import GenerateForm from '@/components/GenerateForm';
 
-export default async function GeneratePage() {
+interface Props {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ style?: string }>;
+}
+
+export default async function GeneratePage({ searchParams }: Props) {
   const t = await getTranslations('generate');
+  const { style: initialStyle } = await searchParams;
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <Header />
       <main className="flex-1 pt-28 pb-24 px-6">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Page header */}
           <div className="text-center mb-14">
             <p className="text-gold text-xs font-medium tracking-widest uppercase mb-4">Studio</p>
@@ -19,7 +25,7 @@ export default async function GeneratePage() {
               {t('subtitle')}
             </p>
           </div>
-          <GenerateForm />
+          <GenerateForm initialStyle={initialStyle} />
         </div>
       </main>
       <Footer />

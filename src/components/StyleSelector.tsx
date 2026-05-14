@@ -31,6 +31,7 @@ interface Props {
   selected: StyleId | '';
   onSelect: (style: StyleId) => void;
   mode: 'free' | 'paid';
+  gridClassName?: string;
 }
 
 function StyleCard({
@@ -129,10 +130,10 @@ function StyleCard({
       )}
 
       {/* FREE / PRO badge */}
-      <div className={`absolute top-2.5 left-2.5 z-20 text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-full
+      <div className={`absolute top-2.5 left-2.5 z-20 text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full
                        ${isFree
-                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                         : 'border text-[rgba(200,169,107,0.9)] bg-[rgba(200,169,107,0.12)] border-[rgba(200,169,107,0.25)]'
+                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/25'
+                         : 'bg-gold/15 text-gold border border-gold/20'
                        }`}>
         {isFree ? 'FREE' : 'PRO'}
       </div>
@@ -152,12 +153,12 @@ function StyleCard({
   );
 }
 
-export default function StyleSelector({ selected, onSelect, mode }: Props) {
+export default function StyleSelector({ selected, onSelect, mode, gridClassName }: Props) {
   const t = useTranslations();
   const available = mode === 'free' ? FREE_STYLES : ALL_STYLES;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+    <div className={gridClassName ?? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3'}>
       {available.map((style, i) => (
         <StyleCard
           key={style}
