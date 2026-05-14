@@ -20,7 +20,27 @@ const STYLE_LABELS: Record<StyleId, string> = {
   business_profile: 'Business',
   pet_portrait_pro: 'Pet Pro',
   couple_avatar: 'Couple',
-  kawaii_icon: 'Kawaii'
+  kawaii_icon: 'Kawaii',
+  ghibli: 'Ghibli',
+  oil_painting: 'Oil Painting',
+  pixel_art: 'Pixel Art',
+  pop_art: 'Pop Art',
+  pencil_sketch: 'Pencil Sketch',
+  van_gogh: 'Van Gogh',
+  lego_figure: 'LEGO Figure',
+  action_figure: 'Action Figure',
+  claymation: 'Claymation',
+  sumi_e: 'Ink Brush',
+  dark_fantasy: 'Dark Fantasy',
+  kpop_idol: 'K-pop Idol',
+  neon_portrait: 'Neon Art',
+  vintage_film: 'Vintage Film',
+  ukiyo_e: 'Ukiyo-e',
+  tarot_card: 'Tarot Card',
+  webtoon: 'Webtoon',
+  sticker_art: 'LINE Sticker',
+  '3d_clay': '3D Clay',
+  impressionist: 'Impressionist'
 };
 
 function ShowcaseImage({ style, index }: { style: StyleId; index: number }) {

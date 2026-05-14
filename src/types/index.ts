@@ -16,7 +16,27 @@ export type StyleId =
   | 'business_profile'
   | 'pet_portrait_pro'
   | 'couple_avatar'
-  | 'kawaii_icon';
+  | 'kawaii_icon'
+  | 'ghibli'
+  | 'oil_painting'
+  | 'pixel_art'
+  | 'pop_art'
+  | 'pencil_sketch'
+  | 'van_gogh'
+  | 'lego_figure'
+  | 'action_figure'
+  | 'claymation'
+  | 'sumi_e'
+  | 'dark_fantasy'
+  | 'kpop_idol'
+  | 'neon_portrait'
+  | 'vintage_film'
+  | 'ukiyo_e'
+  | 'tarot_card'
+  | 'webtoon'
+  | 'sticker_art'
+  | '3d_clay'
+  | 'impressionist';
 
 export const FREE_STYLES: StyleId[] = [
   'anime_basic',
@@ -35,7 +55,27 @@ export const PAID_STYLES: StyleId[] = [
   'business_profile',
   'pet_portrait_pro',
   'couple_avatar',
-  'kawaii_icon'
+  'kawaii_icon',
+  'ghibli',
+  'oil_painting',
+  'pixel_art',
+  'pop_art',
+  'pencil_sketch',
+  'van_gogh',
+  'lego_figure',
+  'action_figure',
+  'claymation',
+  'sumi_e',
+  'dark_fantasy',
+  'kpop_idol',
+  'neon_portrait',
+  'vintage_film',
+  'ukiyo_e',
+  'tarot_card',
+  'webtoon',
+  'sticker_art',
+  '3d_clay',
+  'impressionist'
 ];
 
 export const ALL_STYLES: StyleId[] = [...FREE_STYLES, ...PAID_STYLES];
@@ -55,7 +95,27 @@ export const STYLE_TO_REPLICATE: Record<StyleId, string> = {
   business_profile: 'Photographic (Default)',
   pet_portrait_pro: 'Disney Character',
   couple_avatar: 'Disney Character',
-  kawaii_icon: 'Digital Art'
+  kawaii_icon: 'Digital Art',
+  ghibli: 'Digital Art',
+  oil_painting: 'Photographic (Default)',
+  pixel_art: 'Line art',
+  pop_art: 'Comic book',
+  pencil_sketch: 'Line art',
+  van_gogh: 'Fantasy art',
+  lego_figure: 'Digital Art',
+  action_figure: 'Digital Art',
+  claymation: 'Digital Art',
+  sumi_e: 'Fantasy art',
+  dark_fantasy: 'Fantasy art',
+  kpop_idol: 'Photographic (Default)',
+  neon_portrait: 'Neonpunk',
+  vintage_film: 'Photographic (Default)',
+  ukiyo_e: 'Line art',
+  tarot_card: 'Fantasy art',
+  webtoon: 'Digital Art',
+  sticker_art: 'Digital Art',
+  '3d_clay': 'Digital Art',
+  impressionist: 'Fantasy art'
 };
 
 

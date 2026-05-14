@@ -38,6 +38,26 @@ const STYLE_NEGATIVE: Record<string, string> = {
     `${BASE_NEGATIVE}, 3D rendered, photorealistic, dark moody, single subject, cold tones, no romance, harsh lighting`,
   kawaii_icon:
     `${BASE_NEGATIVE}, 3D rendered, photorealistic, realistic fur, realistic skin, dark colors, complex detailed background, adult proportions, scary`,
+  ghibli: `${BASE_NEGATIVE}, photorealistic, hyper-detailed, 3D CGI render, American cartoon, sharp digital art, neon colors, dark gritty atmosphere`,
+  oil_painting: `${BASE_NEGATIVE}, digital art, anime, cartoon, smooth digital perfection, airbrush, photography`,
+  pixel_art: `${BASE_NEGATIVE}, smooth gradients, anti-aliased edges, photorealistic, 3D, watercolor, oil painting`,
+  pop_art: `${BASE_NEGATIVE}, photorealistic, gradients, subtle tones, 3D, oil painting, pastel, soft`,
+  pencil_sketch: `${BASE_NEGATIVE}, color, painted, 3D, photorealistic, smooth digital, anime`,
+  van_gogh: `${BASE_NEGATIVE}, photorealistic, smooth blending, flat 2D, anime, clean digital art`,
+  lego_figure: `${BASE_NEGATIVE}, photorealistic person, anime, illustration, smooth skin, realistic portrait`,
+  action_figure: `${BASE_NEGATIVE}, photorealistic person, cartoon, anime, illustration, living human`,
+  claymation: `${BASE_NEGATIVE}, smooth digital, photorealistic, anime, 2D illustration, glass, metal`,
+  sumi_e: `${BASE_NEGATIVE}, color, photorealistic, western painting, anime, smooth digital`,
+  dark_fantasy: `${BASE_NEGATIVE}, cute kawaii, bright cheerful, flat 2D, realistic photography, pastel`,
+  kpop_idol: `${BASE_NEGATIVE}, cartoon, anime, illustration, harsh lighting, dark moody, unflattering, low quality`,
+  neon_portrait: `${BASE_NEGATIVE}, natural daylight, warm tones, flat illustration, anime, realistic photography, pastel`,
+  vintage_film: `${BASE_NEGATIVE}, modern digital clean, anime, illustration, oversaturated, HDR, artificial`,
+  ukiyo_e: `${BASE_NEGATIVE}, photorealistic, 3D, western oil painting, modern anime, gradients, shadows`,
+  tarot_card: `${BASE_NEGATIVE}, photorealistic, modern photography, anime cute, 3D, casual snapshot`,
+  webtoon: `${BASE_NEGATIVE}, photorealistic, Japanese anime extreme style, 3D, rough sketch, western comic`,
+  sticker_art: `${BASE_NEGATIVE}, photorealistic, complex detailed, dark moody, 3D, photography, fine art`,
+  '3d_clay': `${BASE_NEGATIVE}, photorealistic skin, 2D illustration, anime, smooth plastic, glass, metallic`,
+  impressionist: `${BASE_NEGATIVE}, photorealistic, sharp edges, clean digital, anime, flat color, 3D render`,
 };
 
 const STYLE_CORE: Record<string, string> = {
@@ -174,6 +194,204 @@ HAIR: pastel pale lavender-pink or baby blue, smooth rounded simplified shapes. 
 PALETTE: baby blue, pale lavender, rose pink, pearl white, minimal dark accents.
 BACKGROUND: soft pastel gradient or simple repeating pattern of tiny hearts and stars.
 STYLE: pure 2D flat illustration, no 3D rendering, no photorealism.`,
+
+  ghibli: `
+2D Studio Ghibli hand-drawn animated portrait, Hayao Miyazaki aesthetic — Spirited Away, Howl's Moving Castle visual standard.
+LINEWORK: clean hand-drawn animation lines with natural weight variation, smooth curve arcs, confident key frame quality.
+COLOR: muted warm earth tones — warm ochre skin, soft forest greens, dusty rose, sky blue. Watercolor-influenced fills.
+EYES: characteristically large but naturally proportioned — warm honey-amber irises, hand-painted catchlights, gentle lash strokes.
+HAIR: flowing wind-touched animation hair — strand groups as loose painted marks, soft gradient from root to tip.
+BACKGROUND: atmospheric environmental painting — misty forest, golden meadow, or soft gradient sky with floating particles.
+LIGHTING: soft diffused natural daylight, Ghibli golden-hour warmth, no harsh shadows.
+STYLE: pure 2D hand-drawn animation, Ghibli studio quality, no 3D, no photorealism.`,
+
+  oil_painting: `
+Classical oil painting portrait, Old Masters technique — Vermeer natural light combined with Sargent brushwork.
+TECHNIQUE: visible confident brushstrokes — loaded brush marks in lights, thin glazing in shadows, impasto texture on highlights.
+LIGHTING: dramatic single-source natural window light, Rembrandt triangle on the face, deep warm shadows.
+SKIN: warm golden undertones in multiple transparent glazing layers — ivory in lights, warm sienna mid-tones, deep umber shadows.
+EYES: detailed naturalistic — wet corneal highlight, visible iris texture, deep expressive pupils.
+BACKGROUND: dark warm ground, figure emerging from shadow.
+CANVAS: fine linen canvas grain visible in thin areas, impasto raised texture on lit surfaces.
+STYLE: classical oil painting technique, no photographic filter, no digital perfection.`,
+
+  pixel_art: `
+Retro pixel art portrait, Neo-Geo SNES 16-bit sprite quality combined with contemporary lo-fi aesthetic.
+PIXELS: visible square pixels — approximately 64×64 base resolution, crisp upscaling, every pixel intentionally placed.
+COLOR: strictly limited 16-color palette — 4-step warm skin gradient, 3-step hair gradient, minimal background colors.
+OUTLINES: 1-pixel black border around all major forms, interior lines in darker hue versions.
+DITHERING: checkerboard dithering pattern at color transition zones.
+HIGHLIGHTS: pure white 1-pixel specular dots on nose tip, lips, and pupils.
+BACKGROUND: flat solid color or simple tiled pattern in 2-3 colors.
+STYLE: pure pixel art, square pixels, retro game aesthetic, no anti-aliasing, no gradients.`,
+
+  pop_art: `
+Bold pop art portrait, Andy Warhol screen-print combined with Roy Lichtenstein Ben-Day dot technique.
+COLOR: completely flat solid fills — face in warm peach or yellow, hair in jet black, lips in pure red, outlines in pure black.
+BEN-DAY DOTS: shadow areas filled with uniform circular Ben-Day dots at 45° grid, dot size 6% of image width.
+OUTLINES: bold uniform 4px black outlines around all major forms — graphic, confident, deliberate.
+PALETTE: electric yellow, hot pink, cyan, black, white — exactly 4 colors total, fully saturated.
+BACKGROUND: flat solid bright complementary color — cyan or electric pink.
+STYLE: 2D pop art screen-print, no photorealism, no gradients, no 3D.`,
+
+  pencil_sketch: `
+Fine-art pencil portrait drawing, academic realist tradition — Sargent charcoal combined with hyperrealist graphite.
+TECHNIQUE: delicate graphite marks on textured cartridge paper, layered hatching builds tone gradually.
+LINES: direction-sensitive hatching following facial planes — cross-hatching in deep shadows, single strokes in mid-tones, open paper for highlights.
+PAPER: cream paper grain visible in all areas, particularly in lights.
+TONAL RANGE: pure white paper through light hatching through confident mid-tone through deep shadow, no pure black fill.
+EYES: most detailed area — precise iris rendering, careful hatching around orbital socket, delicate lash marks.
+HAIR: loose gestural marks suggesting mass and direction.
+STYLE: traditional pencil drawing, no color, no digital sheen, no photographic quality.`,
+
+  van_gogh: `
+Post-impressionist portrait painting, Vincent van Gogh style — Starry Night atmospheric energy combined with Portrait of Dr. Gachet warmth.
+BRUSHWORK: signature short swirling brushstrokes — directional curved dashes and comma-strokes following form of each surface.
+COLOR: intense pure pigments — cadmium yellow, Prussian blue, viridian green, vermillion, raw sienna. Complementary pairs for vibration.
+SKIN: warm yellow-ochre strokes, cool lilac highlights on shadow planes, orange sienna in warmest areas.
+BACKGROUND: dynamic swirling deeply textured with vigorous directional marks.
+OUTLINES: visible dark contour lines in dark blue or brown around major forms.
+STYLE: oil painting brushstroke simulation, post-impressionist, no photorealism, no soft blending.`,
+
+  lego_figure: `
+LEGO minifigure portrait, official LEGO set product photography standard.
+FORM: entire subject becomes a LEGO minifigure — cylindrical head with studded top, barrel-shaped body, C-shaped claw hands, short legs with hip joints.
+FACE: 2D printing on smooth yellow ABS plastic head — simplified dot eyes, curved expression line, eyebrow arc prints.
+HAIR: official LEGO hair piece — solid ABS plastic, single color.
+OUTFIT: printed costume details on flat chest plate, all detail as 2D printing.
+MATERIAL: ABS plastic — glossy, smooth, slight sheen, mold injection marks visible.
+BACKGROUND: LEGO base plate or white studio backdrop.
+LIGHTING: clean studio product photography, soft overhead diffused light, specular on plastic.
+STYLE: official LEGO product quality, plastic toy aesthetic, not cartoon not photo.`,
+
+  action_figure: `
+Premium collectible action figure in retail box art, Bandai Tamashii Nations S.H.Figuarts photography standard.
+FIGURE: subject as 1:12 scale articulated plastic action figure — visible joint articulation at neck, shoulders, elbows, wrists, hips, knees. Plastic skin texture with injection marks.
+BOX: premium retail window box — black or deep blue cardboard with silver foil, protective clear shell, name plate, edition number.
+ACCESSORIES: 2-3 miniature accessories on plastic inserts beside the figure.
+LIGHTING: professional product photography — clean neutral studio, sharp overhead shadows, specular on plastic.
+STYLE: toy product photography, plastic material rendering, not cartoon not portrait photography.`,
+
+  claymation: `
+Stop-motion claymation character, Aardman Animations quality — Wallace & Gromit aesthetic.
+MATERIAL: hand-sculpted plasticine — visible finger-press texture on all surfaces, slight edge irregularity, clay-seam details at joins.
+SKIN: warm flesh-colored clay, subtle thumb-press texture, slight handling sheen.
+FEATURES: simplified enlarged claymation proportions — prominent rounded nose, wide mouth with visible clay teeth, oversized expressive eyes with clay eyelids.
+HAIR: individual clay rolls pressed into hair shape, visible clay texture throughout.
+BACKGROUND: simple claymation set in primary colors, clay props, visible set materials.
+LIGHTING: warm practical stop-motion set lighting.
+STYLE: stop-motion claymation, physical clay material, not digital not smooth.`,
+
+  sumi_e: `
+Traditional East Asian ink brush painting, Chinese Shuimohua combined with Japanese Sumi-e calligraphy tradition.
+TECHNIQUE: raw ink on xuan paper — wet ink bleeds into dry areas creating organic soft edges.
+INK: 5-tone palette — pure white paper, diluted gray, mid-tone wash, concentrated ink, pure black. No color.
+BRUSHSTROKES: confident single-pass strokes — faces in minimal marks, hair in bold sweeps, clothing in loose textural marks.
+PAPER: rice paper texture visible in diluted areas, natural irregularity.
+COMPOSITION: generous empty white space — subject occupies 40-60% of composition.
+SEAL: traditional red chop seal stamp in lower corner.
+STYLE: monochrome ink painting, traditional East Asian art, no color, no western painting.`,
+
+  dark_fantasy: `
+Dark fantasy RPG character portrait, Diablo IV or Elden Ring official art quality.
+ATMOSPHERE: cinematic darkness — near-black deep background with atmospheric mist and faint magical light emanations.
+LIGHTING: cold spectral blue or mystical purple rim light, glowing ember-orange accent, only key planes catch light.
+ARMOR: elaborate dark fantasy elements — carved bone, ancient runes, luminous artifacts, weathered obsidian metal.
+EYES: supernatural intensity — glowing iris in ember orange or cold blue, slight otherworldly power.
+SKIN: pallid dramatically lit, haunted and experienced, dangerous energy.
+STYLE: dark fantasy digital oil painting, cinematic realism, not cartoonish not photographic.`,
+
+  kpop_idol: `
+K-pop idol magazine editorial portrait, HYBE SM Entertainment official promotion material quality.
+LIGHTING: premium studio — large softbox key light upper-left at 30°, white reflector fill, subtle hair backlight. K-pop glow quality.
+SKIN: flawless luminous glass skin — porcelain tone, subtle highlight on nose center, cupid's bow, brow bone. No visible pores.
+EYES: enhanced double-lid, long lashes, clear bright sclera, slight aegyo-sal under-eye for youthfulness.
+HAIR: salon-perfect styling — every strand in place with natural movement.
+MAKEUP: precision idol makeup — gradient lips, subtle eye-line, soft contouring, glass-skin highlight.
+COLOR GRADE: clean bright tones, slightly elevated exposure, delicate warm toning.
+STYLE: premium K-pop editorial photography, beauty photography, not anime not illustration.`,
+
+  neon_portrait: `
+Electric neon art portrait, retrowave synthwave aesthetic — Stranger Things intro combined with Miami Vice nostalgia.
+BACKGROUND: pure black void — any detail stripped leaving only neon light radiation.
+LIGHTING: three neon tube sources — primary hot magenta-pink, secondary electric cyan, accent deep violet. Lights glow and bleed.
+SKIN: patches illuminated only where neon hits — high contrast, dramatically lit planes only.
+OUTLINES: each form outlined in glowing neon tube effect with radiant bloom.
+HAIR: lit from multiple neon directions creating blue and pink highlights.
+BACKGROUND ELEMENTS: faint retro grid lines in deep purple, faint city silhouette.
+PALETTE: 3-4 neon colors only against pure black — no neutrals.
+STYLE: neon synthwave retrowave art, not photography not oil painting.`,
+
+  vintage_film: `
+Vintage analog film photography portrait, late 1970s early 1980s aesthetic — Kodachrome 64 combined with Fuji Provia editorial.
+GRAIN: prominent silver halide grain in all shadow and mid-tone areas — organic, random, beautiful texture.
+COLOR: warm golden-amber highlights, slightly lifted blacks with green-cyan shadow tint, Kodachrome reds skewing orange.
+DYNAMIC RANGE: compressed highlight rolloff — no blown whites, even lightest areas retain texture.
+LENS: slight barrel distortion from vintage 50mm, warm lens flare streak near light sources, soft focus falloff at corners.
+SKIN: warm luminous analog-imperfect, fine pore texture shows through.
+STYLE: analog film photography simulation, Kodachrome color rendering, no digital perfection.`,
+
+  ukiyo_e: `
+Traditional Japanese Ukiyo-e woodblock print portrait, Edo period master quality — Utamaro bijin-ga combined with Sharaku actor portrait.
+TECHNIQUE: flat ink woodblock print — hard-edged color separation as if multiple carved blocks were pressed.
+LINEWORK: confident Ukiyo-e key-block outlines — variable-width calligraphy line, thick at contours, fine for interior detail.
+COLOR: traditional mineral pigments — bengara red-brown, ai-indigo, ki-yellow, pine green. Flat woodblock color passes with slight mis-registration.
+SKIN: flat warm ivory or pale pink, completely smooth — no western shading.
+HAIR: jet black oil-coated hair in classic Edo style, indigo gloss highlights.
+BACKGROUND: washi paper pattern, bokashi gradation, or classic printer's mark.
+STYLE: Ukiyo-e woodblock print, Edo period, flat color, no photorealism, no western painting.`,
+
+  tarot_card: `
+Mystical tarot card portrait illustration, Rider-Waite-Smith tradition combined with contemporary premium tarot deck design.
+CARD FRAME: ornate rectangular gold-foil border with Celtic knotwork or Art Nouveau floral decoration. Card name and Roman numeral at bottom in Gothic letterform.
+FIGURE: subject as tarot archetype — symbolically posed with meaningful gesture, surrounded by esoteric symbols.
+COLOR: rich jewel tones against midnight blue — gold, deep crimson, mystic purple, starlight white.
+STYLE: flat color with fine detail, Art Nouveau line quality, symbolic not realistic.
+SYMBOLISM: crescent moon, five-pointed star, or relevant arcana symbols integrated naturally.
+BACKGROUND: deep night sky with 8-pointed stars or sunburst rays behind the figure.
+STYLE: mystical tarot card illustration, Art Nouveau inspired, flat symbolic artwork.`,
+
+  webtoon: `
+Korean webtoon Manhwa portrait illustration, Naver Webtoon premium series quality — True Beauty, Solo Leveling visual standard.
+CHARACTER: clean Korean manhwa style — slightly larger eyes than realistic, delicate nose, full lips, less extreme than Japanese anime.
+LINEWORK: precise clean digital lines — consistent weight with subtle taper at ends, professional webtoon quality.
+COLOR: clean flat digital — vibrant but not neon. Soft cell-shading with one directional light pass and highlight layer.
+SKIN: smooth even-toned, Korean beauty standard — subtle highlight on nose tip, natural texture maintained.
+EYES: manhwa eyes — large but natural iris, subtle sparkle catchlight, clean upper lash, suggestion of lower lashes.
+BACKGROUND: clean gradient or simple pattern suggesting a webtoon panel.
+STYLE: Korean webtoon manhwa illustration, digital coloring, not Japanese anime not photographic.`,
+
+  sticker_art: `
+Cute LINE sticker emoji art, Japanese SNS sticker quality — LINE Creators Market premium award-winning design.
+OUTLINE: clean bold white stroke surrounding the entire character — characteristic sticker border for visual pop on any background.
+CHARACTER: round super-cute sticker character — slightly simplified features, emphasis on expression.
+EXPRESSION: joyful kawaii highly expressive — characteristic LINE sticker exaggerated emotion.
+PROPORTIONS: slightly chibi, compact and cute.
+COLOR: bright saturated clean — candy pink, sunshine yellow, sky blue, mint green.
+DECORATIVE: sparkles, hearts, small emoji symbols floating around.
+BACKGROUND: transparent suggested by white framing — sticker meant to overlay any background.
+STYLE: 2D LINE sticker illustration, clean kawaii, not anime not photo.`,
+
+  '3d_clay': `
+3D clay render portrait, Blender Cinema4D Cycles quality — Laika Studios Coraline combined with trending 3D clay social media aesthetic.
+MATERIAL: clay polymer shader — slightly matte, soft subsurface scattering through thin areas, warm creamy or skin-toned clay with subtle fingerprint texture.
+FORM: soft rounded shapes — sharp angles relaxed into smooth curves, gentle bevels suggesting hand-sculpted clay.
+EYES: glass marble or resin inserts — perfectly spherical, slight internal refraction, embedded in clay sockets.
+HAIR: individual clay rolls or smooth molded clay, visible clay texture throughout.
+DETAILS: minor surface irregularities suggesting hand-sculpting, subtle tool marks in hair and clothing.
+LIGHTING: warm softbox upper left, subtle cool fill, warm rim light. Clay-appropriate no harsh metallic specular.
+BACKGROUND: neutral studio, slight depth of field bokeh.
+STYLE: 3D clay material render, physically-based rendering, not 2D illustration not photographic portrait.`,
+
+  impressionist: `
+French Impressionist portrait painting, Claude Monet color palette combined with Mary Cassatt figure painting intimacy.
+TECHNIQUE: broken color brushwork — pure complementary pigments placed side by side, optical mixing at viewing distance.
+BRUSHSTROKES: visible comma and dash strokes of varying direction, Monet-style marks following each surface.
+COLOR: light-saturated palette — pale lilac shadows, warm yellow-green highlights on skin, pink-orange in lightest areas. No earth tones, no black.
+ATMOSPHERIC: soft impressionist shimmer — edges of forms dissolve slightly into light-filled background.
+LIGHT: dappled garden light or diffused afternoon studio, color temperature shifts across canvas.
+BACKGROUND: garden foliage or impressionist interior — dabs of green, gold, violet suggesting rather than defining.
+STYLE: oil painting brushstroke simulation, French Impressionism, no photorealism, no sharp edges.`,
 };
 
 const QUALITY_SUFFIX =
@@ -204,6 +422,26 @@ export const STYLE_DISPLAY_PROMPTS: Record<string, string> = {
   pet_portrait_pro: 'Luxury pet portrait photography · cinematic studio lighting · rich warm tones',
   couple_avatar:    'Romantic couple portrait · cinematic emotional lighting · harmonious mood',
   kawaii_icon:      'Super cute Japanese kawaii icon · soft pastel palette · rounded modern design',
+  ghibli:           'Studio Ghibli hand-drawn anime · warm earth tones · natural light',
+  oil_painting:     'Classical oil painting portrait · Old Masters technique · Sargent brushwork',
+  pixel_art:        'Retro pixel art · 16-bit sprite · limited color palette',
+  pop_art:          'Bold pop art screen-print · Warhol style · flat saturated colors',
+  pencil_sketch:    'Fine-art graphite portrait · academic hatching · paper texture',
+  van_gogh:         'Post-impressionist swirling brushwork · intense pigments · Van Gogh energy',
+  lego_figure:      'Official LEGO minifigure · ABS plastic · product photography',
+  action_figure:    'Premium collectible figure · retail box art · plastic toy aesthetic',
+  claymation:       'Aardman claymation · hand-sculpted plasticine · stop-motion quality',
+  sumi_e:           'East Asian ink brush painting · monochrome · rice paper texture',
+  dark_fantasy:     'Dark fantasy RPG portrait · cinematic darkness · Elden Ring quality',
+  kpop_idol:        'K-pop idol promo · glass skin · HYBE entertainment quality',
+  neon_portrait:    'Synthwave neon art · pure black · magenta and cyan glow',
+  vintage_film:     'Kodachrome vintage film · 1970s grain · warm golden tones',
+  ukiyo_e:          'Ukiyo-e woodblock print · Edo period · Utamaro portrait quality',
+  tarot_card:       'Mystical tarot card · Art Nouveau border · arcane symbolism',
+  webtoon:          'Korean webtoon manhwa · clean digital lines · K-beauty character',
+  sticker_art:      'LINE sticker character · white border · kawaii expression',
+  '3d_clay':        'Blender 3D clay render · matte subsurface · Coraline quality',
+  impressionist:    'Monet impressionist · broken color brushwork · light-saturated palette',
 };
 
 export interface ModelParams {
@@ -229,6 +467,26 @@ export const STYLE_STRENGTH: Record<string, number> = {
   fashion_avatar:   0.68,
   business_profile: 0.60,
   pet_portrait_pro: 0.72,
+  ghibli:           0.75,
+  oil_painting:     0.72,
+  pixel_art:        0.78,
+  pop_art:          0.77,
+  pencil_sketch:    0.76,
+  van_gogh:         0.76,
+  lego_figure:      0.80,
+  action_figure:    0.80,
+  claymation:       0.78,
+  sumi_e:           0.75,
+  dark_fantasy:     0.77,
+  kpop_idol:        0.62,
+  neon_portrait:    0.77,
+  vintage_film:     0.55,
+  ukiyo_e:          0.78,
+  tarot_card:       0.78,
+  webtoon:          0.73,
+  sticker_art:      0.77,
+  '3d_clay':        0.78,
+  impressionist:    0.75,
 };
 
 export const MODEL_PARAMS: Record<'free' | 'paid' | 'premium', ModelParams> = {
@@ -290,6 +548,26 @@ const GEMINI_STYLE_CONTEXT: Partial<Record<string, string>> = {
   pet_portrait_pro: 'Render as hyperrealistic fine-art animal portrait photography with dramatic Rembrandt lighting.',
   couple_avatar:    'Render as a romantic 2D anime couple portrait with warm golden back-lighting and rose-gold palette.',
   kawaii_icon:      'Render as a super-cute chibi anime icon with extreme head-to-body ratio and enormous glassy eyes.',
+  ghibli:           'Render in Studio Ghibli hand-drawn anime style — soft earth tones, warm linework, Spirited Away / Howl quality.',
+  oil_painting:     'Render as a classical oil painting portrait — visible brushstrokes, Old Masters lighting, Vermeer or Sargent quality.',
+  pixel_art:        'Render as a retro 16-bit pixel art portrait — limited color palette, square pixels, SNES era game character quality.',
+  pop_art:          'Render as a bold Andy Warhol / Roy Lichtenstein pop art portrait — flat saturated colors, Ben-Day dots in shadows, black outlines.',
+  pencil_sketch:    'Render as a fine-art pencil portrait drawing — detailed graphite hatching, paper texture, academic realist quality.',
+  van_gogh:         'Render in Van Gogh post-impressionist style — swirling directional brushstrokes, intense complementary colors, Starry Night energy.',
+  lego_figure:      'Render the subject as an official LEGO minifigure — cylindrical plastic head, ABS glossy finish, printed facial features.',
+  action_figure:    'Render the subject as a premium collectible action figure in retail box packaging — plastic toy material, visible joints.',
+  claymation:       'Render as an Aardman-style claymation character — hand-sculpted plasticine texture, stop-motion aesthetic, Wallace & Gromit quality.',
+  sumi_e:           'Render as a traditional East Asian ink brush painting — monochrome ink washes on rice paper, Sumi-e calligraphy brushwork.',
+  dark_fantasy:     'Render as a dark fantasy RPG character portrait — dramatic cinematic darkness, glowing magical elements, Elden Ring concept art quality.',
+  kpop_idol:        'Render as a K-pop idol promotional portrait — flawless glass skin, perfect studio lighting, HYBE / SM Entertainment promotion quality.',
+  neon_portrait:    'Render as a retrowave synthwave neon art portrait — pure black background, electric magenta and cyan neon lighting, glowing outlines.',
+  vintage_film:     'Render as a vintage analog film photograph — Kodachrome grain, warm golden color shift, 1970s–80s film aesthetic.',
+  ukiyo_e:          'Render as a traditional Ukiyo-e woodblock print — flat ink-block colors, Edo period linework, Utamaro bijin-ga portrait quality.',
+  tarot_card:       'Render as a premium mystical tarot card illustration — ornate gold border frame, Rider-Waite-Smith symbolic style, arcane imagery.',
+  webtoon:          'Render as a Korean webtoon Manhwa illustration — clean digital linework, Korean beauty character design, Naver Webtoon quality.',
+  sticker_art:      'Render as a premium LINE sticker character — bold white outline border, kawaii expressive face, bright clean colors.',
+  '3d_clay':        'Render as a 3D clay material portrait — Blender clay shader, soft matte subsurface scattering, Coraline / Laika stop-motion quality.',
+  impressionist:    'Render as a French Impressionist painting — Monet-style broken color brushwork, light-saturated palette, soft atmospheric edges.',
 };
 
 export function getGeminiPrompt({
