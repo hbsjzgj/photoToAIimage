@@ -20,7 +20,9 @@
     "generate": "生成",
     "pricing": "料金",
     "dashboard": "ダッシュボード",
-    "gallery": "ギャラリー"
+    "gallery": "ギャラリー",
+    "batch": "一括生成",
+    "presets": "プリセット"
   },
   "home": {
     "hero": {
@@ -443,5 +445,60 @@
     "saveSuccess": "保存しました！",
     "usernameTaken": "このユーザー名は既に使われています",
     "invalidUsername": "3〜20文字、英数字とアンダーバーのみ使用可"
+  },
+  "presets": {
+    "title": "スタイルプリセット",
+    "subtitle": "生成設定を保存してワンクリックで再利用",
+    "empty": "プリセットはまだありません。生成ページから保存できます。",
+    "saveAs": "プリセットとして保存",
+    "namePlaceholder": "例：夏のアニメシリーズ",
+    "saveButton": "保存",
+    "saved": "保存しました！",
+    "apply": "適用",
+    "delete": "削除",
+    "deleteConfirm": "このプリセットを削除しますか？",
+    "style": "スタイル",
+    "size": "サイズ",
+    "count": "枚数",
+    "loadPreset": "プリセットを読み込む",
+    "noPresets": "保存済みプリセットなし"
+  },
+  "batch": {
+    "title": "一括生成",
+    "subtitle": "最大20枚の写真をまとめて変換",
+    "uploadArea": "ここに写真をドロップするか、クリックして選択",
+    "uploadHint": "JPG/PNGファイル最大20枚",
+    "selectStyle": "スタイル選択",
+    "selectSize": "出力サイズ",
+    "startButton": "一括生成スタート",
+    "processing": "{done}/{total} 処理中...",
+    "done": "完了！{total}枚の画像を生成しました。",
+    "downloadAll": "ZIPでまとめてダウンロード",
+    "downloadSingle": "ダウンロード",
+    "makePublic": "公開する",
+    "removeFile": "削除",
+    "clearAll": "すべてクリア",
+    "tooMany": "最大20ファイルまで",
+    "noFiles": "写真を1枚以上選択してください"
+  },
+  "apiSettings": {
+    "title": "APIキー",
+    "subtitle": "REST APIでプログラマティックに画像生成",
+    "createKey": "新しいキーを作成",
+    "keyName": "キー名",
+    "keyNamePlaceholder": "例：マイアプリ",
+    "monthlyLimit": "月間上限",
+    "monthlyLimitHint": "1ヶ月あたりの最大生成数（0＝無制限）",
+    "created": "キーを作成しました。今すぐコピーしてください。再表示はできません。",
+    "copyKey": "コピー",
+    "copied": "コピーしました！",
+    "revokeKey": "無効化",
+    "revokeConfirm": "このAPIキーを無効化しますか？",
+    "revoked": "無効化しました",
+    "usageThisMonth": "今月 {used}/{limit}",
+    "lastUsed": "最終使用：{date}",
+    "neverUsed": "未使用",
+    "exampleCurl": "リクエスト例",
+    "prefix": "プレフィックス"
   }
 }

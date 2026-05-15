@@ -20,7 +20,9 @@
     "generate": "生成",
     "pricing": "定价",
     "dashboard": "控制台",
-    "gallery": "画廊"
+    "gallery": "画廊",
+    "batch": "批量生成",
+    "presets": "预设"
   },
   "home": {
     "hero": {
@@ -443,5 +445,60 @@
     "saveSuccess": "保存成功！",
     "usernameTaken": "该用户名已被使用",
     "invalidUsername": "3-20个字符，只能使用字母、数字和下划线"
+  },
+  "presets": {
+    "title": "风格预设",
+    "subtitle": "保存生成设置，一键复用",
+    "empty": "还没有预设。可以在生成页面保存。",
+    "saveAs": "另存为预设",
+    "namePlaceholder": "例如：夏日动漫系列",
+    "saveButton": "保存预设",
+    "saved": "已保存！",
+    "apply": "应用",
+    "delete": "删除",
+    "deleteConfirm": "确认删除此预设？",
+    "style": "风格",
+    "size": "尺寸",
+    "count": "数量",
+    "loadPreset": "加载预设",
+    "noPresets": "暂无保存的预设"
+  },
+  "batch": {
+    "title": "批量生成",
+    "subtitle": "最多上传20张照片，一键批量转换",
+    "uploadArea": "拖放照片到此处，或点击选择",
+    "uploadHint": "最多20张 JPG/PNG",
+    "selectStyle": "选择风格",
+    "selectSize": "输出尺寸",
+    "startButton": "开始批量生成",
+    "processing": "{done}/{total} 处理中...",
+    "done": "全部完成！共生成 {total} 张图片。",
+    "downloadAll": "打包下载 ZIP",
+    "downloadSingle": "下载",
+    "makePublic": "公开",
+    "removeFile": "移除",
+    "clearAll": "清空全部",
+    "tooMany": "最多20个文件",
+    "noFiles": "请至少选择一张照片"
+  },
+  "apiSettings": {
+    "title": "API 密钥",
+    "subtitle": "通过 REST API 以编程方式生成图片",
+    "createKey": "创建新密钥",
+    "keyName": "密钥名称",
+    "keyNamePlaceholder": "例如：我的应用",
+    "monthlyLimit": "月度限额",
+    "monthlyLimitHint": "每月最大生成次数（0 = 不限）",
+    "created": "密钥已创建！请立即复制，之后将无法再次查看。",
+    "copyKey": "复制",
+    "copied": "已复制！",
+    "revokeKey": "撤销",
+    "revokeConfirm": "确认撤销此 API 密钥？",
+    "revoked": "已撤销",
+    "usageThisMonth": "本月 {used}/{limit}",
+    "lastUsed": "最后使用：{date}",
+    "neverUsed": "从未使用",
+    "exampleCurl": "请求示例",
+    "prefix": "前缀"
   }
 }

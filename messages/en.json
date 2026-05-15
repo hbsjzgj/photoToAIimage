@@ -20,7 +20,9 @@
     "generate": "Generate",
     "pricing": "Pricing",
     "dashboard": "Dashboard",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "batch": "Batch",
+    "presets": "Presets"
   },
   "home": {
     "hero": {
@@ -443,5 +445,60 @@
     "saveSuccess": "Profile saved!",
     "usernameTaken": "Username is already taken",
     "invalidUsername": "3–20 characters, letters, numbers, underscore only"
+  },
+  "presets": {
+    "title": "Style Presets",
+    "subtitle": "Save your generation settings for quick reuse",
+    "empty": "No presets yet. Save a preset from the generate page.",
+    "saveAs": "Save as Preset",
+    "namePlaceholder": "e.g. Summer Anime Series",
+    "saveButton": "Save Preset",
+    "saved": "Preset saved!",
+    "apply": "Apply",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this preset?",
+    "style": "Style",
+    "size": "Size",
+    "count": "Count",
+    "loadPreset": "Load Preset",
+    "noPresets": "No saved presets"
+  },
+  "batch": {
+    "title": "Batch Generation",
+    "subtitle": "Upload up to 20 photos and generate all at once",
+    "uploadArea": "Drop photos here or click to select",
+    "uploadHint": "Up to 20 JPG/PNG files",
+    "selectStyle": "Select Style",
+    "selectSize": "Output Size",
+    "startButton": "Start Batch Generation",
+    "processing": "{done}/{total} processing...",
+    "done": "All done! {total} images generated.",
+    "downloadAll": "Download All as ZIP",
+    "downloadSingle": "Download",
+    "makePublic": "Make Public",
+    "removeFile": "Remove",
+    "clearAll": "Clear All",
+    "tooMany": "Maximum 20 files allowed",
+    "noFiles": "Please select at least one photo"
+  },
+  "apiSettings": {
+    "title": "API Keys",
+    "subtitle": "Use the REST API to generate images programmatically",
+    "createKey": "Create New Key",
+    "keyName": "Key Name",
+    "keyNamePlaceholder": "e.g. My App",
+    "monthlyLimit": "Monthly Limit",
+    "monthlyLimitHint": "Max generations per month (0 = unlimited)",
+    "created": "Key created! Copy it now — it won't be shown again.",
+    "copyKey": "Copy Key",
+    "copied": "Copied!",
+    "revokeKey": "Revoke",
+    "revokeConfirm": "Revoke this API key?",
+    "revoked": "Key revoked",
+    "usageThisMonth": "{used}/{limit} this month",
+    "lastUsed": "Last used {date}",
+    "neverUsed": "Never used",
+    "exampleCurl": "Example request",
+    "prefix": "Prefix"
   }
 }
