@@ -5,9 +5,10 @@ import Image from 'next/image';
 interface Props {
   beforeSrc: string;
   afterSrc: string;
+  aspectRatio?: number;
 }
 
-export default function BeforeAfterSlider({ beforeSrc, afterSrc }: Props) {
+export default function BeforeAfterSlider({ beforeSrc, afterSrc, aspectRatio }: Props) {
   const [pos, setPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -33,10 +34,10 @@ export default function BeforeAfterSlider({ beforeSrc, afterSrc }: Props) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-square rounded-3xl overflow-hidden select-none cursor-col-resize"
+      className="relative w-full rounded-3xl overflow-hidden select-none cursor-col-resize"
       onMouseMove={(e) => dragging.current && move(e.clientX)}
       onTouchMove={(e) => { e.preventDefault(); move(e.touches[0].clientX); }}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', aspectRatio: String(aspectRatio ?? 1) }}
     >
       {/* AI result — full layer underneath */}
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.3)]">

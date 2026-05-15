@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
@@ -211,7 +211,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
       URL.revokeObjectURL(objectUrl);
       analytics.uploadStarted();
       setNaturalW(w); setNaturalH(h);
-      setOriginalImageBase64(b64); setCropAspect('1:1');
+      setOriginalImageBase64(b64); setCropAspect(w > h ? 'original' : '1:1');
       setImageBase64(b64); setPreview(b64); setResult(null); setError('');
     };
     img.onerror = () => URL.revokeObjectURL(objectUrl);
@@ -277,6 +277,14 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const insufficientCredits = mode === 'paid' && !!session?.user && creditsState.credits < costCredits;
   const canGenerate = !loading && !!imageBase64 && !!style && !insufficientCredits;
   const showResult = !!(result && imageBase64);
+  const imageAspectRatio = useMemo(() => {
+    if (cropAspect === 'original') return naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
+    if (cropAspect === '1:1') return 1;
+    if (cropAspect === '3:4') return 3 / 4;
+    if (cropAspect === '4:5') return 4 / 5;
+    if (cropAspect === '9:16') return 9 / 16;
+    return 1;
+  }, [cropAspect, naturalW, naturalH]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] gap-4 lg:gap-0
@@ -524,6 +532,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                 <BeforeAfterSlider
                   beforeSrc={imageBase64}
                   afterSrc={result!.variants[selectedVariantIdx]?.imageUrl ?? ''}
+                  aspectRatio={imageAspectRatio}
                 />
               </div>
 
