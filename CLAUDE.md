@@ -38,12 +38,20 @@ Browser → Next.js App Router (`src/app/`) → API routes (`src/app/api/`) → 
 
 ### AI generation pipeline
 
-`src/lib/generate.ts` is the single entry point. It selects the provider:
+`src/lib/generate.ts` is the single entry point. It selects the provider via `src/lib/providers/index.ts`:
 1. **Demo mode** (`NEXT_PUBLIC_DEMO_MODE=true`) — returns mock picsum images
-2. **Replicate** (`AI_PROVIDER=replicate`) — PhotoMaker-Style model, requires `REPLICATE_API_TOKEN`
-3. **Default** — free provider chain via `src/lib/providers/index.ts`: HuggingFace (`timbrooks/instruct-pix2pix` img2img) → Mock
+2. **Forced provider** (`AI_PROVIDER=gemini|fal|huggingface|mock`) — explicit override
+3. **Default auto-chain** — first available key wins:
+   - `GEMINI_API_KEY` set → **Gemini** (`gemini-2.5-flash-image`) → Fal → Mock
+   - `FAL_KEY` set → **Fal** (`fal-ai/flux/dev/image-to-image`) → Mock
+   - `HUGGINGFACE_API_TOKEN` set → **HuggingFace** (`timbrooks/instruct-pix2pix`) → Mock
+   - No keys → Mock only
 
-The HuggingFace provider requires `imageBase64` (data URI or raw base64); it strips the `data:...;base64,` prefix before sending. `STYLE_INSTRUCTIONS` (not `STYLE_PROMPTS`) are used as the instruction prompt for instruct-pix2pix.
+All providers are img2img (require `imageBase64`). `NonRetriableError` (e.g. safety blocks) stops the chain immediately — it must NOT fall through to the next provider. Provider name is returned in the response as `providerUsed`.
+
+### Style preview images
+
+`public/style-previews/{styleId}.jpg` — static 512×512 preview images for all 34 styles, served directly. `src/lib/styleImages.ts` maps each `StyleId` to its static path and a Pollinations.ai fallback URL. To regenerate missing images: `node scripts/dl-missing-previews.mjs`.
 
 ### Storage abstraction
 
@@ -88,9 +96,11 @@ NextAuth.js v4 with JWT strategy + credentials provider (email/password with bcr
 See `.env.local.example` for the full list. Required for each mode:
 - **Any mode**: `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
 - **Stripe**: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_*`
-- **HuggingFace AI**: `HUGGINGFACE_API_TOKEN`
+- **Gemini AI** (primary): `GEMINI_API_KEY` — requires a free-tier Google AI Studio key (billing-enabled / prepay projects return 429)
+- **Fal AI** (fallback): `FAL_KEY`
+- **HuggingFace AI** (fallback): `HUGGINGFACE_API_TOKEN`
 - **Cloudinary storage**: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
-- **Replicate** (opt-in only): `REPLICATE_API_TOKEN` + `AI_PROVIDER=replicate`
+- **Force provider**: `AI_PROVIDER=gemini|fal|huggingface|mock` (omit to use auto-chain)
 
 ## Prisma Schema Notes
 
