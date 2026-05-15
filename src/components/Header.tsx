@@ -21,6 +21,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`, label: t('nav.home') },
     { href: `/${locale}/generate`, label: t('nav.generate') },
+    { href: `/${locale}/gallery`, label: t('nav.gallery') },
     { href: `/${locale}/pricing`, label: t('nav.pricing') },
     ...(session?.user ? [{ href: `/${locale}/dashboard`, label: t('nav.dashboard') }] : []),
   ];

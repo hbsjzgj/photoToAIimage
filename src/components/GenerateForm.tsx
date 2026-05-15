@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import StyleSelector from './StyleSelector';
+import { ShareButtons } from './ShareButtons';
 import BeforeAfterSlider from './BeforeAfterSlider';
 import CropDragger from './CropDragger';
 import { analytics } from '@/lib/analytics';
@@ -48,6 +49,7 @@ type ResultData = {
 
 export default function GenerateForm({ initialStyle }: { initialStyle?: string }) {
   const t = useTranslations('generate');
+  const tWork = useTranslations('work');
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
@@ -78,6 +80,8 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [cropAspect, setCropAspect] = useState<CropAspect>('1:1');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [togglingPublic, setTogglingPublic] = useState(false);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -225,7 +229,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     if (!style) { setError(t('errors.noStyle')); return; }
     if (mode === 'paid' && !session?.user) { router.push(`/${locale}/auth`); return; }
 
-    setLoading(true); setError(''); setErrorCode(''); setResult(null);
+    setLoading(true); setError(''); setErrorCode(''); setResult(null); setIsPublic(false);
     const startMs = Date.now();
     analytics.generationStarted({ style: style as string, mode, count });
 
@@ -597,6 +601,49 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                   </AnimatePresence>
                 </motion.button>
               </div>
+
+              {/* Public toggle + share */}
+              {result?.variants[selectedVariantIdx]?.id && session?.user && (
+                <div className="mt-4 border-t border-[rgba(255,255,255,0.07)] pt-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-ink-secondary">{isPublic ? tWork('makePrivate') : tWork('makePublic')}</p>
+                      <p className="text-xs text-ink-muted mt-0.5">{tWork('publicHint')}</p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        const variantId = result.variants[selectedVariantIdx].id;
+                        if (!variantId || togglingPublic) return;
+                        setTogglingPublic(true);
+                        try {
+                          const res = await fetch(`/api/works/${variantId}/public`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ isPublic: !isPublic }),
+                          });
+                          if (res.ok) setIsPublic(!isPublic);
+                        } finally {
+                          setTogglingPublic(false);
+                        }
+                      }}
+                      disabled={togglingPublic}
+                      className={`relative w-11 h-6 rounded-full transition-colors ${isPublic ? 'bg-[var(--color-gold)]' : 'bg-[rgba(255,255,255,0.1)]'}`}
+                    >
+                      <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${isPublic ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
+                  {isPublic && (
+                    <div>
+                      <p className="text-xs text-ink-muted mb-2">{tWork('share')}</p>
+                      <ShareButtons
+                        workId={result.variants[selectedVariantIdx].id}
+                        styleName={style ?? ''}
+                        compact
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* AI engine attribution */}
               {result?.providerUsed && result.providerUsed !== 'mock' && (
