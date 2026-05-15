@@ -30,6 +30,8 @@ model User {
   projects     Project[]
   likes        Like[]
   savedWorks   SavedWork[]
+  stylePresets StylePreset[]
+  apiKeys      APIKey[]
   following    Follow[]  @relation("Follower")
   followers    Follow[]  @relation("Following")
 }
@@ -180,4 +182,33 @@ model Follow {
   follower    User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
   following   User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
   @@unique([followerId, followingId])
+}
+
+model StylePreset {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  styleId    String
+  outputSize String
+  count      Int      @default(1)
+  isPublic   Boolean  @default(false)
+  useCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model APIKey {
+  id            String    @id @default(cuid())
+  userId        String
+  keyHash       String    @unique
+  keyPrefix     String
+  name          String
+  monthlyLimit  Int       @default(100)
+  usedThisMonth Int       @default(0)
+  lastUsedAt    DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
