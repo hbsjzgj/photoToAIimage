@@ -19,7 +19,8 @@
     "home": "ホーム",
     "generate": "生成",
     "pricing": "料金",
-    "dashboard": "ダッシュボード"
+    "dashboard": "ダッシュボード",
+    "gallery": "ギャラリー"
   },
   "home": {
     "hero": {
@@ -396,5 +397,46 @@
     "title": "ページが見つかりません",
     "subtitle": "お探しのページは存在しません。",
     "home": "ホームへ戻る"
+  },
+  "gallery": {
+    "title": "コミュニティギャラリー",
+    "subtitle": "FORMAコミュニティの素敵なAIアートをご覧ください",
+    "filterAll": "すべてのスタイル",
+    "sortNewest": "新着順",
+    "sortLikes": "いいね順",
+    "empty": "まだ公開作品がありません。最初にシェアしてみましょう！",
+    "tryStyle": "このスタイルで試す",
+    "loadMore": "もっと見る"
+  },
+  "work": {
+    "by": "by",
+    "likes": "{count} いいね",
+    "share": "作品をシェア",
+    "shareTwitter": "X (Twitter) でシェア",
+    "shareLine": "LINE で送る",
+    "copyLink": "リンクをコピー",
+    "copied": "コピーしました！",
+    "tryStyle": "このスタイルで試す →",
+    "makePublic": "公開する",
+    "makePrivate": "非公開にする",
+    "publicHint": "公開するとギャラリーに表示され、シェアできます",
+    "titlePlaceholder": "タイトルを追加（任意）"
+  },
+  "profile": {
+    "works": "作品",
+    "followers": "フォロワー",
+    "following": "フォロー中",
+    "follow": "フォロー",
+    "unfollow": "フォロー解除",
+    "editProfile": "プロフィール編集",
+    "noWorks": "公開作品がまだありません",
+    "usernameLabel": "ユーザー名",
+    "usernamePlaceholder": "your_handle（3〜20文字、英数字・アンダーバー）",
+    "bioLabel": "自己紹介",
+    "bioPlaceholder": "自己紹介を書いてください（200文字以内）",
+    "saveProfile": "保存する",
+    "saveSuccess": "保存しました！",
+    "usernameTaken": "このユーザー名は既に使われています",
+    "invalidUsername": "3〜20文字、英数字とアンダーバーのみ使用可"
   }
 }

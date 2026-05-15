@@ -19,7 +19,8 @@
     "home": "Home",
     "generate": "Generate",
     "pricing": "Pricing",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "gallery": "Gallery"
   },
   "home": {
     "hero": {
@@ -396,5 +397,46 @@
     "title": "Page Not Found",
     "subtitle": "The page you're looking for doesn't exist.",
     "home": "Back to Home"
+  },
+  "gallery": {
+    "title": "Community Gallery",
+    "subtitle": "Discover amazing AI art from the FORMA community",
+    "filterAll": "All Styles",
+    "sortNewest": "Newest",
+    "sortLikes": "Most Liked",
+    "empty": "No public works yet. Be the first to share!",
+    "tryStyle": "Try this style",
+    "loadMore": "Load more"
+  },
+  "work": {
+    "by": "by",
+    "likes": "{count} likes",
+    "share": "Share this work",
+    "shareTwitter": "Share on X (Twitter)",
+    "shareLine": "Share on LINE",
+    "copyLink": "Copy link",
+    "copied": "Copied!",
+    "tryStyle": "Try this style →",
+    "makePublic": "Make Public",
+    "makePrivate": "Make Private",
+    "publicHint": "Public works appear in the gallery and can be shared",
+    "titlePlaceholder": "Add a title (optional)"
+  },
+  "profile": {
+    "works": "Works",
+    "followers": "Followers",
+    "following": "Following",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "editProfile": "Edit Profile",
+    "noWorks": "No public works yet",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "your_handle (3–20 chars, a-z 0-9 _)",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Tell us about yourself (max 200 chars)",
+    "saveProfile": "Save Profile",
+    "saveSuccess": "Profile saved!",
+    "usernameTaken": "Username is already taken",
+    "invalidUsername": "3–20 characters, letters, numbers, underscore only"
   }
 }

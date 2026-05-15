@@ -19,7 +19,8 @@
     "home": "首页",
     "generate": "生成",
     "pricing": "定价",
-    "dashboard": "控制台"
+    "dashboard": "控制台",
+    "gallery": "画廊"
   },
   "home": {
     "hero": {
@@ -396,5 +397,46 @@
     "title": "页面未找到",
     "subtitle": "您访问的页面不存在。",
     "home": "返回首页"
+  },
+  "gallery": {
+    "title": "社区画廊",
+    "subtitle": "探索 FORMA 社区的精彩 AI 艺术作品",
+    "filterAll": "所有风格",
+    "sortNewest": "最新",
+    "sortLikes": "最多点赞",
+    "empty": "暂无公开作品，来第一个分享吧！",
+    "tryStyle": "试试这个风格",
+    "loadMore": "加载更多"
+  },
+  "work": {
+    "by": "by",
+    "likes": "{count} 个赞",
+    "share": "分享作品",
+    "shareTwitter": "分享到 X (Twitter)",
+    "shareLine": "通过 LINE 发送",
+    "copyLink": "复制链接",
+    "copied": "已复制！",
+    "tryStyle": "试试这个风格 →",
+    "makePublic": "公开",
+    "makePrivate": "设为私密",
+    "publicHint": "公开后将显示在画廊中，可以分享",
+    "titlePlaceholder": "添加标题（可选）"
+  },
+  "profile": {
+    "works": "作品",
+    "followers": "粉丝",
+    "following": "关注",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "editProfile": "编辑资料",
+    "noWorks": "暂无公开作品",
+    "usernameLabel": "用户名",
+    "usernamePlaceholder": "your_handle（3-20个字符，字母数字下划线）",
+    "bioLabel": "个人简介",
+    "bioPlaceholder": "介绍一下自己（最多200字）",
+    "saveProfile": "保存资料",
+    "saveSuccess": "保存成功！",
+    "usernameTaken": "该用户名已被使用",
+    "invalidUsername": "3-20个字符，只能使用字母、数字和下划线"
   }
 }
