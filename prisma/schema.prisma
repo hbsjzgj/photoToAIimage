@@ -18,12 +18,20 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  username    String?  @unique
+  bio         String?
+  avatarUrl   String?
+
   accounts     Account[]
   sessions     Session[]
   credits      UserCredits?
   transactions CreditTransaction[]
   dailyUsages  DailyUsage[]
   projects     Project[]
+  likes        Like[]
+  savedWorks   SavedWork[]
+  following    Follow[]  @relation("Follower")
+  followers    Follow[]  @relation("Following")
 }
 
 model Account {
@@ -129,10 +137,47 @@ model ProjectVariant {
   thumbnailUrl String?
   createdAt    DateTime @default(now())
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  isPublic    Boolean  @default(false)
+  title       String?
+  likeCount   Int      @default(0)
+  viewCount   Int      @default(0)
+
+  project Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  likes   Like[]
+  savedBy SavedWork[]
 }
 
 model ProcessedWebhookEvent {
   id          String   @id
   processedAt DateTime @default(now())
+}
+
+model Like {
+  id        String         @id @default(cuid())
+  userId    String
+  variantId String
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  variant   ProjectVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  @@unique([userId, variantId])
+}
+
+model SavedWork {
+  id        String         @id @default(cuid())
+  userId    String
+  variantId String
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  variant   ProjectVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  @@unique([userId, variantId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  @@unique([followerId, followingId])
 }
