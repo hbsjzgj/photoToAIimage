@@ -70,6 +70,11 @@
       "title": "Try It Free Today",
       "subtitle": "3 free generations per day. No credit card required.",
       "button": "Generate for Free"
+    },
+    "community": {
+      "title": "From the Community",
+      "subtitle": "See what creators are making with FORMA",
+      "viewAll": "View all works →"
     }
   },
   "generate": {

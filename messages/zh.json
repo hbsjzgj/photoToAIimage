@@ -70,6 +70,11 @@
       "title": "立即免费体验",
       "subtitle": "每天3次免费生成，无需信用卡。",
       "button": "免费生成"
+    },
+    "community": {
+      "title": "社区作品",
+      "subtitle": "看看创作者们用 FORMA 创作的作品",
+      "viewAll": "查看全部 →"
     }
   },
   "generate": {

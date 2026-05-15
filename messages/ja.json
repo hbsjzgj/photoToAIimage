@@ -70,6 +70,11 @@
       "title": "今すぐ無料で試す",
       "subtitle": "1日3回まで無料。クレジットカード不要。",
       "button": "無料で生成する"
+    },
+    "community": {
+      "title": "コミュニティの作品",
+      "subtitle": "FORMAで生まれた素敵な作品をご覧ください",
+      "viewAll": "すべて見る →"
     }
   },
   "generate": {

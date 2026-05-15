@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { CommunityShowcase } from '@/components/CommunityShowcase';
 import HeroCarousel from '@/components/HeroCarousel';
 import StyleCaseGrid from '@/components/StyleCaseGrid';
 import { authOptions } from '@/lib/auth';
@@ -326,6 +327,7 @@ export default async function HomePage({ params }: Props) {
         </div>
       </section>
 
+      <CommunityShowcase />
       <Footer />
     </div>
   );
