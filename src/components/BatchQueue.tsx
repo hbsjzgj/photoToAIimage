@@ -3,7 +3,135 @@ import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import type { StyleId } from '@/types';
-import { ALL_STYLES } from '@/types';
+import { ALL_STYLES, FREE_STYLES } from '@/types';
+import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
+
+// Per-style gradient used as a fallback when the preview image hasn't loaded yet
+const STYLE_GRADIENTS: Record<StyleId, string> = {
+  anime_basic:      'from-rose-600/60 via-pink-700/40 to-[#0F1115]',
+  soft_cartoon:     'from-amber-500/60 via-orange-600/40 to-[#0F1115]',
+  cute_pet:         'from-yellow-400/60 via-orange-400/40 to-[#0F1115]',
+  simple_icon:      'from-slate-400/50 via-gray-600/30 to-[#0F1115]',
+  '3d_cartoon':     'from-purple-600/60 via-violet-700/40 to-[#0F1115]',
+  anime_pro:        'from-violet-600/60 via-indigo-700/40 to-[#0F1115]',
+  soft_storybook:   'from-emerald-500/50 via-green-600/30 to-[#0F1115]',
+  cyberpunk:        'from-cyan-500/60 via-blue-600/40 to-[#0F1115]',
+  comic_hero:       'from-red-600/60 via-orange-600/40 to-[#0F1115]',
+  fashion_avatar:   'from-amber-400/60 via-yellow-600/40 to-[#0F1115]',
+  business_profile: 'from-slate-500/50 via-gray-600/30 to-[#0F1115]',
+  pet_portrait_pro: 'from-amber-700/60 via-yellow-700/40 to-[#0F1115]',
+  couple_avatar:    'from-pink-600/60 via-rose-600/40 to-[#0F1115]',
+  kawaii_icon:      'from-sky-400/60 via-indigo-500/40 to-[#0F1115]',
+  ghibli:           'from-emerald-400/60 via-teal-500/40 to-[#0F1115]',
+  oil_painting:     'from-amber-700/60 via-yellow-800/40 to-[#0F1115]',
+  pixel_art:        'from-lime-500/60 via-green-600/40 to-[#0F1115]',
+  pop_art:          'from-fuchsia-500/60 via-pink-600/40 to-[#0F1115]',
+  pencil_sketch:    'from-stone-400/60 via-gray-500/40 to-[#0F1115]',
+  van_gogh:         'from-yellow-500/60 via-orange-600/40 to-[#0F1115]',
+  lego_figure:      'from-red-500/60 via-yellow-500/40 to-[#0F1115]',
+  action_figure:    'from-blue-600/60 via-indigo-700/40 to-[#0F1115]',
+  claymation:       'from-orange-400/60 via-amber-500/40 to-[#0F1115]',
+  sumi_e:           'from-zinc-500/50 via-neutral-600/30 to-[#0F1115]',
+  dark_fantasy:     'from-purple-900/60 via-violet-900/40 to-[#0F1115]',
+  kpop_idol:        'from-rose-400/60 via-pink-500/40 to-[#0F1115]',
+  neon_portrait:    'from-fuchsia-600/60 via-purple-700/40 to-[#0F1115]',
+  vintage_film:     'from-amber-600/60 via-orange-700/40 to-[#0F1115]',
+  ukiyo_e:          'from-indigo-400/60 via-blue-500/40 to-[#0F1115]',
+  tarot_card:       'from-violet-700/60 via-purple-800/40 to-[#0F1115]',
+  webtoon:          'from-sky-500/60 via-cyan-600/40 to-[#0F1115]',
+  sticker_art:      'from-pink-400/60 via-rose-500/40 to-[#0F1115]',
+  '3d_clay':        'from-orange-300/60 via-amber-400/40 to-[#0F1115]',
+  impressionist:    'from-violet-400/60 via-purple-500/40 to-[#0F1115]',
+};
+
+function BatchStyleCard({
+  styleId,
+  isSelected,
+  name,
+  disabled,
+  onSelect,
+}: {
+  styleId: StyleId;
+  isSelected: boolean;
+  name: string;
+  disabled: boolean;
+  onSelect: () => void;
+}) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(STYLE_IMAGE_URLS[styleId]);
+  const [imgError, setImgError] = useState(false);
+  const isFree = FREE_STYLES.includes(styleId);
+
+  function handleError() {
+    const fallback = STYLE_FALLBACK_URLS[styleId];
+    if (imgSrc !== fallback) {
+      setImgLoaded(false);
+      setImgSrc(fallback);
+    } else {
+      setImgError(true);
+    }
+  }
+
+  return (
+    <button
+      onClick={onSelect}
+      disabled={disabled}
+      className={`relative rounded-xl overflow-hidden aspect-square text-left cursor-pointer
+                  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                  ${isSelected
+                    ? 'shadow-[0_0_0_2px_rgba(200,169,107,0.8),0_4px_16px_rgba(200,169,107,0.2)]'
+                    : 'shadow-[0_2px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.5)] hover:scale-[1.03]'
+                  }`}
+    >
+      {/* Gradient background fallback */}
+      <div className={`absolute inset-0 bg-gradient-to-b ${STYLE_GRADIENTS[styleId]}
+                       transition-opacity duration-500
+                       ${imgLoaded && !imgError ? 'opacity-0' : 'opacity-100'}`} />
+
+      {/* Preview image */}
+      {!imgError && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imgSrc}
+          alt={name}
+          loading="lazy"
+          onLoad={() => setImgLoaded(true)}
+          onError={handleError}
+          className={`absolute inset-0 w-full h-full object-cover object-top
+                       transition-opacity duration-500
+                       ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
+
+      {/* Bottom gradient + name */}
+      <div className="absolute inset-x-0 bottom-0 h-3/5
+                      bg-gradient-to-t from-[rgba(10,11,14,0.95)] via-[rgba(10,11,14,0.5)] to-transparent
+                      pointer-events-none" />
+      <p className="absolute inset-x-0 bottom-0 z-10 px-1.5 py-1.5 text-[10px] font-semibold text-white leading-tight truncate"
+         style={{ textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>
+        {name}
+      </p>
+
+      {/* FREE badge */}
+      {isFree && (
+        <div className="absolute top-1 left-1 z-10 text-[8px] font-bold px-1.5 py-0.5 rounded-full
+                        bg-emerald-500/20 text-emerald-400 border border-emerald-500/25">
+          FREE
+        </div>
+      )}
+
+      {/* Selected gold tick */}
+      {isSelected && (
+        <div className="absolute top-1 right-1 z-10 w-4 h-4 rounded-full flex items-center justify-center"
+             style={{ backgroundColor: 'var(--color-gold)' }}>
+          <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      )}
+    </button>
+  );
+}
 
 interface QueueItem {
   id: string;
@@ -126,34 +254,36 @@ export function BatchQueue() {
         <p className="text-xs text-ink-muted mt-1">{t('uploadHint')}</p>
       </div>
 
-      {/* Settings */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs text-ink-muted mb-1">{t('selectStyle')}</label>
-          <select
-            className="w-full input-field text-sm"
-            value={style}
-            onChange={(e) => setStyle(e.target.value as StyleId)}
-            disabled={running}
-          >
-            {ALL_STYLES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+      {/* Style picker */}
+      <div>
+        <label className="block text-xs text-ink-muted mb-2">{t('selectStyle')}</label>
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-[300px] overflow-y-auto pr-0.5">
+          {ALL_STYLES.map((s) => (
+            <BatchStyleCard
+              key={s}
+              styleId={s}
+              isSelected={style === s}
+              name={t(`styles.${s}`)}
+              disabled={running}
+              onSelect={() => setStyle(s)}
+            />
+          ))}
         </div>
-        <div>
-          <label className="block text-xs text-ink-muted mb-1">{t('selectSize')}</label>
-          <select
-            className="w-full input-field text-sm"
-            value={outputSize}
-            onChange={(e) => setOutputSize(e.target.value)}
-            disabled={running}
-          >
-            {OUTPUT_SIZES.map((s) => (
-              <option key={s.id} value={s.id}>{s.label}</option>
-            ))}
-          </select>
-        </div>
+      </div>
+
+      {/* Output size */}
+      <div>
+        <label className="block text-xs text-ink-muted mb-1">{t('selectSize')}</label>
+        <select
+          className="w-full input-field text-sm"
+          value={outputSize}
+          onChange={(e) => setOutputSize(e.target.value)}
+          disabled={running}
+        >
+          {OUTPUT_SIZES.map((s) => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Queue grid */}
