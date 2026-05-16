@@ -54,6 +54,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const tPresets = useTranslations('presets');
   const tQuality = useTranslations('quality');
   const tStrength = useTranslations('strength');
+  const tFaceWarn = useTranslations('faceWarning');
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
@@ -96,6 +97,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [presetSaved, setPresetSaved] = useState(false);
   const [showSavePreset, setShowSavePreset] = useState(false);
   const [presetName, setPresetName] = useState('');
+  const [faceWarning, setFaceWarning] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -213,11 +215,11 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const handleFile = useCallback((file: File) => {
     const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
     if (!ALLOWED.includes(file.type)) {
-      setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null);
+      setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null); setFaceWarning(null);
       setError(t('errors.invalidFileType')); return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null);
+      setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null); setFaceWarning(null);
       setError(t('errors.fileTooLarge')); return;
     }
     const objectUrl = URL.createObjectURL(file);
@@ -225,11 +227,11 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     img.onload = async () => {
       const { naturalWidth: w0, naturalHeight: h0 } = img;
       if (w0 < 256 || h0 < 256) {
-        setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null);
+        setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null); setFaceWarning(null);
         setError(t('errors.imageTooSmall')); URL.revokeObjectURL(objectUrl); return;
       }
       if (w0 > 4096 || h0 > 4096) {
-        setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null);
+        setPreview(''); setImageBase64(''); setOriginalImageBase64(''); setCropAspect('1:1'); setResult(null); setFaceWarning(null);
         setError(t('errors.imageTooLarge')); URL.revokeObjectURL(objectUrl); return;
       }
       const MAX = 768;
@@ -244,10 +246,33 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
       setNaturalW(w); setNaturalH(h);
       setOriginalImageBase64(b64); setCropAspect(w > h ? 'original' : '1:1');
       setImageBase64(b64); setPreview(b64); setResult(null); setError('');
+
+      // Reset warning on new upload
+      setFaceWarning(null);
+
+      // Face detection using browser Shape Detection API (Chrome/Edge only)
+      if (typeof window !== 'undefined' && 'FaceDetector' in window) {
+        try {
+          // @ts-expect-error FaceDetector is experimental
+          const detector = new window.FaceDetector({ fastMode: true });
+          const imgEl = new window.Image();
+          imgEl.onload = async () => {
+            try {
+              const faces = await detector.detect(imgEl) as unknown[];
+              if (faces.length === 0) setFaceWarning(tFaceWarn('noFace'));
+            } catch {
+              // Detection failed silently
+            }
+          };
+          imgEl.src = b64;
+        } catch {
+          // API not available in this context
+        }
+      }
     };
     img.onerror = () => URL.revokeObjectURL(objectUrl);
     img.src = objectUrl;
-  }, [t]);
+  }, [t, tFaceWarn]);
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault(); setDragging(false);
@@ -416,6 +441,14 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Face detection warning */}
+        {faceWarning && (
+          <div className="mx-0 mb-1 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs flex items-start gap-2">
+            <span className="shrink-0">⚠️</span>
+            <span>{faceWarning}</span>
+          </div>
+        )}
 
         {/* Use case quick-select */}
         <div>
