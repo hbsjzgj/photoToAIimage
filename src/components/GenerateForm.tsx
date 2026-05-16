@@ -51,6 +51,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const t = useTranslations('generate');
   const tWork = useTranslations('work');
   const tPresets = useTranslations('presets');
+  const tQuality = useTranslations('quality');
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
@@ -84,6 +85,9 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [isPublic, setIsPublic] = useState(false);
   const [togglingPublic, setTogglingPublic] = useState(false);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [showFeedbackReasons, setShowFeedbackReasons] = useState(false);
+  const [feedbackTimer, setFeedbackTimer] = useState(false);
   const [presets, setPresets] = useState<Array<{ id: string; name: string; styleId: string; outputSize: string; count: number }>>([]);
   const [savingPreset, setSavingPreset] = useState(false);
   const [presetSaved, setPresetSaved] = useState(false);
@@ -107,6 +111,17 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     }, 4000);
     return () => clearInterval(timer);
   }, [loading]);
+
+  useEffect(() => {
+    if (!result) {
+      setFeedbackTimer(false);
+      setFeedbackSent(false);
+      setShowFeedbackReasons(false);
+      return;
+    }
+    const timer = setTimeout(() => setFeedbackTimer(true), 5000);
+    return () => clearTimeout(timer);
+  }, [result]);
 
   function handleStyleSelect(s: StyleId | '') {
     setStyle(s);
@@ -768,6 +783,65 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                     {t('upgradeNudge.cta')}
                   </Link>
                 </motion.div>
+              )}
+
+              {/* Quality feedback — appears 5 seconds after generation */}
+              {feedbackTimer && !feedbackSent && result?.variants?.[selectedVariantIdx]?.id && (
+                <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)] text-center">
+                  <p className="text-xs text-ink-muted mb-2">{tQuality('feedbackPrompt')}</p>
+                  {!showFeedbackReasons ? (
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={async () => {
+                          await fetch('/api/feedback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              variantId: result.variants[selectedVariantIdx].id,
+                              positive: true,
+                            }),
+                          });
+                          setFeedbackSent(true);
+                        }}
+                        className="btn-ghost text-sm px-4 py-2"
+                      >
+                        👍 {tQuality('good')}
+                      </button>
+                      <button
+                        onClick={() => setShowFeedbackReasons(true)}
+                        className="btn-ghost text-sm px-4 py-2"
+                      >
+                        👎 {tQuality('bad')}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {(['tooMuchChange', 'tooSubtle', 'lowQuality', 'other'] as const).map((r) => (
+                        <button
+                          key={r}
+                          onClick={async () => {
+                            await fetch('/api/feedback', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                variantId: result.variants[selectedVariantIdx].id,
+                                positive: false,
+                                reason: r,
+                              }),
+                            });
+                            setFeedbackSent(true);
+                          }}
+                          className="btn-ghost text-sm w-full py-1.5"
+                        >
+                          {tQuality(`reasons.${r}` as Parameters<typeof tQuality>[0])}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {feedbackSent && (
+                    <p className="text-xs text-green-400 mt-2">{tQuality('thanks')}</p>
+                  )}
+                </div>
               )}
 
               {/* "Generate again" shortcut */}
