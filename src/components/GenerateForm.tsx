@@ -18,7 +18,7 @@ import { USE_CASES, QUICK_REFINEMENTS } from '@/lib/styleMeta';
 
 interface CreditsState { credits: number; freeRemaining: number }
 
-type CropAspect = '1:1' | '3:4' | '4:5' | '9:16' | 'original';
+type CropAspect = '1:1' | '3:4' | '4:5' | '9:16' | 'original' | 'free';
 
 const PROVIDER_DISPLAY: Record<string, { label: string; gradient: string }> = {
   gemini:      { label: 'Google Gemini 2.5 Flash Image', gradient: 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853)' },
@@ -424,7 +424,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.25 }}
             >
-              {(['1:1', '4:5', '9:16', 'original'] as const).map((ratio) => (
+              {(['1:1', '4:5', '9:16', 'free', 'original'] as const).map((ratio) => (
                 <motion.button
                   key={ratio}
                   onClick={() => handleCropChange(ratio)}
@@ -435,7 +435,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                       : 'bg-[rgba(255,255,255,0.04)] text-ink-muted border border-[rgba(255,255,255,0.07)] hover:text-ink'
                     }`}
                 >
-                  {ratio === 'original' ? t('crop.original') : ratio}
+                  {ratio === 'original' ? t('crop.original') : ratio === 'free' ? t('crop.free') : ratio}
                 </motion.button>
               ))}
             </motion.div>

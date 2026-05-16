@@ -140,7 +140,8 @@
       "safetyBlocked": "Generation was blocked for safety reasons."
     },
     "crop": {
-      "original": "Original"
+      "original": "Original",
+      "free": "Free"
     },
     "upgradeNudge": {
       "title": "Get HD without watermark",

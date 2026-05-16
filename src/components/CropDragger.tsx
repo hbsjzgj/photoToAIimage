@@ -6,26 +6,55 @@ interface Props {
   src: string;
   imageW: number;
   imageH: number;
-  aspect: '1:1' | '3:4' | '4:5' | '9:16' | 'original';
+  aspect: '1:1' | '3:4' | '4:5' | '9:16' | 'original' | 'free';
   onChange: (cropped: string) => void;
   onChangeSrc: () => void;
   changeLabel: string;
 }
 
-const CONTAINER_H = 320;
+const MAX_H = 560;
+const MIN_H = 200;
+const MIN_FRAME = 40;
+
+type Corner = 'tl' | 'tr' | 'bl' | 'br';
+type Frame = { x: number; y: number; w: number; h: number };
+
+interface Interaction {
+  type: 'drag' | 'resize';
+  corner?: Corner;
+  startClientX: number;
+  startClientY: number;
+  startFX: number;
+  startFY: number;
+  startFW: number;
+  startFH: number;
+}
+
+const CORNER_CURSORS: Record<Corner, string> = {
+  tl: 'nw-resize', tr: 'ne-resize', bl: 'sw-resize', br: 'se-resize',
+};
+// Corner handle size in px (visual L-shape, larger hit area)
+const HANDLE = 20;
 
 export default function CropDragger({ src, imageW, imageH, aspect, onChange, onChangeSrc, changeLabel }: Props) {
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerW, setContainerW] = useState(0);
 
-  // Crop frame position in container coordinates
-  const [frame, setFrame] = useState({ x: 0, y: 0 });
-  const frameRef = useRef({ x: 0, y: 0 });
-  const drag = useRef({ active: false, startX: 0, startY: 0, startFX: 0, startFY: 0 });
+  // Adaptive container height — no longer fixed at 320px
+  const containerH = containerW > 0
+    ? Math.max(MIN_H, Math.min(MAX_H, Math.round(containerW * imageH / imageW)))
+    : MIN_H;
+
+  const [frame, setFrame] = useState<Frame>({ x: 0, y: 0, w: 0, h: 0 });
+  const frameRef = useRef<Frame>({ x: 0, y: 0, w: 0, h: 0 });
+  const interactionRef = useRef<Interaction | null>(null);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => { onChangeRef.current = onChange; });
+
+  const [zoomed, setZoomed] = useState(false);
+  const zoomTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -37,13 +66,14 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
     return () => ro.disconnect();
   }, []);
 
-  // Image letterboxed to fit container (no stretching)
-  const imgScale = containerW > 0 ? Math.min(containerW / imageW, CONTAINER_H / imageH) : 1;
+  // Image displayed letterboxed inside the adaptive container
+  const imgScale = containerW > 0 ? Math.min(containerW / imageW, containerH / imageH) : 1;
   const imgW = imageW * imgScale;
   const imgH = imageH * imgScale;
   const imgX = (containerW - imgW) / 2;
-  const imgY = (CONTAINER_H - imgH) / 2;
+  const imgY = (containerH - imgH) / 2;
 
+  // Aspect ratio as W/H (only meaningful for fixed-ratio modes)
   const cropNum =
     aspect === '1:1' ? 1 :
     aspect === '3:4' ? 3 / 4 :
@@ -51,96 +81,177 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
     aspect === '9:16' ? 9 / 16 :
     imageW / imageH;
 
-  // Crop frame: largest rectangle with the target ratio that fits inside the displayed image
-  const frameW = Math.min(imgW, imgH * cropNum);
-  const frameH = frameW / cropNum;
-
-  function clampFrame(pos: { x: number; y: number }) {
-    return {
-      x: Math.max(imgX, Math.min(imgX + imgW - frameW, pos.x)),
-      y: Math.max(imgY, Math.min(imgY + imgH - frameH, pos.y)),
-    };
+  function defaultFrame(): Frame {
+    if (aspect === 'original') return { x: imgX, y: imgY, w: imgW, h: imgH };
+    if (aspect === 'free') {
+      const fw = imgW * 0.7;
+      const fh = imgH * 0.7;
+      return { x: imgX + (imgW - fw) / 2, y: imgY + (imgH - fh) / 2, w: fw, h: fh };
+    }
+    const fw = Math.min(imgW, imgH * cropNum);
+    const fh = fw / cropNum;
+    return { x: imgX + (imgW - fw) / 2, y: imgY + (imgH - fh) / 2, w: fw, h: fh };
   }
 
-  function emitCrop(fx: number, fy: number) {
-    if (aspect === 'original') {
-      onChangeRef.current(src);
-      return;
-    }
-    const sx = Math.round((fx - imgX) / imgScale);
-    const sy = Math.round((fy - imgY) / imgScale);
-    const sw = Math.round(frameW / imgScale);
-    const sh = Math.round(frameH / imgScale);
+  function clampFrame(f: Frame): Frame {
+    const w = Math.max(MIN_FRAME, Math.min(f.w, imgW));
+    const h = Math.max(MIN_FRAME, Math.min(f.h, imgH));
+    const x = Math.max(imgX, Math.min(imgX + imgW - w, f.x));
+    const y = Math.max(imgY, Math.min(imgY + imgH - h, f.y));
+    return { x, y, w, h };
+  }
+
+  function emitCrop(f: Frame) {
+    if (aspect === 'original') { onChangeRef.current(src); return; }
+    const sx = Math.round((f.x - imgX) / imgScale);
+    const sy = Math.round((f.y - imgY) / imgScale);
+    const sw = Math.round(f.w / imgScale);
+    const sh = Math.round(f.h / imgScale);
     if (sw <= 0 || sh <= 0) return;
     const img = document.createElement('img');
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = sw;
-      canvas.height = sh;
+      canvas.width = sw; canvas.height = sh;
       canvas.getContext('2d')!.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
       onChangeRef.current(canvas.toDataURL('image/jpeg', 0.85));
     };
     img.src = src;
   }
 
-  // Re-center crop frame whenever aspect/image/container changes
+  function scheduleZoom() {
+    if (aspect === 'original') return;
+    if (zoomTimerRef.current) clearTimeout(zoomTimerRef.current);
+    zoomTimerRef.current = setTimeout(() => setZoomed(true), 2000);
+  }
+
+  function cancelZoom() {
+    if (zoomTimerRef.current) clearTimeout(zoomTimerRef.current);
+    setZoomed(false);
+  }
+
   useEffect(() => {
-    if (containerW === 0) return;
-    if (aspect === 'original') {
-      onChangeRef.current(src);
-      return;
-    }
-    const centered = clampFrame({
-      x: imgX + (imgW - frameW) / 2,
-      y: imgY + (imgH - frameH) / 2,
-    });
-    frameRef.current = centered;
-    setFrame(centered);
-    emitCrop(centered.x, centered.y);
+    if (containerW === 0 || imgW === 0) return;
+    if (aspect === 'original') { onChangeRef.current(src); return; }
+    const cf = clampFrame(defaultFrame());
+    frameRef.current = cf;
+    setFrame(cf);
+    setZoomed(false);
+    if (zoomTimerRef.current) clearTimeout(zoomTimerRef.current);
+    emitCrop(cf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aspect, containerW, src, imageW, imageH]);
 
-  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    if (aspect === 'original') return;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
-    // Only start drag when clicking inside the crop frame
-    if (px >= frame.x && px <= frame.x + frameW && py >= frame.y && py <= frame.y + frameH) {
-      e.currentTarget.setPointerCapture(e.pointerId);
-      drag.current = { active: true, startX: e.clientX, startY: e.clientY, startFX: frame.x, startFY: frame.y };
-    }
+  // --- Drag (frame interior) ---
+  function onFrameDragDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (aspect === 'original' || zoomed) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    cancelZoom();
+    const f = frameRef.current;
+    interactionRef.current = {
+      type: 'drag',
+      startClientX: e.clientX, startClientY: e.clientY,
+      startFX: f.x, startFY: f.y, startFW: f.w, startFH: f.h,
+    };
+  }
+
+  // --- Corner resize ---
+  function onCornerDown(e: React.PointerEvent<HTMLDivElement>, corner: Corner) {
+    e.stopPropagation();
+    // Capture on the container so pointermove/up fire there
+    containerRef.current?.setPointerCapture(e.pointerId);
+    cancelZoom();
+    const f = frameRef.current;
+    interactionRef.current = {
+      type: 'resize', corner,
+      startClientX: e.clientX, startClientY: e.clientY,
+      startFX: f.x, startFY: f.y, startFW: f.w, startFH: f.h,
+    };
   }
 
   function onPointerMove(e: React.PointerEvent) {
-    if (!drag.current.active) return;
-    const dx = e.clientX - drag.current.startX;
-    const dy = e.clientY - drag.current.startY;
-    const next = clampFrame({ x: drag.current.startFX + dx, y: drag.current.startFY + dy });
+    const inter = interactionRef.current;
+    if (!inter) return;
+    const dx = e.clientX - inter.startClientX;
+    const dy = e.clientY - inter.startClientY;
+
+    if (inter.type === 'drag') {
+      const next = clampFrame({ x: inter.startFX + dx, y: inter.startFY + dy, w: inter.startFW, h: inter.startFH });
+      frameRef.current = next;
+      setFrame(next);
+      return;
+    }
+
+    const c = inter.corner!;
+    // signX/Y: +1 means dragging in positive direction grows the frame
+    const signX = (c === 'br' || c === 'tr') ? 1 : -1;
+    const signY = (c === 'br' || c === 'bl') ? 1 : -1;
+    const relDx = dx * signX;
+    const relDy = dy * signY;
+
+    let newW: number, newH: number;
+    let newX = inter.startFX;
+    let newY = inter.startFY;
+
+    if (aspect === 'free') {
+      newW = inter.startFW + relDx;
+      newH = inter.startFH + relDy;
+    } else {
+      // Minimum-distance proportional resize:
+      // minimizes distance from cursor to frame corner while maintaining W/H = cropNum
+      const denom = 1 + 1 / (cropNum * cropNum);
+      const delta = (relDx + relDy / cropNum) / denom;
+      newW = inter.startFW + delta;
+      newH = newW / cropNum;
+    }
+
+    // For left/top corners: anchor is the opposite edge
+    if (signX < 0) newX = inter.startFX + inter.startFW - newW;
+    if (signY < 0) newY = inter.startFY + inter.startFH - newH;
+
+    const next = clampFrame({ x: newX, y: newY, w: newW, h: newH });
     frameRef.current = next;
     setFrame(next);
   }
 
   function onPointerUp() {
-    if (!drag.current.active) return;
-    drag.current.active = false;
-    emitCrop(frameRef.current.x, frameRef.current.y);
+    if (!interactionRef.current) return;
+    interactionRef.current = null;
+    emitCrop(frameRef.current);
+    scheduleZoom();
   }
 
-  const hintText = locale === 'zh' ? '拖动裁剪框调整位置' : locale === 'ja' ? 'ドラッグで調整' : 'Drag frame to reposition';
+  // Zoom: scale image so crop area fills the container
+  let dispScale = imgScale;
+  let dispX = imgX;
+  let dispY = imgY;
+  if (zoomed && aspect !== 'original' && frame.w > 0) {
+    const sw = frame.w / imgScale;
+    const sh = frame.h / imgScale;
+    const sx = (frame.x - imgX) / imgScale;
+    const sy = (frame.y - imgY) / imgScale;
+    dispScale = Math.min(containerW / sw, containerH / sh) * 0.92;
+    dispX = containerW / 2 - (sx + sw / 2) * dispScale;
+    dispY = containerH / 2 - (sy + sh / 2) * dispScale;
+  }
+
+  const hintText = locale === 'zh'
+    ? '拖动移动裁剪框，拖角可缩放'
+    : locale === 'ja'
+    ? 'ドラッグ移動・角ハンドルでリサイズ'
+    : 'Drag to move · corners to resize';
+
+  const showFrame = aspect !== 'original' && containerW > 0 && frame.w > 0 && !zoomed;
 
   return (
     <div
       ref={containerRef}
       className="relative overflow-hidden rounded-2xl select-none"
-      style={{ height: CONTAINER_H, background: '#0a0a0f', cursor: 'default' }}
-      onPointerDown={onPointerDown}
+      style={{ height: containerH, background: '#0a0a0f' }}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      {/* Full image — always shown at natural proportions */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
@@ -148,66 +259,88 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
         draggable={false}
         style={{
           position: 'absolute',
-          left: imgX,
-          top: imgY,
-          width: imgW,
-          height: imgH,
+          left: dispX, top: dispY,
+          width: imageW * dispScale,
+          height: imageH * dispScale,
           pointerEvents: 'none',
           userSelect: 'none',
+          transition: zoomed
+            ? 'left 0.35s ease, top 0.35s ease, width 0.35s ease, height 0.35s ease'
+            : 'none',
         }}
       />
 
-      {/* Dark mask outside crop frame */}
-      {aspect !== 'original' && containerW > 0 && (
+      {showFrame && (
         <>
-          {/* Top */}
+          {/* Dark mask */}
           <div style={{ position: 'absolute', inset: 0, bottom: 'auto', height: frame.y, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
-          {/* Bottom */}
-          <div style={{ position: 'absolute', inset: 0, top: frame.y + frameH, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
-          {/* Left */}
-          <div style={{ position: 'absolute', left: 0, top: frame.y, width: frame.x, height: frameH, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
-          {/* Right */}
-          <div style={{ position: 'absolute', left: frame.x + frameW, top: frame.y, right: 0, height: frameH, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, top: frame.y + frame.h, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', left: 0, top: frame.y, width: frame.x, height: frame.h, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', left: frame.x + frame.w, top: frame.y, right: 0, height: frame.h, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
 
-          {/* Crop frame border + grid */}
+          {/* Crop frame border + grid + interior drag zone */}
           <div
+            onPointerDown={onFrameDragDown}
             style={{
               position: 'absolute',
-              left: frame.x,
-              top: frame.y,
-              width: frameW,
-              height: frameH,
+              left: frame.x, top: frame.y,
+              width: frame.w, height: frame.h,
               border: '1.5px solid rgba(255,255,255,0.75)',
               boxSizing: 'border-box',
               cursor: 'move',
-              pointerEvents: 'none',
             }}
           >
-            {/* Rule-of-thirds grid */}
             <div style={{
-              position: 'absolute', inset: 0,
+              position: 'absolute', inset: 0, pointerEvents: 'none',
               backgroundImage: [
                 'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px)',
                 'linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
               ].join(', '),
               backgroundSize: '33.33% 33.33%',
             }} />
-            {/* Corner handles */}
-            {[
-              { top: -1, left: -1, borderTop: '2px solid #fff', borderLeft: '2px solid #fff' },
-              { top: -1, right: -1, borderTop: '2px solid #fff', borderRight: '2px solid #fff' },
-              { bottom: -1, left: -1, borderBottom: '2px solid #fff', borderLeft: '2px solid #fff' },
-              { bottom: -1, right: -1, borderBottom: '2px solid #fff', borderRight: '2px solid #fff' },
-            ].map((s, i) => (
-              <div key={i} style={{ position: 'absolute', width: 14, height: 14, ...s }} />
-            ))}
           </div>
+
+          {/* Corner handles — direct children of container, NOT inside frame */}
+          {(['tl', 'tr', 'bl', 'br'] as Corner[]).map((c) => {
+            const isL = c === 'tl' || c === 'bl';
+            const isT = c === 'tl' || c === 'tr';
+            return (
+              <div
+                key={c}
+                onPointerDown={(e) => onCornerDown(e, c)}
+                style={{
+                  position: 'absolute',
+                  width: HANDLE, height: HANDLE,
+                  left: isL ? frame.x - HANDLE / 2 : frame.x + frame.w - HANDLE / 2,
+                  top: isT ? frame.y - HANDLE / 2 : frame.y + frame.h - HANDLE / 2,
+                  cursor: CORNER_CURSORS[c],
+                  // Visual L-shape border
+                  borderTop: isT ? '2.5px solid #fff' : undefined,
+                  borderBottom: !isT ? '2.5px solid #fff' : undefined,
+                  borderLeft: isL ? '2.5px solid #fff' : undefined,
+                  borderRight: !isL ? '2.5px solid #fff' : undefined,
+                }}
+              />
+            );
+          })}
         </>
       )}
 
-      {/* Bottom overlay: hint + change button */}
+      {/* Back button in zoomed mode */}
+      {zoomed && (
+        <button
+          className="absolute top-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm
+                     border border-white/20 text-[11px] text-white hover:bg-black/90 transition-colors"
+          onClick={() => cancelZoom()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {locale === 'zh' ? '← 返回' : locale === 'ja' ? '← 戻る' : '← Back'}
+        </button>
+      )}
+
+      {/* Bottom overlay */}
       <div className="absolute bottom-2.5 inset-x-3 flex items-center justify-between pointer-events-none">
-        {aspect !== 'original' ? (
+        {aspect !== 'original' && !zoomed ? (
           <span className="px-2 py-0.5 rounded-full bg-black/60 text-[10px] text-white/60">
             {hintText}
           </span>

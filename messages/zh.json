@@ -140,7 +140,8 @@
       "safetyBlocked": "由于安全原因，无法生成该图片。"
     },
     "crop": {
-      "original": "原始比例"
+      "original": "原始比例",
+      "free": "自由"
     },
     "upgradeNudge": {
       "title": "获取高清无水印版本",

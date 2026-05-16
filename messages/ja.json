@@ -140,7 +140,8 @@
       "safetyBlocked": "安全上の理由により生成できませんでした。"
     },
     "crop": {
-      "original": "オリジナル"
+      "original": "オリジナル",
+      "free": "自由"
     },
     "upgradeNudge": {
       "title": "HD・透かしなし版を入手",
