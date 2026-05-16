@@ -334,7 +334,8 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const canGenerate = !loading && !!imageBase64 && !!style && !insufficientCredits;
   const showResult = !!(result && imageBase64);
   const imageAspectRatio = useMemo(() => {
-    if (cropAspect === 'original') return naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
+    if (cropAspect === 'original' || cropAspect === 'free')
+      return naturalW > 0 && naturalH > 0 ? naturalW / naturalH : 1;
     if (cropAspect === '1:1') return 1;
     if (cropAspect === '3:4') return 3 / 4;
     if (cropAspect === '4:5') return 4 / 5;
@@ -608,11 +609,12 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                       key={v.id}
                       onClick={() => setSelectedVariantIdx(i)}
                       whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200
+                      className={`relative rounded-xl overflow-hidden border-2 transition-all duration-200
                                   ${selectedVariantIdx === i
                                     ? 'border-gold shadow-[0_0_0_1px_rgba(200,169,107,0.4)]'
                                     : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.20)]'
                                   }`}
+                      style={{ aspectRatio: String(imageAspectRatio) }}
                     >
                       <img src={v.imageUrl} alt={`${i + 1}`} className="w-full h-full object-cover" />
                       {selectedVariantIdx === i && (
