@@ -101,6 +101,24 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
     return { x, y, w, h };
   }
 
+  // Clamp while preserving w/h = ratio — prevents independent clamping from breaking the ratio
+  function clampFrameProp(f: Frame, ratio: number): Frame {
+    let w = f.w;
+    // Derive h from w to enforce ratio
+    let h = w / ratio;
+    // Scale down if either dimension exceeds image bounds
+    if (w > imgW) { w = imgW; h = w / ratio; }
+    if (h > imgH) { h = imgH; w = h * ratio; }
+    // Re-check after adjustment
+    if (w > imgW) { w = imgW; h = w / ratio; }
+    // Enforce minimum
+    if (w < MIN_FRAME) { w = MIN_FRAME; h = w / ratio; }
+    // Clamp position
+    const x = Math.max(imgX, Math.min(imgX + imgW - w, f.x));
+    const y = Math.max(imgY, Math.min(imgY + imgH - h, f.y));
+    return { x, y, w, h };
+  }
+
   function emitCrop(f: Frame) {
     if (aspect === 'original') { onChangeRef.current(src); return; }
     const sx = Math.round((f.x - imgX) / imgScale);
@@ -189,27 +207,27 @@ export default function CropDragger({ src, imageW, imageH, aspect, onChange, onC
     const relDx = dx * signX;
     const relDy = dy * signY;
 
-    let newW: number, newH: number;
     let newX = inter.startFX;
     let newY = inter.startFY;
 
-    if (aspect === 'free') {
-      newW = inter.startFW + relDx;
-      newH = inter.startFH + relDy;
-    } else {
-      // Minimum-distance proportional resize:
-      // minimizes distance from cursor to frame corner while maintaining W/H = cropNum
-      const denom = 1 + 1 / (cropNum * cropNum);
-      const delta = (relDx + relDy / cropNum) / denom;
-      newW = inter.startFW + delta;
-      newH = newW / cropNum;
-    }
+    // All modes (including free) are proportional — free uses the frame's own starting ratio
+    const ratio = aspect === 'free'
+      ? inter.startFW / inter.startFH
+      : cropNum;
+
+    // Dominant-axis: whichever axis (x or y) moves more (in width-equivalent units) drives the resize
+    const absXNorm = Math.abs(relDx);
+    const absYNorm = Math.abs(relDy * ratio);
+    const delta = absXNorm >= absYNorm ? relDx : relDy * ratio;
+    const newW = inter.startFW + delta;
+    const newH = newW / ratio;
 
     // For left/top corners: anchor is the opposite edge
     if (signX < 0) newX = inter.startFX + inter.startFW - newW;
     if (signY < 0) newY = inter.startFY + inter.startFH - newH;
 
-    const next = clampFrame({ x: newX, y: newY, w: newW, h: newH });
+    // Use ratio-aware clamp so independent w/h clamping can't break the aspect ratio
+    const next = clampFrameProp({ x: newX, y: newY, w: newW, h: newH }, ratio);
     frameRef.current = next;
     setFrame(next);
   }
