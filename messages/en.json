@@ -371,7 +371,10 @@
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
       "signinLink": "Sign In",
-      "success": "Account created. Please sign in."
+      "success": "Account created. Please sign in.",
+      "termsConsentPrefix": "I agree to the ",
+      "termsLinkText": "Terms of Service",
+      "termsConsentSuffix": ""
     },
     "errors": {
       "emailExists": "Email already registered",

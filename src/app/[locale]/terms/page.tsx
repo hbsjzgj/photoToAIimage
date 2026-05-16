@@ -1,9 +1,12 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export default async function TermsPage() {
   const t = await getTranslations('terms');
+  const locale = await getLocale();
+
+  const sections = getTermsSections(locale);
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
@@ -14,34 +17,12 @@ export default async function TermsPage() {
           <p className="text-ink-muted text-sm mb-12">{t('lastUpdated')}</p>
 
           <div className="space-y-8 text-ink-secondary leading-relaxed">
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">1. サービスの利用</h2>
-              <p>FORMA（以下「本サービス」）は、AIを用いて写真をアートスタイルに変換するサービスです。本サービスを利用することで、以下の規約に同意したものとみなします。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">2. 利用資格</h2>
-              <p>本サービスは18歳以上の方が利用できます。未成年者が利用する場合は、保護者の同意が必要です。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">3. 禁止事項</h2>
-              <p>以下の行為を禁止します：他人の権利を侵害するコンテンツのアップロード、不正アクセス、スパム行為、本サービスの逆コンパイルまたは改変。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">4. 知的財産権</h2>
-              <p>生成された画像の著作権はユーザーに帰属します。ただし、本サービスのシステム・デザイン・ブランドに関する知的財産権はFORMAに帰属します。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">5. クレジットと支払い</h2>
-              <p>購入されたクレジットは有効期限なしで利用できます。返金は原則として対応しておりませんが、システム障害等による未消費クレジットについては個別に対応いたします。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">6. 免責事項</h2>
-              <p>本サービスは現状有姿で提供されます。生成結果の品質について保証はいたしません。AIの特性上、期待通りの結果が得られない場合があります。</p>
-            </section>
-            <section>
-              <h2 className="text-lg font-medium text-ink mb-3">7. 規約の変更</h2>
-              <p>本規約は予告なく変更される場合があります。変更後の規約はサービス上に掲示した時点で効力を生じます。</p>
-            </section>
+            {sections.map((s, i) => (
+              <section key={i}>
+                <h2 className="text-lg font-medium text-ink mb-3">{i + 1}. {s.title}</h2>
+                <p className="whitespace-pre-line">{s.body}</p>
+              </section>
+            ))}
           </div>
         </div>
       </main>
@@ -49,3 +30,150 @@ export default async function TermsPage() {
     </div>
   );
 }
+
+function getTermsSections(locale: string): { title: string; body: string }[] {
+  if (locale === 'zh') return zhSections;
+  if (locale === 'en') return enSections;
+  return jaSections;
+}
+
+const jaSections = [
+  {
+    title: 'サービスの概要',
+    body: 'FORMA（以下「本サービス」）は、AIを利用してユーザーがアップロードした写真をさまざまなアートスタイルに変換するサービスです。本サービスを利用することにより、以下の利用規約および免責事項のすべてに同意したものとみなします。同意いただけない場合は、本サービスの利用をお控えください。',
+  },
+  {
+    title: 'AI生成コンテンツに関する免責事項',
+    body: '本サービスが生成する画像はAIが自動的に生成するものであり、以下の点についてご了承ください。\n\n・生成結果の品質・正確性・特定の人物への類似性について一切保証いたしません。\n・AIの特性上、期待通りの結果が得られない場合があります。\n・生成された画像は芸術的な変換であり、現実を正確に反映するものではありません。\n・生成コンテンツは医療診断・法的証拠・身元確認等の用途には使用できません。\n・AIモデルの更新により、同一の入力でも生成結果が変わる場合があります。',
+  },
+  {
+    title: '利用資格および年齢制限',
+    body: '本サービスは18歳以上の方のみ利用できます。未成年者が利用する場合は、保護者の同意および監督が必要です。本サービスを利用することで、上記の年齢要件を満たしていることを表明するものとします。',
+  },
+  {
+    title: '禁止事項',
+    body: '以下の行為を厳禁します。違反した場合、アカウントの停止・法的措置を講じる場合があります。\n\n・本人の同意なく他者の写真をアップロードし、虚偽の画像（ディープフェイク・なりすまし等）を生成する行為\n・著作権・肖像権・プライバシー権など他者の権利を侵害するコンテンツの生成\n・性的・暴力的・差別的・違法なコンテンツの生成または流通\n・詐欺・フィッシング・偽情報の拡散を目的とした画像の生成\n・本サービスのシステムへの不正アクセス・逆コンパイル・改ざん\n・スパム行為または大量自動リクエスト\n・未成年者が識別できる個人を含む性的コンテンツの生成',
+  },
+  {
+    title: 'プライバシーと写真データの取り扱い',
+    body: 'アップロードされた写真はAI変換処理にのみ使用され、第三者への販売・提供は行いません。写真データは処理完了後に自動削除されます。ただし、ユーザーが公開設定を有効にした生成画像はコミュニティギャラリーに表示される場合があります。\n\n他者の写真をアップロードする場合は、当該人物の明示的な同意を得る責任はユーザー自身にあります。同意なく他者の写真をアップロードすることは本規約の違反となります。',
+  },
+  {
+    title: '知的財産権',
+    body: 'ユーザーが生成した画像の著作権はユーザーに帰属します。ただし、本サービスのシステム・デザイン・AIモデル・ブランドに関するすべての知的財産権はFORMAまたはそのライセンサーに帰属します。\n\n本サービスで使用するAIモデルは第三者（Google、fal.ai等）が開発・提供するものであり、各プロバイダーの利用規約も適用されます。',
+  },
+  {
+    title: 'クレジットと支払い',
+    body: '購入されたクレジットは有効期限なしで利用できます。返金は原則として対応しておりませんが、システム障害等による未消費クレジットについては個別に対応いたします。クレジットは譲渡・換金することはできません。料金は予告なく変更される場合があります。',
+  },
+  {
+    title: '責任の制限',
+    body: '本サービスは「現状有姿」で提供されます。法律で認められる最大限の範囲において、FORMA、その役員、従業員、パートナーはいかなる間接的・付随的・特別・懲罰的・結果的損害についても責任を負いません。\n\nFORMAの総責任は、いかなる場合も、問題となる事象発生前の12ヶ月以内にユーザーが実際に支払った金額を超えません。',
+  },
+  {
+    title: 'コンテンツのモデレーション',
+    body: '本サービスは生成コンテンツを自動・手動でモニタリングする場合があります。禁止コンテンツを含む生成リクエストは拒否され、繰り返し違反した場合はアカウントを停止します。当社はユーザーに事前通知することなくコンテンツを削除する権利を留保します。',
+  },
+  {
+    title: '免責事項の包括的適用',
+    body: '生成されたすべての画像はAIによる創作物であり、特定の個人・団体・商品・場所を正確に描写・推薦・認定するものではありません。生成画像の第三者への誤解を招く使用はユーザー自身の責任となります。\n\nユーザーは、本サービスを通じて作成・共有するすべてのコンテンツについて単独で責任を負い、いかなる第三者からの請求・損害・費用についてもFORMAを免責・補償することに同意します。',
+  },
+  {
+    title: '規約の変更と準拠法',
+    body: '本規約は予告なく変更される場合があります。変更後の規約はサービス上に掲示した時点で効力を生じます。重要な変更がある場合は、登録済みのメールアドレスに通知する場合があります。本規約は日本法に準拠するものとします。',
+  },
+];
+
+const enSections = [
+  {
+    title: 'About the Service',
+    body: 'FORMA ("the Service") uses AI to transform photos uploaded by users into various artistic styles. By using this Service, you agree to all of the following terms and conditions. If you do not agree, please discontinue use of the Service.',
+  },
+  {
+    title: 'AI-Generated Content Disclaimer',
+    body: 'Images generated by this Service are produced automatically by AI. Please be aware of the following:\n\n• We make no guarantees regarding the quality, accuracy, or resemblance to any specific individual of generated results.\n• Due to the nature of AI, results may not meet expectations.\n• Generated images are artistic transformations and do not accurately represent reality.\n• Generated content must not be used for medical diagnosis, legal evidence, identity verification, or similar purposes.\n• AI model updates may cause output to vary even for identical inputs.',
+  },
+  {
+    title: 'Eligibility and Age Restriction',
+    body: 'This Service is available only to users aged 18 and older. Minors may use the Service only with parental consent and supervision. By using this Service, you represent that you meet the age requirement above.',
+  },
+  {
+    title: 'Prohibited Uses',
+    body: 'The following actions are strictly prohibited. Violations may result in account suspension and/or legal action:\n\n• Uploading photos of others without their consent to generate false or deceptive images (deepfakes, impersonation, etc.)\n• Generating content that infringes copyrights, portrait rights, privacy rights, or other third-party rights\n• Generating or distributing sexual, violent, discriminatory, or illegal content\n• Creating images for the purpose of fraud, phishing, or spreading misinformation\n• Unauthorized access, reverse engineering, or tampering with the Service\'s systems\n• Spam or automated bulk requests\n• Generating sexual content involving identifiable minors',
+  },
+  {
+    title: 'Privacy and Photo Handling',
+    body: 'Uploaded photos are used solely for AI transformation processing and are not sold or provided to third parties. Photo data is automatically deleted after processing. However, generated images with public sharing enabled may appear in the community gallery.\n\nWhen uploading photos of others, it is the user\'s sole responsibility to obtain explicit consent from those individuals. Uploading photos of others without consent constitutes a violation of these Terms.',
+  },
+  {
+    title: 'Intellectual Property',
+    body: 'Copyright in images generated by users belongs to the user. However, all intellectual property rights related to the Service\'s system, design, AI models, and brand belong to FORMA or its licensors.\n\nAI models used in the Service are developed and provided by third parties (Google, fal.ai, etc.), and each provider\'s terms of service also apply.',
+  },
+  {
+    title: 'Credits and Payment',
+    body: 'Purchased credits do not expire. Refunds are generally not available; however, unconsumed credits affected by system failures will be handled on a case-by-case basis. Credits cannot be transferred or redeemed for cash. Pricing may change without prior notice.',
+  },
+  {
+    title: 'Limitation of Liability',
+    body: 'The Service is provided "as is." To the fullest extent permitted by law, FORMA, its officers, employees, and partners shall not be liable for any indirect, incidental, special, punitive, or consequential damages.\n\nIn any event, FORMA\'s total liability shall not exceed the amount actually paid by the user in the 12 months preceding the incident giving rise to the claim.',
+  },
+  {
+    title: 'Content Moderation',
+    body: 'The Service may monitor generated content both automatically and manually. Generation requests containing prohibited content will be rejected, and accounts with repeated violations will be suspended. FORMA reserves the right to remove content without prior notice to the user.',
+  },
+  {
+    title: 'General Disclaimer',
+    body: 'All generated images are AI-created works and do not accurately depict, endorse, or certify any specific individual, organization, product, or place. Users are solely responsible for any misleading use of generated images shared with third parties.\n\nUsers agree to be solely responsible for all content created or shared through this Service, and to indemnify and hold FORMA harmless from any claims, damages, or expenses from any third party.',
+  },
+  {
+    title: 'Changes to Terms and Governing Law',
+    body: 'These Terms may be changed without prior notice. Updated terms take effect as soon as they are posted to the Service. For significant changes, we may notify you at your registered email address. These Terms are governed by the laws of Japan.',
+  },
+];
+
+const zhSections = [
+  {
+    title: '服务简介',
+    body: 'FORMA（以下简称"本服务"）使用AI技术将用户上传的照片转换为各种艺术风格。使用本服务即表示您同意以下所有条款及免责声明。如您不同意，请停止使用本服务。',
+  },
+  {
+    title: 'AI生成内容免责声明',
+    body: '本服务生成的图像由AI自动创建，请注意以下事项：\n\n・我们不对生成结果的质量、准确性或与特定人物的相似度作任何保证。\n・由于AI的特性，生成结果可能无法满足预期。\n・生成图像是艺术化转换，不能准确反映现实。\n・生成内容不得用于医疗诊断、法律证据、身份验证等用途。\n・AI模型更新后，相同输入的生成结果可能发生变化。',
+  },
+  {
+    title: '使用资格及年龄限制',
+    body: '本服务仅面向18岁及以上用户开放。未成年人须在监护人同意并监督下使用。使用本服务即表示您声明自己满足上述年龄要求。',
+  },
+  {
+    title: '禁止行为',
+    body: '严格禁止以下行为，违规者可能面临账号封禁及法律追责：\n\n・未经他人同意上传其照片，生成虚假或误导性图像（深度伪造、冒充身份等）\n・生成侵犯版权、肖像权、隐私权或其他第三方权利的内容\n・生成或传播色情、暴力、歧视性或违法内容\n・以欺诈、网络钓鱼或散布虚假信息为目的生成图像\n・未经授权访问、反向工程或篡改本服务系统\n・发送垃圾邮件或自动化批量请求\n・生成包含可识别未成年人的色情内容',
+  },
+  {
+    title: '隐私与照片数据处理',
+    body: '上传的照片仅用于AI转换处理，不会出售或提供给第三方。照片数据在处理完成后自动删除。但已开启公开分享的生成图像可能显示在社区画廊中。\n\n上传他人照片时，获取相关人员明确同意的责任完全由用户承担。未经同意上传他人照片属于违反本条款的行为。',
+  },
+  {
+    title: '知识产权',
+    body: '用户生成图像的版权归属于用户。但本服务的系统、设计、AI模型及品牌相关的所有知识产权归FORMA或其许可方所有。\n\n本服务所使用的AI模型由第三方（Google、fal.ai等）开发提供，各服务商的使用条款同样适用。',
+  },
+  {
+    title: '积分与付款',
+    body: '购买的积分永久有效，不设过期日。原则上不提供退款；但因系统故障导致的未消费积分将个别处理。积分不可转让或兑换现金。定价可能在不提前通知的情况下变更。',
+  },
+  {
+    title: '责任限制',
+    body: '本服务按"现状"提供。在法律允许的最大范围内，FORMA及其管理人员、员工、合作伙伴对任何间接、附带、特殊、惩罚性或后果性损害不承担责任。\n\nFORMA的总赔偿责任在任何情况下均不超过事件发生前12个月内用户实际支付的金额。',
+  },
+  {
+    title: '内容审核',
+    body: '本服务可能对生成内容进行自动或人工监控。包含违禁内容的生成请求将被拒绝，多次违规者账号将被封禁。FORMA保留在不事先通知用户的情况下删除内容的权利。',
+  },
+  {
+    title: '综合免责声明',
+    body: '所有生成图像均为AI创作，不代表、认可或证明任何特定个人、组织、产品或地点。用户须对向第三方分享生成图像所产生的任何误解独自承担责任。\n\n用户同意对通过本服务创建或共享的所有内容承担全部责任，并同意就任何第三方的索赔、损失或费用向FORMA进行赔偿和免责。',
+  },
+  {
+    title: '条款变更与适用法律',
+    body: '本条款可能在不提前通知的情况下变更。更新后的条款自发布至服务平台时立即生效。如有重大变更，我们可能会向您的注册邮箱发送通知。本条款受日本法律管辖。',
+  },
+];

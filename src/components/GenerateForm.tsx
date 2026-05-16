@@ -141,6 +141,11 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
 
   function handleCropChange(ratio: CropAspect) {
     setCropAspect(ratio);
+    // Auto-select a matching output size when a fixed ratio is chosen
+    if (ratio !== 'original' && ratio !== 'free') {
+      const match = OUTPUT_SIZES.find((s) => s.ratio === ratio);
+      if (match) setOutputSize(match.id);
+    }
   }
 
   function handleSizeSelect(sizeId: string) {
@@ -1068,7 +1073,10 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                 {t('sizeLabel')}
               </p>
               <div className="grid grid-cols-2 gap-1.5">
-                {OUTPUT_SIZES.map((sz) => {
+                {(cropAspect === 'original' || cropAspect === 'free'
+                  ? OUTPUT_SIZES
+                  : OUTPUT_SIZES.filter((s) => s.ratio === cropAspect)
+                ).map((sz) => {
                   const active = outputSize === sz.id;
                   return (
                     <motion.button

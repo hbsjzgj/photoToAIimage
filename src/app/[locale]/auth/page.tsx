@@ -23,6 +23,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   function update(k: string, v: string) { setForm((f) => ({ ...f, [k]: v })); setError(''); }
 
@@ -154,7 +155,28 @@ export default function AuthPage() {
                   <Field label={t('signup.name')} type="text" value={form.name} onChange={(v) => update('name', v)} />
                   <Field label={t('signup.email')} type="email" value={form.email} onChange={(v) => update('email', v)} />
                   <Field label={t('signup.password')} type="password" value={form.password} onChange={(v) => update('password', v)} minLength={8} />
-                  <SubmitBtn loading={loading} label={t('signup.submit')} />
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={termsAgreed}
+                      onChange={(e) => setTermsAgreed(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded accent-gold flex-shrink-0"
+                    />
+                    <span className="text-xs text-ink-muted leading-relaxed">
+                      {t('signup.termsConsentPrefix')}
+                      <a
+                        href={`/${locale}/terms`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gold hover:text-gold-light underline underline-offset-2 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {t('signup.termsLinkText')}
+                      </a>
+                      {t('signup.termsConsentSuffix')}
+                    </span>
+                  </label>
+                  <SubmitBtn loading={loading} label={t('signup.submit')} disabled={!termsAgreed} />
                   <p className="text-center text-xs text-ink-muted">
                     {t('signup.hasAccount')}{' '}
                     <button type="button" onClick={() => setTab('signin')} className="text-gold hover:text-gold-light transition-colors">
@@ -191,11 +213,11 @@ function Field({ label, type, value, onChange, minLength }: {
   );
 }
 
-function SubmitBtn({ loading, label }: { loading: boolean; label: string }) {
+function SubmitBtn({ loading, label, disabled }: { loading: boolean; label: string; disabled?: boolean }) {
   return (
     <motion.button
       type="submit"
-      disabled={loading}
+      disabled={loading || !!disabled}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       className="btn-gold w-full py-3.5 mt-2"

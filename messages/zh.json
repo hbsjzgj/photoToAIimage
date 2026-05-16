@@ -371,7 +371,10 @@
       "submit": "创建账号",
       "hasAccount": "已有账号？",
       "signinLink": "登录",
-      "success": "注册成功，请登录。"
+      "success": "注册成功，请登录。",
+      "termsConsentPrefix": "我已阅读并同意",
+      "termsLinkText": "服务条款",
+      "termsConsentSuffix": ""
     },
     "errors": {
       "emailExists": "该邮箱已被注册",

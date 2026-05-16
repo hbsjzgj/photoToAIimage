@@ -371,7 +371,10 @@
       "submit": "登録する",
       "hasAccount": "すでにアカウントをお持ちの方は",
       "signinLink": "ログイン",
-      "success": "登録が完了しました。ログインしてください。"
+      "success": "登録が完了しました。ログインしてください。",
+      "termsConsentPrefix": "",
+      "termsLinkText": "利用規約",
+      "termsConsentSuffix": "を読み、同意します"
     },
     "errors": {
       "emailExists": "このメールアドレスはすでに登録されています",
