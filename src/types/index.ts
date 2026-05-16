@@ -138,6 +138,7 @@ export interface GenerateRequest {
   mode: GenerationMode;
   count: 1 | 4;
   outputSize?: string;
+  styleStrength?: number; // 1–10
 }
 
 export interface GenerateResult {

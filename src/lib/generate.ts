@@ -24,6 +24,7 @@ export async function generateAvatar(
   customPrompt?: string,
   mode: 'free' | 'paid' = 'paid',
   functionMode?: string,
+  styleStrength?: number,
 ): Promise<ProviderResult> {
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
     await new Promise((r) => setTimeout(r, 1500));
@@ -62,5 +63,5 @@ export async function generateAvatar(
   }
 
   // Default: provider chain (Gemini → Fal → Mock), passes imageBase64 for img2img
-  return generateWithFallback({ style, prompt: customPrompt || '', count, outputSize, imageBase64, mode, functionMode });
+  return generateWithFallback({ style, prompt: customPrompt || '', count, outputSize, imageBase64, mode, functionMode, styleStrength });
 }

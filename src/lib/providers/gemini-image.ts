@@ -77,11 +77,19 @@ export class GeminiImageProvider implements AIProvider {
       ? params.imageBase64.split(',')[1]
       : params.imageBase64;
 
-    const prompt = getGeminiPrompt({
+    const basePrompt = getGeminiPrompt({
       functionMode: params.functionMode,
       styleId: params.style,
       customPrompt: params.prompt || undefined,
     });
+
+    const strengthLevel = params.styleStrength ?? 5;
+    const strengthPrefix = strengthLevel <= 3
+      ? 'Apply only a very subtle, light style transformation. Preserve the original person\'s face and features as closely as possible. '
+      : strengthLevel >= 8
+      ? 'Apply a dramatic, bold, full style transformation. Fully reimagine the image in the target artistic style. '
+      : '';
+    const prompt = strengthPrefix + basePrompt;
 
     console.log(`[GEMINI] start — model=${MODEL_ID} functionMode=${params.functionMode ?? 'none'} style=${params.style} count=${params.count}`);
 

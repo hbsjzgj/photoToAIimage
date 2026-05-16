@@ -52,6 +52,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const tWork = useTranslations('work');
   const tPresets = useTranslations('presets');
   const tQuality = useTranslations('quality');
+  const tStrength = useTranslations('strength');
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [mode, setMode] = useState<GenerationMode>('free');
   const [count, setCount] = useState<1 | 4>(1);
   const [outputSize, setOutputSize] = useState('1024x1024');
+  const [styleStrength, setStyleStrength] = useState(5);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [errorCode, setErrorCode] = useState('');
@@ -268,7 +270,7 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, style, mode, count, outputSize, customPrompt: customPrompt.trim() || undefined }),
+        body: JSON.stringify({ imageBase64, style, mode, count, outputSize, customPrompt: customPrompt.trim() || undefined, styleStrength }),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
@@ -909,6 +911,35 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                 mode={session?.user ? 'paid' : 'free'}
                 gridClassName="grid grid-cols-3 sm:grid-cols-4 gap-3"
               />
+
+              {/* Style strength slider */}
+              {style && (
+                <div className="px-4 py-3 border-t border-[rgba(255,255,255,0.06)]">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs text-ink-muted">{tStrength('label')}</label>
+                    <span className="text-xs text-ink-muted">
+                      {styleStrength <= 3
+                        ? tStrength('weak')
+                        : styleStrength >= 8
+                        ? tStrength('strong')
+                        : tStrength('medium')}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={styleStrength}
+                    onChange={(e) => setStyleStrength(Number(e.target.value))}
+                    className="w-full accent-[var(--color-gold)]"
+                  />
+                  <div className="flex justify-between text-[10px] text-ink-muted mt-0.5">
+                    <span>{tStrength('weak')}</span>
+                    <span>{tStrength('strong')}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Selected style description */}
               <AnimatePresence>

@@ -67,6 +67,10 @@ export async function POST(req: NextRequest) {
     const body: GenerateRequest & { customPrompt?: string; functionMode?: string } = await req.json();
     const { imageBase64, style, count, outputSize } = body;
 
+    const styleStrength = typeof body.styleStrength === 'number'
+      ? Math.max(1, Math.min(10, Math.round(body.styleStrength)))
+      : 5;
+
     // Functional mode: avatar / anime / pet / fashion / business / background / outfit / hair / enhance
     const FUNCTIONAL_MODES = new Set(['avatar', 'anime', 'pet', 'fashion', 'business', 'background', 'outfit', 'hair', 'enhance']);
     const functionMode: string | undefined = FUNCTIONAL_MODES.has(body.mode as string)
@@ -120,7 +124,7 @@ export async function POST(req: NextRequest) {
 
       currentStage = 'generate';
       log('calling generateAvatar...');
-      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt, 'free', functionMode);
+      const genResult = await generateAvatar(imageBase64, style, 1, FREE_OUTPUT_SIZE, customPrompt, 'free', functionMode, styleStrength);
       const { urls, provider: providerUsed, isTextToImage } = genResult;
       log(`generation SUCCESS — provider=${providerUsed} urls=[${urls.join(', ')}]`);
 
@@ -234,7 +238,7 @@ export async function POST(req: NextRequest) {
 
     currentStage = 'generate';
     log('calling generateAvatar (paid)...');
-    const result = await generateAvatar(imageBase64, style, count, size, customPrompt, 'paid', functionMode);
+    const result = await generateAvatar(imageBase64, style, count, size, customPrompt, 'paid', functionMode, styleStrength);
     const { urls, provider: providerUsed, isTextToImage } = result;
     log(`generation SUCCESS — provider=${providerUsed} urlCount=${urls.length}`);
 

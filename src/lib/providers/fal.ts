@@ -138,7 +138,11 @@ export class FalProvider implements AIProvider {
     const { num_inference_steps, guidance_scale } = MODEL_PARAMS[tier];
     // Per-style strength overrides tier default — dramatic styles need 0.82–0.90,
     // realistic styles need 0.65–0.78 to preserve photo quality
-    const strength = STYLE_STRENGTH[params.style] ?? MODEL_PARAMS[tier].strength;
+    const baseStrength = STYLE_STRENGTH[params.style] ?? MODEL_PARAMS[tier].strength;
+    const userStrength = params.styleStrength ?? 5;
+    // Map 1–10 to multiplier: 1→0.55, 5→1.0, 10→1.5, clamped to [0.25, 0.97]
+    const multiplier = 0.55 + (userStrength - 1) * (0.45 / 9);
+    const strength = Math.max(0.25, Math.min(0.97, baseStrength * multiplier));
 
     const payload = {
       image_url: imageUrl,

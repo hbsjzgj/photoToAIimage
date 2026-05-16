@@ -6,6 +6,7 @@ export interface GenerateParams {
   imageBase64?: string;
   mode?: 'free' | 'paid';
   functionMode?: string;
+  styleStrength?: number; // 1–10, default 5 = current behavior
 }
 
 /** Thrown by providers for errors that must not be retried with the next provider. */
