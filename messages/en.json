@@ -479,7 +479,8 @@
     "removeFile": "Remove",
     "clearAll": "Clear All",
     "tooMany": "Maximum 20 files allowed",
-    "noFiles": "Please select at least one photo"
+    "noFiles": "Please select at least one photo",
+    "retryFailed": "Retry {n} failed"
   },
   "quality": {
     "feedbackPrompt": "How was this result?",

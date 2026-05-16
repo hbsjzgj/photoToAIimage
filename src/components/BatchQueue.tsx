@@ -2,6 +2,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { useSession } from 'next-auth/react';
 import type { StyleId } from '@/types';
 import { ALL_STYLES, FREE_STYLES } from '@/types';
 import { STYLE_IMAGE_URLS, STYLE_FALLBACK_URLS } from '@/lib/styleImages';
@@ -139,6 +140,7 @@ interface QueueItem {
   preview: string;
   status: 'waiting' | 'processing' | 'done' | 'failed';
   resultUrl?: string;
+  error?: string;
 }
 
 const OUTPUT_SIZES = [
@@ -159,6 +161,13 @@ function fileToBase64(file: File): Promise<string> {
 
 export function BatchQueue() {
   const t = useTranslations('batch');
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
+
+  // Use paid mode for logged-in users; free mode for anonymous
+  const mode = isLoggedIn ? 'paid' : 'free';
+  const availableStyles = isLoggedIn ? ALL_STYLES : FREE_STYLES;
+
   const [items, setItems] = useState<QueueItem[]>([]);
   const [style, setStyle] = useState<StyleId>('anime_basic');
   const [outputSize, setOutputSize] = useState('1024x1024');
@@ -193,23 +202,23 @@ export function BatchQueue() {
 
     for (const item of waiting) {
       if (stopRef.current) break;
-      setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'processing' } : x));
+      setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'processing', error: undefined } : x));
       try {
         const imageBase64 = await fileToBase64(item.file);
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64, style, count: 1, outputSize, mode: 'free' }),
+          body: JSON.stringify({ imageBase64, style, count: 1, outputSize, mode }),
         });
         const data = await res.json();
         const url = data.variants?.[0]?.imageUrl ?? data.results?.[0];
-        if (url) {
+        if (res.ok && url) {
           setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'done', resultUrl: url } : x));
         } else {
-          setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'failed' } : x));
+          setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'failed', error: data.error ?? 'error' } : x));
         }
       } catch {
-        setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'failed' } : x));
+        setItems((prev) => prev.map((x) => x.id === item.id ? { ...x, status: 'failed', error: 'networkError' } : x));
       }
       setDoneCount((n) => n + 1);
     }
@@ -231,7 +240,9 @@ export function BatchQueue() {
   };
 
   const doneItems = items.filter((x) => x.status === 'done');
-  const allDone = !running && items.length > 0 && items.every((x) => x.status === 'done' || x.status === 'failed');
+  const failedItems = items.filter((x) => x.status === 'failed');
+  const retryable = !running && items.some((x) => x.status === 'waiting' || x.status === 'failed');
+  const allSettled = !running && items.length > 0 && items.every((x) => x.status === 'done' || x.status === 'failed');
 
   return (
     <div className="space-y-6">
@@ -256,9 +267,14 @@ export function BatchQueue() {
 
       {/* Style picker */}
       <div>
-        <label className="block text-xs text-ink-muted mb-2">{t('selectStyle')}</label>
+        <label className="block text-xs text-ink-muted mb-2">
+          {t('selectStyle')}
+          {!isLoggedIn && (
+            <span className="ml-2 text-emerald-400">(FREE モード — 4スタイル)</span>
+          )}
+        </label>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-[300px] overflow-y-auto pr-0.5">
-          {ALL_STYLES.map((s) => (
+          {availableStyles.map((s) => (
             <BatchStyleCard
               key={s}
               styleId={s}
@@ -304,8 +320,18 @@ export function BatchQueue() {
                 </div>
               )}
               {item.status === 'failed' && (
-                <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
-                  <span className="text-white text-xs">&#10007;</span>
+                <div className="absolute inset-0 bg-red-900/60 flex flex-col items-center justify-center gap-0.5"
+                     title={item.error ?? 'error'}>
+                  <span className="text-white text-sm">&#10007;</span>
+                  {item.error && (
+                    <span className="text-red-200 text-[9px] leading-tight text-center px-1 truncate w-full text-center">
+                      {item.error === 'limitReached' ? '上限' :
+                       item.error === 'styleForbidden' ? 'ログイン必要' :
+                       item.error === 'notLoggedIn' ? 'ログイン必要' :
+                       item.error === 'rateLimited' ? '制限中' :
+                       item.error === 'networkError' ? '通信エラー' : item.error}
+                    </span>
+                  )}
                 </div>
               )}
               {item.status === 'done' && (
@@ -328,25 +354,36 @@ export function BatchQueue() {
 
       {/* Actions */}
       <div className="flex gap-3 flex-wrap">
-        {!running && !allDone && items.length > 0 && (
+        {retryable && (
           <button onClick={startBatch} className="btn-gold flex-1">
-            {t('startButton')}
+            {failedItems.length > 0 && doneItems.length === 0
+              ? t('retryFailed', { n: failedItems.length })
+              : failedItems.length > 0
+              ? t('retryFailed', { n: failedItems.length })
+              : t('startButton')}
           </button>
         )}
         {running && (
           <div className="flex-1 text-center text-ink-muted text-sm pt-2">
-            {t('processing', { done: doneCount, total: items.length })}
+            {t('processing', { done: doneCount, total: items.filter(x => x.status !== 'waiting').length })}
           </div>
         )}
-        {allDone && doneItems.length > 0 && (
+        {allSettled && doneItems.length > 0 && (
           <>
             <div className="flex-1 text-center text-green-400 text-sm pt-2">
-              {t('done', { total: doneItems.length })}
+              {failedItems.length > 0
+                ? `✓ ${doneItems.length} 件完了 · ✗ ${failedItems.length} 件失敗`
+                : t('done', { total: doneItems.length })}
             </div>
             <button onClick={downloadAll} className="btn-gold">
               {t('downloadAll')}
             </button>
           </>
+        )}
+        {allSettled && doneItems.length === 0 && failedItems.length > 0 && (
+          <div className="flex-1 text-center text-red-400 text-sm pt-2">
+            {`✗ ${failedItems.length} 件すべて失敗 — 上のボタンで再試行`}
+          </div>
         )}
         {items.length > 0 && !running && (
           <button onClick={() => setItems([])} className="btn-ghost text-sm">

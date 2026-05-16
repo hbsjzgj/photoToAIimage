@@ -479,7 +479,8 @@
     "removeFile": "削除",
     "clearAll": "すべてクリア",
     "tooMany": "最大20ファイルまで",
-    "noFiles": "写真を1枚以上選択してください"
+    "noFiles": "写真を1枚以上選択してください",
+    "retryFailed": "失敗した{n}枚を再試行"
   },
   "quality": {
     "feedbackPrompt": "この結果はいかがでしたか？",

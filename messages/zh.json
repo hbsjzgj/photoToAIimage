@@ -479,7 +479,8 @@
     "removeFile": "移除",
     "clearAll": "清空全部",
     "tooMany": "最多20个文件",
-    "noFiles": "请至少选择一张照片"
+    "noFiles": "请至少选择一张照片",
+    "retryFailed": "重试失败的 {n} 张"
   },
   "quality": {
     "feedbackPrompt": "这次效果怎么样？",
