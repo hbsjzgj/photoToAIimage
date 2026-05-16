@@ -51,14 +51,14 @@ export default function PricingCards() {
           <p className="text-ink-muted text-sm">{t('credits.subtitle')}</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-3 gap-5 pt-4">
           {PACKAGES.map(({ id, featured, credits, price }, i) => (
             <motion.div
               key={id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative rounded-3xl border overflow-hidden flex flex-col
+              className={`relative rounded-3xl border flex flex-col
                           ${featured
                             ? 'border-gold/30 bg-[rgba(200,169,107,0.05)]'
                             : 'border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.04)]'
