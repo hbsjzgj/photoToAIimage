@@ -17,7 +17,22 @@ npx prisma migrate dev --name <name>  # Create + apply named migration
 npm run db:studio    # Prisma Studio GUI
 ```
 
-No test suite is configured. TypeScript check (`npx tsc --noEmit`) is the primary correctness gate.
+# Testing
+
+```bash
+npm test                  # Run all tests (Vitest)
+npm run test:watch        # Watch mode
+npm run test:coverage     # With coverage report
+```
+
+Test framework: **Vitest** with `vite-tsconfig-paths` for `@/` alias resolution.
+
+Test layout under `src/__tests__/`:
+- `unit/` — pure logic (rate-limit, prompts, provider-chain, strength-multiplier)
+- `api/` — route-level integration tests (gallery, like, presets, feedback, apikeys)
+- `combo/` — cross-endpoint lifecycle tests (generate-flow, preset-lifecycle, api-key-lifecycle)
+
+All external dependencies (Prisma, NextAuth, next-intl, AI providers) are mocked. Use `vi.hoisted()` to declare mock functions **before** `vi.mock()` factory references them — this is required because `vi.mock` is hoisted to the top of the file at compile time.
 
 ## Architecture Overview
 
