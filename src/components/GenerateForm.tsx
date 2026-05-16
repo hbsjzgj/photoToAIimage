@@ -9,6 +9,7 @@ import StyleSelector from './StyleSelector';
 import { ShareButtons } from './ShareButtons';
 import BeforeAfterSlider from './BeforeAfterSlider';
 import CropDragger from './CropDragger';
+import { PostEditToolbar } from './PostEditToolbar';
 import { analytics } from '@/lib/analytics';
 import { getPromptForStyle } from '@/lib/prompts';
 import type { StyleId, GenerationMode } from '@/types';
@@ -733,6 +734,14 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                   )}
                   {presetSaved && <p className="text-xs text-center text-green-400 mt-1">{tPresets('saved')}</p>}
                 </div>
+              )}
+
+              {/* Post-generation editing toolbar */}
+              {result?.variants?.[selectedVariantIdx]?.imageUrl && (
+                <PostEditToolbar
+                  imageUrl={result.variants[selectedVariantIdx].imageUrl}
+                  filename={`forma_${style ?? 'result'}_${Date.now()}.jpg`}
+                />
               )}
 
               {/* AI engine attribution */}
