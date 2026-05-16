@@ -481,6 +481,42 @@
     "tooMany": "Maximum 20 files allowed",
     "noFiles": "Please select at least one photo"
   },
+  "quality": {
+    "feedbackPrompt": "How was this result?",
+    "good": "Great",
+    "bad": "Not quite",
+    "reasons": {
+      "tooMuchChange": "Face changed too much",
+      "tooSubtle": "Style too subtle",
+      "lowQuality": "Image quality too low",
+      "other": "Other"
+    },
+    "thanks": "Thanks for your feedback!"
+  },
+  "strength": {
+    "label": "Style Strength",
+    "weak": "Subtle",
+    "medium": "Balanced",
+    "strong": "Dramatic",
+    "hint": "Adjust how strongly the style is applied"
+  },
+  "edit": {
+    "title": "Quick Edit",
+    "brightness": "Brightness",
+    "contrast": "Contrast",
+    "saturation": "Saturation",
+    "filters": "Filters",
+    "natural": "Natural",
+    "vivid": "Vivid",
+    "matte": "Matte",
+    "cool": "Cool",
+    "reset": "Reset",
+    "download": "Download"
+  },
+  "faceWarning": {
+    "noFace": "No face detected in this photo. Results may vary.",
+    "blurry": "Photo may be blurry. Clear photos give better results."
+  },
   "apiSettings": {
     "title": "API Keys",
     "subtitle": "Use the REST API to generate images programmatically",

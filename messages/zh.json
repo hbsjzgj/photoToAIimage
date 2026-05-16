@@ -481,6 +481,42 @@
     "tooMany": "最多20个文件",
     "noFiles": "请至少选择一张照片"
   },
+  "quality": {
+    "feedbackPrompt": "这次效果怎么样？",
+    "good": "很满意",
+    "bad": "不太好",
+    "reasons": {
+      "tooMuchChange": "脸部变化太大",
+      "tooSubtle": "风格太弱",
+      "lowQuality": "画质太低",
+      "other": "其他"
+    },
+    "thanks": "感谢您的反馈！"
+  },
+  "strength": {
+    "label": "风格强度",
+    "weak": "自然",
+    "medium": "平衡",
+    "strong": "戏剧",
+    "hint": "调整风格应用的强度"
+  },
+  "edit": {
+    "title": "快速编辑",
+    "brightness": "亮度",
+    "contrast": "对比度",
+    "saturation": "饱和度",
+    "filters": "滤镜",
+    "natural": "自然",
+    "vivid": "鲜艳",
+    "matte": "哑光",
+    "cool": "冷色",
+    "reset": "重置",
+    "download": "下载"
+  },
+  "faceWarning": {
+    "noFace": "未检测到人脸，效果可能有所不同。",
+    "blurry": "照片可能模糊，使用清晰照片效果更佳。"
+  },
   "apiSettings": {
     "title": "API 密钥",
     "subtitle": "通过 REST API 以编程方式生成图片",

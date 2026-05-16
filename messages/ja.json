@@ -481,6 +481,42 @@
     "tooMany": "最大20ファイルまで",
     "noFiles": "写真を1枚以上選択してください"
   },
+  "quality": {
+    "feedbackPrompt": "この結果はいかがでしたか？",
+    "good": "いい感じ",
+    "bad": "イマイチ",
+    "reasons": {
+      "tooMuchChange": "顔が変わりすぎた",
+      "tooSubtle": "スタイルが弱い",
+      "lowQuality": "画質が粗い",
+      "other": "その他"
+    },
+    "thanks": "フィードバックありがとうございます！"
+  },
+  "strength": {
+    "label": "スタイル強度",
+    "weak": "ナチュラル",
+    "medium": "バランス",
+    "strong": "ドラマチック",
+    "hint": "スタイルの適用強度を調整"
+  },
+  "edit": {
+    "title": "かんたん編集",
+    "brightness": "明るさ",
+    "contrast": "コントラスト",
+    "saturation": "鮮やかさ",
+    "filters": "フィルター",
+    "natural": "ナチュラル",
+    "vivid": "ビビッド",
+    "matte": "マット",
+    "cool": "クール",
+    "reset": "リセット",
+    "download": "保存"
+  },
+  "faceWarning": {
+    "noFace": "顔が検出されませんでした。結果が異なる場合があります。",
+    "blurry": "写真がぼやけている可能性があります。鮮明な写真を使うとより良い結果になります。"
+  },
   "apiSettings": {
     "title": "APIキー",
     "subtitle": "REST APIでプログラマティックに画像生成",
