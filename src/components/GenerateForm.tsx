@@ -50,6 +50,7 @@ type ResultData = {
 export default function GenerateForm({ initialStyle }: { initialStyle?: string }) {
   const t = useTranslations('generate');
   const tWork = useTranslations('work');
+  const tPresets = useTranslations('presets');
   const locale = useLocale();
   const { data: session } = useSession();
   const router = useRouter();
@@ -83,6 +84,11 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
   const [isPublic, setIsPublic] = useState(false);
   const [togglingPublic, setTogglingPublic] = useState(false);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const [presets, setPresets] = useState<Array<{ id: string; name: string; styleId: string; outputSize: string; count: number }>>([]);
+  const [savingPreset, setSavingPreset] = useState(false);
+  const [presetSaved, setPresetSaved] = useState(false);
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [presetName, setPresetName] = useState('');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -169,6 +175,13 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
     if (!session?.user) return;
     fetch('/api/credits').then((r) => r.json()).then(setCreditsState);
   }, [session, result]);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch('/api/presets')
+      .then((r) => r.json())
+      .then((d) => setPresets(d.presets ?? []));
+  }, [session?.user]);
 
   const didAutoSwitch = useRef(false);
   useEffect(() => {
@@ -654,6 +667,57 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                 </div>
               )}
 
+              {/* Save as Preset */}
+              {session?.user && result && (
+                <div className="mt-3">
+                  {!showSavePreset ? (
+                    <button
+                      onClick={() => setShowSavePreset(true)}
+                      className="btn-ghost text-xs py-1.5 px-3 w-full"
+                    >
+                      {tPresets('saveAs')}
+                    </button>
+                  ) : (
+                    <div className="flex gap-2 mt-1">
+                      <input
+                        className="input-field text-sm py-1.5 flex-1 min-w-0"
+                        placeholder={tPresets('namePlaceholder')}
+                        value={presetName}
+                        onChange={(e) => setPresetName(e.target.value)}
+                        maxLength={50}
+                      />
+                      <button
+                        disabled={savingPreset || !presetName.trim()}
+                        onClick={async () => {
+                          setSavingPreset(true);
+                          try {
+                            const r = await fetch('/api/presets', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name: presetName.trim(), styleId: style, outputSize, count }),
+                            });
+                            if (r.ok) {
+                              const { preset } = await r.json();
+                              setPresets((prev) => [preset, ...prev]);
+                              setPresetSaved(true);
+                              setShowSavePreset(false);
+                              setPresetName('');
+                              setTimeout(() => setPresetSaved(false), 2000);
+                            }
+                          } finally {
+                            setSavingPreset(false);
+                          }
+                        }}
+                        className="btn-gold text-xs py-1.5 px-3 shrink-0"
+                      >
+                        {savingPreset ? '…' : tPresets('saveButton')}
+                      </button>
+                    </div>
+                  )}
+                  {presetSaved && <p className="text-xs text-center text-green-400 mt-1">{tPresets('saved')}</p>}
+                </div>
+              )}
+
               {/* AI engine attribution */}
               {result?.providerUsed && result.providerUsed !== 'mock' && (
                 <motion.div
@@ -740,6 +804,28 @@ export default function GenerateForm({ initialStyle }: { initialStyle?: string }
                       '左側に写真をアップし、スタイルを選んで生成してください。',
                     )}
                   </p>
+                </div>
+              )}
+
+              {session?.user && presets.length > 0 && (
+                <div className="px-0 pt-0 pb-2">
+                  <label className="block text-xs text-ink-muted mb-1.5">{tPresets('loadPreset')}</label>
+                  <select
+                    className="w-full input-field text-sm py-1.5"
+                    defaultValue=""
+                    onChange={(e) => {
+                      const p = presets.find((x) => x.id === e.target.value);
+                      if (!p) return;
+                      setStyle(p.styleId as StyleId);
+                      setOutputSize(p.outputSize);
+                      setCount(p.count as 1 | 4);
+                    }}
+                  >
+                    <option value="" disabled>{tPresets('noPresets')}</option>
+                    {presets.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
                 </div>
               )}
 
